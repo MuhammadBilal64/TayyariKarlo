@@ -44,6 +44,49 @@ export class QuestionsService {
     return this.toPublic(question);
   }
 
+  private shuffle<T>(items: T[]): T[] {
+    const copy = [...items];
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = copy[i];
+      copy[i] = copy[j]!;
+      copy[j] = tmp!;
+    }
+    return copy;
+  }
+
+  async findRandom(topic: Topic, difficulty: Difficulty, count: number) {
+    const pool = await this.prisma.question.findMany({
+      where: { topic, difficulty },
+    });
+
+    if (pool.length < count) {
+      throw new BadRequestException(
+        `Not enough questions for ${topic} (${difficulty}). Need ${count}, found ${pool.length}.`,
+      );
+    }
+
+    return this.shuffle(pool).slice(0, count);
+  }
+
+  toPublic(question: {
+    id: string;
+    prompt: string;
+    topic: string;
+    difficulty: string;
+    options: string[];
+    explanation: string | null;
+  }): QuestionPublic {
+    return {
+      id: question.id,
+      prompt: question.prompt,
+      topic: question.topic as Topic,
+      difficulty: question.difficulty as Difficulty,
+      options: question.options,
+      explanation: question.explanation,
+    };
+  }
+
   async seed(): Promise<{ seeded: boolean; count: number }> {
     const existing = await this.prisma.question.count();
     if (existing > 0) {
@@ -74,23 +117,5 @@ export class QuestionsService {
         'correctIndex must point to an existing option',
       );
     }
-  }
-
-  private toPublic(question: {
-    id: string;
-    prompt: string;
-    topic: string;
-    difficulty: string;
-    options: string[];
-    explanation: string | null;
-  }): QuestionPublic {
-    return {
-      id: question.id,
-      prompt: question.prompt,
-      topic: question.topic as Topic,
-      difficulty: question.difficulty as Difficulty,
-      options: question.options,
-      explanation: question.explanation,
-    };
   }
 }
