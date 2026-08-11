@@ -1,3 +1,5 @@
+import { DIFFICULTIES, TOPICS } from '@tayyari/shared';
+
 export function HomePage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6">
@@ -9,7 +11,8 @@ export function HomePage() {
           Interview prep platform
         </h1>
         <p className="mt-3 text-base text-slate-400">
-          Web shell is ready. Feature modules will land in later phases.
+          Web shell is ready. Shared package loaded with {TOPICS.length} topics
+          and {DIFFICULTIES.length} difficulty levels.
         </p>
       </div>
     </main>
