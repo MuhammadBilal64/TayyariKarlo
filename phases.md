@@ -18,7 +18,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
 | 1.1 | Root pnpm workspace | Completed | Create workspace root, `pnpm-workspace.yaml`, root scripts, `apps/` + `packages/` folders | Workspace installs; folders exist | — | `pnpm install` succeeds |
-| 1.2 | Scaffold `apps/api` | Pending | NestJS baseline, global prefix `api/v1`, health route, stub domain modules | Nest boots; `GET /api/v1/health` OK | 1.1 | API starts; smoke check |
+| 1.2 | Scaffold `apps/api` | Completed | NestJS baseline, global prefix `api/v1`, health route, stub domain modules | Nest boots; `GET /api/v1/health` OK | 1.1 | API starts; smoke check |
 | 1.3 | Scaffold `apps/web` | Pending | Vite React TS Tailwind, React Router shell, stub feature folders | App renders; Tailwind works | 1.1 | `pnpm --filter web build` |
 | 1.4 | Create `packages/shared` | Pending | Shared Zod schemas/enums package consumable by api and web | Package builds; importable from both apps | 1.1 | Typecheck api + web |
 | 1.5 | Compose Postgres + Prisma | Pending | `docker-compose.yml` Postgres; Prisma init; placeholder schema + migrate | Compose up; migrate applies | 1.2 | `prisma migrate` against Compose |
