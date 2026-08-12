@@ -1,8 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import {
-  healthResponseSchema,
-  type HealthResponse,
-} from '@tayyari/shared';
+import { healthResponseSchema, type HealthResponse } from '@tayyari/shared';
 
 @Controller('health')
 export class HealthController {

@@ -22,7 +22,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 | 1.3 | Scaffold `apps/web` | Completed | Vite React TS Tailwind, React Router shell, stub feature folders | App renders; Tailwind works | 1.1 | `pnpm --filter web build` |
 | 1.4 | Create `packages/shared` | Completed | Shared Zod schemas/enums package consumable by api and web | Package builds; importable from both apps | 1.1 | Typecheck api + web |
 | 1.5 | Compose Postgres + Prisma | Completed | `docker-compose.yml` Postgres; Prisma init; placeholder schema + migrate | Compose up; migrate applies | 1.2 | `prisma migrate` against Compose |
-| 1.6 | ESLint/Prettier + `.env.example` | Pending | Root lint/format; document required env vars | `pnpm lint` runs; env example complete | 1.1–1.4 | `pnpm lint` |
+| 1.6 | ESLint/Prettier + `.env.example` | Completed | Root lint/format; document required env vars | `pnpm lint` runs; env example complete | 1.1–1.4 | `pnpm lint` |
 | 1.7 | GitHub Actions CI | Pending | CI: lint, typecheck, test, build | Workflow runs on PR | 1.6 | Same scripts locally |
 | 1.8 | README runbook | Pending | Document clone → Compose → migrate → `pnpm dev` | New contributor can run locally from README | 1.5–1.7 | Manual read-through |
 

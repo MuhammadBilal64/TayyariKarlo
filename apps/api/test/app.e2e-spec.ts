@@ -14,10 +14,10 @@ describe('AppController (e2e)', () => {
     })
       .overrideProvider(PrismaService)
       .useValue({
-        $connect: async () => undefined,
-        $disconnect: async () => undefined,
-        onModuleInit: async () => undefined,
-        onModuleDestroy: async () => undefined,
+        $connect: () => Promise.resolve(),
+        $disconnect: () => Promise.resolve(),
+        onModuleInit: () => Promise.resolve(),
+        onModuleDestroy: () => Promise.resolve(),
       })
       .compile();
 

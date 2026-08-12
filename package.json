@@ -9,7 +9,12 @@
     "dev": "pnpm -r --parallel --if-present run dev",
     "build": "pnpm --filter @tayyari/shared build && pnpm -r --if-present --filter '!@tayyari/shared' run build",
     "lint": "pnpm -r --if-present run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "pnpm -r --if-present run test",
     "typecheck": "pnpm -r --if-present run typecheck"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
   }
 }
