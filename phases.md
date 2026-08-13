@@ -13,7 +13,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 
 **Branch:** `phase/01-project-setup`  
 **Goal:** Monorepo skeleton, tooling, Postgres, CI. No auth product UI yet.  
-**Status:** Pending
+**Status:** Completed (pending PR merge)
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
@@ -24,7 +24,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 | 1.5 | Compose Postgres + Prisma | Completed | `docker-compose.yml` Postgres; Prisma init; placeholder schema + migrate | Compose up; migrate applies | 1.2 | `prisma migrate` against Compose |
 | 1.6 | ESLint/Prettier + `.env.example` | Completed | Root lint/format; document required env vars | `pnpm lint` runs; env example complete | 1.1–1.4 | `pnpm lint` |
 | 1.7 | GitHub Actions CI | Completed | CI: lint, typecheck, test, build | Workflow runs on PR | 1.6 | Same scripts locally |
-| 1.8 | README runbook | Pending | Document clone → Compose → migrate → `pnpm dev` | New contributor can run locally from README | 1.5–1.7 | Manual read-through |
+| 1.8 | README runbook | Completed | Document clone → Compose → migrate → `pnpm dev` | New contributor can run locally from README | 1.5–1.7 | Manual read-through |
 
 ---
 
