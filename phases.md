@@ -37,7 +37,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
 | 2.1 | Prisma auth models | Completed | `User`, `Profile`, `RefreshToken` + migration | Migration applied | Phase 1 | migrate deploy |
-| 2.2 | Nest security baseline | Pending | Helmet, CORS, ValidationPipe, exception filter, throttler | App boots with middleware | Phase 1 | Boot + smoke |
+| 2.2 | Nest security baseline | Completed | Helmet, CORS, ValidationPipe, exception filter, throttler | App boots with middleware | Phase 1 | Boot + smoke |
 | 2.3 | Register + login | Pending | bcrypt passwords; access JWT; httpOnly refresh cookie | Auth endpoints work | 2.1–2.2 | API tests |
 | 2.4 | Refresh + logout | Pending | Refresh rotation; logout revokes token | Tokens rotate/revoke correctly | 2.3 | API tests |
 | 2.5 | JWT guard + `/users/me` | Pending | Protected current-user endpoint | Unauthorized blocked; me returns profile | 2.3 | API tests |
