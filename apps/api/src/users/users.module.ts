@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
+import { UsersService } from './users.service';
 
-/** Stub — implemented in Phase 2 */
-@Module({})
+@Module({
+  providers: [UsersService],
+  exports: [UsersService],
+})
 export class UsersModule {}
