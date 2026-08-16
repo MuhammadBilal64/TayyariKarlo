@@ -3,7 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { Response } from 'express';
+import { createHash } from 'crypto';
+import * as express from 'express';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
@@ -11,8 +12,15 @@ import { AuthService } from './auth.service';
 describe('AuthService', () => {
   let service: AuthService;
   let usersService: jest.Mocked<UsersService>;
-  let prisma: { refreshToken: { create: jest.Mock } };
-  let response: { cookie: jest.Mock };
+  let prisma: {
+    refreshToken: {
+      create: jest.Mock;
+      findUnique: jest.Mock;
+      update: jest.Mock;
+      updateMany: jest.Mock;
+    };
+  };
+  let response: { cookie: jest.Mock; clearCookie: jest.Mock };
 
   const user = {
     id: 'user-1',
@@ -37,10 +45,14 @@ describe('AuthService', () => {
     prisma = {
       refreshToken: {
         create: jest.fn().mockResolvedValue({}),
+        findUnique: jest.fn(),
+        update: jest.fn().mockResolvedValue({}),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
     };
     response = {
       cookie: jest.fn(),
+      clearCookie: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -51,6 +63,7 @@ describe('AuthService', () => {
           useValue: {
             createWithProfile: jest.fn(),
             findByEmail: jest.fn(),
+            findById: jest.fn(),
             isUniqueConstraintError: jest.fn().mockReturnValue(false),
           },
         },
@@ -90,7 +103,7 @@ describe('AuthService', () => {
         password: 'password123',
         name: 'Test User',
       },
-      response as unknown as Response,
+      response as unknown as express.Response,
     );
 
     expect(result.accessToken).toBe('access-token');
@@ -117,7 +130,7 @@ describe('AuthService', () => {
           password: 'password123',
           name: 'Test User',
         },
-        response as unknown as Response,
+        response as unknown as express.Response,
       ),
     ).rejects.toBeInstanceOf(ConflictException);
   });
@@ -127,7 +140,7 @@ describe('AuthService', () => {
 
     const result = await service.login(
       { email: 'test@example.com', password: 'password123' },
-      response as unknown as Response,
+      response as unknown as express.Response,
     );
 
     expect(result.accessToken).toBe('access-token');
@@ -140,8 +153,110 @@ describe('AuthService', () => {
     await expect(
       service.login(
         { email: 'test@example.com', password: 'wrong-password' },
-        response as unknown as Response,
+        response as unknown as express.Response,
       ),
     ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('rotates refresh token on refresh', async () => {
+    const rawToken = 'raw-refresh-token';
+    prisma.refreshToken.findUnique.mockResolvedValue({
+      id: 'rt-1',
+      userId: user.id,
+      tokenHash: createHash('sha256').update(rawToken).digest('hex'),
+      expiresAt: new Date(Date.now() + 60_000),
+      revokedAt: null,
+    });
+    usersService.findById.mockResolvedValue(user);
+
+    const result = await service.refresh(
+      { cookies: { refreshToken: rawToken } } as unknown as express.Request,
+      response as unknown as express.Response,
+    );
+
+    expect(result.accessToken).toBe('access-token');
+    expect(prisma.refreshToken.update).toHaveBeenCalled();
+    const rotateCalls = prisma.refreshToken.update.mock.calls as Array<
+      [{ where: { id: string }; data: { revokedAt: Date } }]
+    >;
+    const rotateCall = rotateCalls[0][0];
+    expect(rotateCall.where).toEqual({ id: 'rt-1' });
+    expect(rotateCall.data.revokedAt).toBeInstanceOf(Date);
+    expect(prisma.refreshToken.create).toHaveBeenCalled();
+    expect(response.cookie).toHaveBeenCalled();
+  });
+
+  it('rejects missing refresh cookie', async () => {
+    await expect(
+      service.refresh(
+        { cookies: {} } as unknown as express.Request,
+        response as unknown as express.Response,
+      ),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('revokes family on reused refresh token', async () => {
+    const rawToken = 'reused-token';
+    prisma.refreshToken.findUnique.mockResolvedValue({
+      id: 'rt-1',
+      userId: user.id,
+      tokenHash: createHash('sha256').update(rawToken).digest('hex'),
+      expiresAt: new Date(Date.now() + 60_000),
+      revokedAt: new Date(),
+    });
+
+    await expect(
+      service.refresh(
+        { cookies: { refreshToken: rawToken } } as unknown as express.Request,
+        response as unknown as express.Response,
+      ),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+
+    expect(prisma.refreshToken.updateMany).toHaveBeenCalled();
+    const reuseCalls = prisma.refreshToken.updateMany.mock.calls as Array<
+      [
+        {
+          where: { userId: string; revokedAt: null };
+          data: { revokedAt: Date };
+        },
+      ]
+    >;
+    const reuseCall = reuseCalls[0][0];
+    expect(reuseCall.where).toEqual({ userId: user.id, revokedAt: null });
+    expect(reuseCall.data.revokedAt).toBeInstanceOf(Date);
+    expect(response.clearCookie).toHaveBeenCalledWith(
+      'refreshToken',
+      expect.objectContaining({ path: '/api/v1/auth' }),
+    );
+  });
+
+  it('revokes refresh token and clears cookie on logout', async () => {
+    const rawToken = 'logout-token';
+
+    const result = await service.logout(
+      { cookies: { refreshToken: rawToken } } as unknown as express.Request,
+      response as unknown as express.Response,
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(prisma.refreshToken.updateMany).toHaveBeenCalled();
+    const logoutCalls = prisma.refreshToken.updateMany.mock.calls as Array<
+      [
+        {
+          where: { tokenHash: string; revokedAt: null };
+          data: { revokedAt: Date };
+        },
+      ]
+    >;
+    const logoutCall = logoutCalls[0][0];
+    expect(logoutCall.where).toEqual({
+      tokenHash: createHash('sha256').update(rawToken).digest('hex'),
+      revokedAt: null,
+    });
+    expect(logoutCall.data.revokedAt).toBeInstanceOf(Date);
+    expect(response.clearCookie).toHaveBeenCalledWith(
+      'refreshToken',
+      expect.objectContaining({ path: '/api/v1/auth' }),
+    );
   });
 });

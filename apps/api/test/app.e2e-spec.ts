@@ -8,6 +8,13 @@ import { PrismaService } from './../src/common/prisma/prisma.service';
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
 
+  beforeAll(() => {
+    process.env.JWT_ACCESS_SECRET ??= 'test-access-secret-min-32-chars-long!!';
+    process.env.JWT_REFRESH_SECRET ??= 'test-refresh-secret-min-32-chars-long!';
+    process.env.JWT_ACCESS_EXPIRES_IN ??= '15m';
+    process.env.JWT_REFRESH_EXPIRES_IN ??= '7d';
+  });
+
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],

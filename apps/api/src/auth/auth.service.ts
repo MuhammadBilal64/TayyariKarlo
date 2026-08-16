@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import type { AuthTokensResponse, AuthUser } from '@tayyari/shared';
 import * as bcrypt from 'bcrypt';
 import { createHash, randomBytes } from 'crypto';
 import * as express from 'express';
-import type { AuthTokensResponse, AuthUser } from '@tayyari/shared';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { parseDurationToMs } from '../common/utils/duration';
 import { UsersService } from '../users/users.service';
@@ -72,6 +72,67 @@ export class AuthService {
     return this.issueAuthResponse(user, res);
   }
 
+  async refresh(
+    req: express.Request,
+    res: express.Response,
+  ): Promise<AuthTokensResponse> {
+    const rawToken = this.readRefreshCookie(req);
+    if (!rawToken) {
+      throw new UnauthorizedException('Refresh token missing');
+    }
+
+    const stored = await this.prisma.refreshToken.findUnique({
+      where: { tokenHash: this.hashToken(rawToken) },
+    });
+
+    if (!stored) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (stored.revokedAt) {
+      await this.prisma.refreshToken.updateMany({
+        where: { userId: stored.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+      this.clearRefreshCookie(res);
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (stored.expiresAt.getTime() <= Date.now()) {
+      this.clearRefreshCookie(res);
+      throw new UnauthorizedException('Refresh token expired');
+    }
+
+    await this.prisma.refreshToken.update({
+      where: { id: stored.id },
+      data: { revokedAt: new Date() },
+    });
+
+    const user = await this.usersService.findById(stored.userId);
+    if (!user) {
+      this.clearRefreshCookie(res);
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    return this.issueAuthResponse(user, res);
+  }
+
+  async logout(
+    req: express.Request,
+    res: express.Response,
+  ): Promise<{ success: true }> {
+    const rawToken = this.readRefreshCookie(req);
+    if (rawToken) {
+      await this.prisma.refreshToken.updateMany({
+        where: { tokenHash: this.hashToken(rawToken), revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+    }
+
+    this.clearRefreshCookie(res);
+    return { success: true };
+  }
+
   private async issueAuthResponse(
     user: UserWithProfile,
     res: express.Response,
@@ -105,15 +166,32 @@ export class AuthService {
       },
     });
 
-    const isProd = this.configService.get<string>('NODE_ENV') === 'production';
-
     res.cookie(REFRESH_COOKIE_NAME, rawToken, {
       httpOnly: true,
-      secure: isProd,
+      secure: this.isProd(),
       sameSite: 'lax',
       path: '/api/v1/auth',
       maxAge,
     });
+  }
+
+  private readRefreshCookie(req: express.Request): string | undefined {
+    const cookies = req.cookies as Record<string, unknown> | undefined;
+    const value = cookies?.[REFRESH_COOKIE_NAME];
+    return typeof value === 'string' && value.length > 0 ? value : undefined;
+  }
+
+  private clearRefreshCookie(res: express.Response) {
+    res.clearCookie(REFRESH_COOKIE_NAME, {
+      httpOnly: true,
+      secure: this.isProd(),
+      sameSite: 'lax',
+      path: '/api/v1/auth',
+    });
+  }
+
+  private isProd() {
+    return this.configService.get<string>('NODE_ENV') === 'production';
   }
 
   private hashToken(rawToken: string) {

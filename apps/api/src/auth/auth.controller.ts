@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Res,
 } from '@nestjs/common';
 import * as express from 'express';
@@ -30,5 +31,23 @@ export class AuthController {
     @Res({ passthrough: true }) res: express.Response,
   ) {
     return this.authService.login(dto, res);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  refresh(
+    @Req() req: express.Request,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    return this.authService.refresh(req, res);
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(
+    @Req() req: express.Request,
+    @Res({ passthrough: true }) res: express.Response,
+  ) {
+    return this.authService.logout(req, res);
   }
 }
