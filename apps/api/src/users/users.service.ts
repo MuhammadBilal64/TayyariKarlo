@@ -1,6 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import type { AuthUser } from '@tayyari/shared';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../common/prisma/prisma.service';
+
+type UserWithProfile = NonNullable<
+  Awaited<ReturnType<UsersService['findById']>>
+>;
 
 @Injectable()
 export class UsersService {
@@ -18,6 +23,14 @@ export class UsersService {
       where: { id },
       include: { profile: true },
     });
+  }
+
+  async getMe(userId: string): Promise<AuthUser> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return this.toAuthUser(user);
   }
 
   createWithProfile(data: {
@@ -43,6 +56,17 @@ export class UsersService {
       },
       include: { profile: true },
     });
+  }
+
+  toAuthUser(user: UserWithProfile): AuthUser {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.profile?.name ?? '',
+      rolePreference: user.profile?.rolePreference,
+      experienceLevel: user.profile?.experienceLevel,
+      technologyInterests: user.profile?.technologyInterests ?? [],
+    };
   }
 
   isUniqueConstraintError(error: unknown): boolean {

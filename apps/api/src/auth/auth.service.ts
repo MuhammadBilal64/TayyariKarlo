@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import type { AuthTokensResponse, AuthUser } from '@tayyari/shared';
+import type { AuthTokensResponse } from '@tayyari/shared';
 import * as bcrypt from 'bcrypt';
 import { createHash, randomBytes } from 'crypto';
 import * as express from 'express';
@@ -146,7 +146,7 @@ export class AuthService {
 
     return {
       accessToken,
-      user: this.toAuthUser(user),
+      user: this.usersService.toAuthUser(user),
     };
   }
 
@@ -196,16 +196,5 @@ export class AuthService {
 
   private hashToken(rawToken: string) {
     return createHash('sha256').update(rawToken).digest('hex');
-  }
-
-  private toAuthUser(user: UserWithProfile): AuthUser {
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.profile?.name ?? '',
-      rolePreference: user.profile?.rolePreference,
-      experienceLevel: user.profile?.experienceLevel,
-      technologyInterests: user.profile?.technologyInterests ?? [],
-    };
   }
 }
