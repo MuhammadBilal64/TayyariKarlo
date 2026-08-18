@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TayyariKarlo — Home (mockup)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./tokens.css" />
+    <style>
+      .page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: clamp(1.25rem, 3vw, 2rem);
+      }
+
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .hero {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 4rem 0 5rem;
+        text-align: left;
+        width: 100%;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.8rem, 7vw, 4.6rem);
+        max-width: 14ch;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 2rem;
+      }
+
+      .actions .btn,
+      .actions .btn-ghost {
+        width: auto;
+        min-width: 9.5rem;
+        margin-top: 0;
+        padding-inline: 1.2rem;
+      }
+
+      .signed-in {
+        margin-top: 2rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--line);
+        max-width: 28rem;
+      }
+
+      .signed-in p {
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 0.95rem;
+      }
+
+      .signed-in strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .signed-in .btn-ghost {
+        width: auto;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body class="graph-bg">
+    <div class="page">
+      <header class="top">
+        <a class="brand" href="./home.html">TayyariKarlo</a>
+        <nav>
+          <a href="./login.html">Sign in</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <p class="eyebrow">Technical interview prep</p>
+        <h1>TayyariKarlo</h1>
+        <p class="lede">
+          Practice assessments, see where you are weak, and rehearse interviews
+          before the real round.
+        </p>
+        <div class="actions">
+          <a class="btn" href="./register.html">Create account</a>
+          <a class="btn btn-ghost" href="./login.html">Sign in</a>
+        </div>
+
+        <!-- Alternate signed-in state for reference -->
+        <div class="signed-in" hidden>
+          <p>
+            Signed in as <strong>Ayesha Khan</strong>
+            (ayesha@university.edu)
+          </p>
+          <button class="btn btn-ghost" type="button">Sign out</button>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

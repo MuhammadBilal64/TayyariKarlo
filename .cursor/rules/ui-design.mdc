@@ -1,0 +1,21 @@
+---
+description: Visual-first UI/UX design, mockups, browser inspection, and design refinement for TayyariKarlo web.
+globs: apps/web/**
+alwaysApply: false
+---
+
+Follow the full rules in `ui-design.md` at the repository root.
+
+Mandatory workflow for substantial UI work:
+
+UNDERSTAND → DESIGN → VISUALIZE → REVIEW → IMPLEMENT → INSPECT → REFINE → VALIDATE
+
+Before implementing production UI for a new screen or redesign:
+
+1. Read `ui-design.md`, `instructions.md`, and the relevant `phases.md` task.
+2. Establish a distinctive visual direction for TayyariKarlo (professional, focused, not generic AI UI).
+3. Create a concrete mockup or HTML prototype under `design/mockups/`.
+4. Present the mockup and **stop for visual approval** before writing production React UI.
+5. After approval, implement with design tokens, then inspect the running app in the browser and refine.
+
+Preserve auth, API, and business logic. Do not skip browser inspection for UI tasks.

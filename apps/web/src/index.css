@@ -1,1 +1,65 @@
 @import 'tailwindcss';
+
+@theme {
+  --color-ink: #12151c;
+  --color-ink-soft: #3a4050;
+  --color-mute: #6b7280;
+  --color-paper: #e8e6e0;
+  --color-paper-lift: #f4f2ec;
+  --color-line: #d2cfc6;
+  --color-signal: #0f6e5c;
+  --color-signal-hover: #0c5849;
+  --color-signal-soft: #d7efe8;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+  --color-focus: #2a55ff;
+
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-sans: 'Sora', 'Segoe UI', sans-serif;
+
+  --radius-control: 10px;
+  --shadow-panel: 0 18px 50px rgb(18 21 28 / 0.08);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background: var(--color-paper);
+  }
+
+  a {
+    color: var(--color-signal);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+@layer utilities {
+  .graph-bg {
+    background-color: var(--color-paper);
+    background-image:
+      linear-gradient(var(--color-line) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(210 207 198 / 0.45) 1px, transparent 1px);
+    background-size:
+      100% 28px,
+      28px 100%;
+    background-position:
+      0 -1px,
+      0 0;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+}

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TayyariKarlo — Create account (mockup)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./tokens.css" />
+    <style>
+      .shell {
+        display: grid;
+        min-height: 100vh;
+        grid-template-columns: 1.05fr 0.95fr;
+      }
+
+      .panel-brand {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: clamp(1.5rem, 4vw, 3rem);
+      }
+
+      .brand-copy {
+        max-width: 26rem;
+        margin-top: 16vh;
+      }
+
+      .quote {
+        margin: 1.5rem 0 0;
+        font-family: var(--font-display);
+        font-size: clamp(1.8rem, 3.4vw, 2.55rem);
+        font-style: italic;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+      }
+
+      .checklist {
+        margin: 1.5rem 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .checklist li {
+        display: flex;
+        gap: 0.65rem;
+        align-items: flex-start;
+        font-size: 0.92rem;
+        color: var(--ink-soft);
+      }
+
+      .checklist li::before {
+        content: "";
+        width: 0.55rem;
+        height: 0.55rem;
+        margin-top: 0.4rem;
+        border-radius: 2px;
+        background: var(--signal);
+        flex: 0 0 auto;
+      }
+
+      .panel-form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(1.5rem, 4vw, 3rem);
+        background: var(--paper-lift);
+        border-left: 1px solid var(--line);
+        box-shadow: var(--shadow);
+      }
+
+      .form-wrap {
+        width: 100%;
+        max-width: 24rem;
+      }
+
+      form {
+        margin-top: 1.75rem;
+      }
+
+      @media (max-width: 860px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+
+        .brand-copy {
+          margin-top: 2.5rem;
+        }
+
+        .panel-form {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="panel-brand graph-bg">
+        <a class="brand" href="./home.html">TayyariKarlo</a>
+        <div class="brand-copy">
+          <p class="eyebrow">Start preparing</p>
+          <p class="quote">A quiet place to get interview-ready.</p>
+          <ul class="checklist">
+            <li>Timed assessments by topic and difficulty</li>
+            <li>Clear progress on weak areas</li>
+            <li>Practice interviews when you are ready</li>
+          </ul>
+        </div>
+        <p class="lede" style="margin-bottom: 0">
+          No clutter. Just the work that moves you forward.
+        </p>
+      </aside>
+
+      <main class="panel-form">
+        <div class="form-wrap">
+          <p class="eyebrow">New account</p>
+          <h1>Create account</h1>
+          <p class="lede">Three fields. You can refine your profile later.</p>
+
+          <form>
+            <label>
+              <span class="label">Name</span>
+              <input type="text" placeholder="Ayesha Khan" />
+            </label>
+            <label>
+              <span class="label">Email</span>
+              <input type="email" placeholder="you@university.edu" />
+            </label>
+            <label>
+              <span class="label">Password</span>
+              <input type="password" placeholder="At least 8 characters" />
+            </label>
+            <button class="btn" type="button">Create account</button>
+          </form>
+
+          <p class="footer-note">
+            Already registered?
+            <a href="./login.html">Sign in</a>
+          </p>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
