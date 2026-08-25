@@ -1,9 +1,11 @@
 import type { InterviewSession } from '@tayyari/shared';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { InlineStatus } from '../../../shared/ui/InlineStatus';
+import { PageState } from '../../../shared/ui/PageState';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { VoiceRoom } from '../components/VoiceRoom';
 import {
@@ -188,33 +190,37 @@ export function InterviewSessionPage() {
 
   if (error && !session) {
     return (
-      <section>
-        <p className="rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-          {error}
-        </p>
-        <Link
-          to="/app/interviews"
-          className="mt-4 inline-block text-sm font-semibold text-signal"
-        >
-          Choose the round
-        </Link>
-      </section>
+      <PageState
+        eyebrow="Interview"
+        title="Interview unavailable"
+        error={error}
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/interviews')}
+          >
+            Choose the round
+          </Button>
+        }
+      />
     );
   }
 
   if (!session || !openTurn) {
     return (
-      <section>
-        <p className="m-0 text-sm text-ink-soft">
-          No open question on this round.
-        </p>
-        <Link
-          to="/app/interviews"
-          className="mt-4 inline-block text-sm font-semibold text-signal"
-        >
-          Begin a new interview
-        </Link>
-      </section>
+      <PageState
+        eyebrow="Interview"
+        title="No open question"
+        description="This round has no open question left."
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/interviews')}
+          >
+            Begin a new interview
+          </Button>
+        }
+      />
     );
   }
 
@@ -303,11 +309,7 @@ export function InterviewSessionPage() {
           </div>
 
           <form className="mt-6" onSubmit={onSubmit}>
-            {error ? (
-              <p className="mb-4 rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-                {error}
-              </p>
-            ) : null}
+            {error ? <StatusBanner className="mb-4">{error}</StatusBanner> : null}
             <label className="block">
               <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
                 Your response

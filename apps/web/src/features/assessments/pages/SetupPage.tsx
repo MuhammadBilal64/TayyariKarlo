@@ -11,6 +11,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { startAssessment } from '../api/assessmentsApi';
 import { listQuestions } from '../api/questionsApi';
@@ -139,11 +140,7 @@ function SetupPageForm({
       </p>
 
       <form className="mt-8" onSubmit={onSubmit}>
-        {error ? (
-          <p className="mb-4 rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-            {error}
-          </p>
-        ) : null}
+        {error ? <StatusBanner className="mb-4">{error}</StatusBanner> : null}
 
         <ul className="m-0 list-none border-t border-line p-0">
           {TOPICS.map((value) => {

@@ -1,9 +1,11 @@
 import type { AssessmentAttempt } from '@tayyari/shared';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { InlineStatus } from '../../../shared/ui/InlineStatus';
+import { PageState } from '../../../shared/ui/PageState';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { getAssessment, submitAssessment } from '../api/assessmentsApi';
 import {
@@ -90,17 +92,19 @@ export function TakePage() {
 
   if (error && !attempt) {
     return (
-      <section>
-        <p className="rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-          {error}
-        </p>
-        <Link
-          to="/app/assessments"
-          className="mt-4 inline-block text-sm font-semibold text-signal"
-        >
-          Start a new assessment
-        </Link>
-      </section>
+      <PageState
+        eyebrow="Assessment"
+        title="Assessment unavailable"
+        error={error}
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/assessments')}
+          >
+            Start a new assessment
+          </Button>
+        }
+      />
     );
   }
 
@@ -111,9 +115,19 @@ export function TakePage() {
   const question = attempt.questions[index];
   if (!question) {
     return (
-      <p className="m-0 text-sm text-danger">
-        This assessment has no questions.
-      </p>
+      <PageState
+        eyebrow="Assessment"
+        title="No questions in this set"
+        description="This assessment has no questions to display."
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/assessments')}
+          >
+            Choose another set
+          </Button>
+        }
+      />
     );
   }
 
@@ -187,11 +201,7 @@ export function TakePage() {
         {question.prompt}
       </h1>
 
-      {error ? (
-        <p className="mt-4 rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-          {error}
-        </p>
-      ) : null}
+      {error ? <StatusBanner className="mt-4">{error}</StatusBanner> : null}
 
       <ul className="mt-6 m-0 list-none border-t border-line p-0">
         {question.options.map((option, optionIndex) => {

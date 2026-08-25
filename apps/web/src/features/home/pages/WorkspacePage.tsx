@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { InlineStatus } from '../../../shared/ui/InlineStatus';
+import { PageState } from '../../../shared/ui/PageState';
 import { difficultyLabel, topicLabel } from '../../assessments/lib/labels';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { getProgressSummary } from '../../progress/api/progressApi';
@@ -165,17 +166,19 @@ export function WorkspacePage() {
 
   if (error || !progress) {
     return (
-      <section>
-        <p className="rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-          {error ?? 'Unable to load progress'}
-        </p>
-        <Link
-          to="/app/assessments"
-          className="mt-4 inline-block cursor-pointer text-sm font-semibold text-signal"
-        >
-          Start an assessment
-        </Link>
-      </section>
+      <PageState
+        eyebrow="Progress"
+        title="Unable to load progress"
+        error={error ?? 'Unable to load progress'}
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/assessments')}
+          >
+            Start an assessment
+          </Button>
+        }
+      />
     );
   }
 

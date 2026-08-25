@@ -2,6 +2,7 @@ import type { InterviewSession, InterviewTurn } from '@tayyari/shared';
 import { useEffect, useRef, useState } from 'react';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import {
   answerInterview,
   continueInterview,
@@ -299,9 +300,9 @@ export function VoiceRoom({
 
       <div className="mt-8 border-t border-line pt-5 text-left">
         {error || recorder.micError ? (
-          <p className="mb-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
+          <StatusBanner className="mb-4">
             {error ?? recorder.micError}
-          </p>
+          </StatusBanner>
         ) : null}
 
         {phase === 'reviewing' && review ? (

@@ -1,9 +1,10 @@
 import type { AssessmentResult } from '@tayyari/shared';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { InlineStatus } from '../../../shared/ui/InlineStatus';
+import { PageState } from '../../../shared/ui/PageState';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { getAssessmentResult } from '../api/assessmentsApi';
 import { difficultyLabel, optionLetter, topicLabel } from '../lib/labels';
@@ -60,17 +61,19 @@ export function ResultsPage() {
 
   if (error || !result) {
     return (
-      <section>
-        <p className="rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-          {error ?? 'Results not found'}
-        </p>
-        <Link
-          to="/app/assessments"
-          className="mt-4 inline-block text-sm font-semibold text-signal"
-        >
-          Start a new assessment
-        </Link>
-      </section>
+      <PageState
+        eyebrow="Results"
+        title="Results unavailable"
+        error={error ?? 'Results not found'}
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/assessments')}
+          >
+            Start a new assessment
+          </Button>
+        }
+      />
     );
   }
 

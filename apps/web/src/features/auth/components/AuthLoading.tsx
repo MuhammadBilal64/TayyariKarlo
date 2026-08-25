@@ -6,7 +6,7 @@ export function AuthLoading() {
       aria-live="polite"
     >
       <span
-        className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-line border-t-signal"
+        className="inline-block size-8 animate-spin rounded-full border-2 border-line border-t-signal"
         aria-hidden="true"
       />
       <p className="m-0 text-sm">Checking session…</p>

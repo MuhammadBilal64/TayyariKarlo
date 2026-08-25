@@ -3,6 +3,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { InlineStatus } from '../../../shared/ui/InlineStatus';
+import { PageState } from '../../../shared/ui/PageState';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import {
   applySignalAction,
@@ -121,11 +124,24 @@ export function SignalSessionPage() {
   }
 
   if (!session) {
-    return (
-      <section>
-        <p className="text-ink-soft">{error ?? 'Loading investigation?'}</p>
-      </section>
-    );
+    if (error) {
+      return (
+        <PageState
+          eyebrow="Signal Integrity"
+          title="Investigation unavailable"
+          error={error}
+          action={
+            <Button
+              className="min-w-[11rem] px-5"
+              onClick={() => navigate('/app/interviews')}
+            >
+              Back to interviews
+            </Button>
+          }
+        />
+      );
+    }
+    return <InlineStatus message="Loading investigation…" />;
   }
 
   const completed = session.status === 'completed';
@@ -157,11 +173,7 @@ export function SignalSessionPage() {
         </div>
       </header>
 
-      {error ? (
-        <p className="mt-5 rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-          {error}
-        </p>
-      ) : null}
+      {error ? <StatusBanner className="mt-5">{error}</StatusBanner> : null}
 
       <div className="mt-8 grid items-start gap-y-10 lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
         {/* Left: observation desk */}
