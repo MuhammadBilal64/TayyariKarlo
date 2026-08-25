@@ -118,26 +118,27 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 2. **B Threshold Monogram** — interlocking T/K doorway.  
 3. **C Calibration Spine** — vertical instrument notches.
 
-**Round 2 (more modern / unique — under review):**
-4. **D Orbit Gap** — incomplete ring + rotated pip (continuous practice / almost-ready).  
-5. **E Shear Cut** — shearing slabs + acid lime slash (cut through pressure).  
-6. **F Reply Bracket** — asymmetric brackets + coral beat (Q&A / interview dialogue).  
-7. **G Stamp TK** — custom fused T/K seal (action / “karlo”).
+**Round 2:**
+4. **D Orbit Gap** — **approved** (incomplete ring + diamond pip).  
+5. **E Shear Cut** — archive.  
+6. **F Reply Bracket** — archive.  
+7. **G Stamp TK** — archive.
 
 ---
 
 ## Phase 2 — Visual design system
 
 **Goal:** Tokens + component conventions from approved brand — propose, approve, then apply foundation.  
-**Status:** Pending  
-**Gate:** Present system before major page restyles.
+**Status:** In Progress (proposal ready — awaiting UI-2.5)  
+**Gate:** Present system before major page restyles.  
+**Spec:** [design/brand/design-system.md](design/brand/design-system.md) · board [design/brand/design-system-board.jpg](design/brand/design-system-board.jpg)
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
-| UI-2.1 | Color system proposal | Pending | Primary/secondary, surfaces, text, borders, semantic states | Documented palette + contrast notes; mock or token draft | UI-1.5 | Contrast review |
-| UI-2.2 | Typography proposal | Pending | Distinctive readable pairing; scale for display/body/UI | Spec for sizes/weights/line-heights | UI-1.5 | Spec review |
-| UI-2.3 | Layout & spacing proposal | Pending | Spacing scale, widths, breakpoints; less nested cards | Spec written | UI-1.5 | Spec review |
-| UI-2.4 | Component conventions | Pending | Nav, buttons, fields, lists, dialogs, progress, empty/loading/error | Spec + notes vs current `shared/ui` | UI-2.1–2.3 | Spec review |
+| UI-2.1 | Color system proposal | Completed | Primary/secondary, surfaces, text, borders, semantic states | Documented palette + contrast notes; mock or token draft | UI-1.5 | Contrast review |
+| UI-2.2 | Typography proposal | Completed | Distinctive readable pairing; scale for display/body/UI | Spec for sizes/weights/line-heights | UI-1.5 | Spec review |
+| UI-2.3 | Layout & spacing proposal | Completed | Spacing scale, widths, breakpoints; less nested cards | Spec written | UI-1.5 | Spec review |
+| UI-2.4 | Component conventions | Completed | Nav, buttons, fields, lists, dialogs, progress, empty/loading/error | Spec + notes vs current `shared/ui` | UI-2.1–2.3 | Spec review |
 | UI-2.5 | Design-system approval gate | Pending | **Stop** for owner approval | Explicit approval | UI-2.4 | — |
 | UI-2.6 | Apply foundation tokens | Pending | Update `apps/web/src/index.css` + primitives (`Button`, `Field`, shells) to approved system | Tokens live; no full page redesign yet unless trivial | UI-2.5 | `pnpm --filter web typecheck` + spot browser |
 
@@ -246,3 +247,4 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | 2026-11-06 | Owner wanted more unique/modern marks. Added Round 2: D Orbit Gap, E Shear Cut, F Reply Bracket, G Stamp TK. **Still at UI-1.3.** |
 | 2026-11-06 | Owner approved **D Orbit Gap**. Final SVGs + favicon in `design/brand/final/` and `apps/web/public/`. Next: UI-1.5 integrate. |
 | 2026-11-06 | UI-1.5: `BrandMark` / `BrandLockup` on Home, AppShell, AuthShell; Vite favicon replaced. Phase 1 complete — next Phase 2 design system proposal. |
+| 2026-11-06 | Phase 2 proposal authored (`design-system.md` + board). **Awaiting UI-2.5 approval before token apply.** |
