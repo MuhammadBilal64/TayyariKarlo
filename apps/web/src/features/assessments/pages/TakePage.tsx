@@ -209,7 +209,7 @@ export function TakePage() {
           return (
             <li key={`${question.id}-${optionIndex}`} className="border-b border-line">
               <label
-                className={`ui-row flex cursor-pointer items-start gap-3.5 border-l-2 py-4 transition-[background-color,border-color] duration-200 ${
+                className={`ui-row flex cursor-pointer items-start gap-3.5 border-l-2 py-4 pl-3.5 transition-[background-color,border-color] duration-200 ${
                   checked
                     ? 'border-l-signal bg-signal-soft/70'
                     : 'border-l-transparent'
@@ -223,7 +223,7 @@ export function TakePage() {
                   onChange={() => selectOption(optionIndex)}
                 />
                 <span
-                  className="w-5 shrink-0 pt-0.5 text-[0.85rem] font-semibold text-signal"
+                  className="w-5 shrink-0 pt-0.5 text-center text-[0.85rem] font-semibold text-signal"
                   aria-hidden="true"
                 >
                   {optionLetter(optionIndex)}
@@ -240,7 +240,7 @@ export function TakePage() {
       <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t border-line pt-6">
         <Button
           variant="ghost"
-          className="min-w-[8.5rem] px-5"
+          className="min-w-[9rem]"
           disabled={index === 0 || submitting}
           onClick={() => setIndex((value) => Math.max(0, value - 1))}
         >
@@ -248,7 +248,7 @@ export function TakePage() {
         </Button>
         {isLast ? (
           <Button
-            className="min-w-[8.5rem] px-5"
+            className="min-w-[9rem]"
             disabled={selected === undefined || submitting}
             onClick={() => {
               void onSubmit(attempt);
@@ -258,7 +258,7 @@ export function TakePage() {
           </Button>
         ) : (
           <Button
-            className="min-w-[8.5rem] px-5"
+            className="min-w-[9rem]"
             disabled={selected === undefined}
             onClick={() => setIndex((value) => Math.min(total - 1, value + 1))}
           >
@@ -267,7 +267,7 @@ export function TakePage() {
         )}
         <Button
           variant="ghost"
-          className="ml-auto min-w-[8.5rem] px-5"
+          className="ml-auto min-w-[9rem]"
           disabled={submitting}
           onClick={() => navigate('/app')}
         >

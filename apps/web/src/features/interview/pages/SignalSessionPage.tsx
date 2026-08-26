@@ -386,7 +386,7 @@ export function SignalSessionPage() {
                     return (
                       <li key={option.key} className="border-b border-line">
                         <label
-                          className={`ui-row flex cursor-pointer items-start gap-3 border-l-2 py-4 transition-[background-color,border-color] duration-200 ${
+                          className={`ui-row flex cursor-pointer items-start gap-3 border-l-2 py-4 pl-3.5 transition-[background-color,border-color] duration-200 ${
                             active
                               ? 'border-l-signal bg-signal-soft/70'
                               : 'border-l-transparent'
