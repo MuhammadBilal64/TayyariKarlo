@@ -248,3 +248,4 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | 2026-11-06 | Owner approved **D Orbit Gap**. Final SVGs + favicon in `design/brand/final/` and `apps/web/public/`. Next: UI-1.5 integrate. |
 | 2026-11-06 | UI-1.5: `BrandMark` / `BrandLockup` on Home, AppShell, AuthShell; Vite favicon replaced. Phase 1 complete — next Phase 2 design system proposal. |
 | 2026-11-06 | Phase 2 proposal authored (`design-system.md` + board). **Awaiting UI-2.5 approval before token apply.** |
+| 2026-11-06 | Design system **v2** after critique (steel canvas, verdigris CTAs, IBM Plex). Still at UI-2.5. |

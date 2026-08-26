@@ -1,131 +1,156 @@
 # TayyariKarlo — Design System Proposal (Phase 2)
 
-**Status:** Awaiting owner approval (UI-2.5)  
+**Status:** Awaiting owner approval (UI-2.5) — **v2 after self-critique**  
 **Brand anchor:** Orbit Gap mark (black incomplete orbit + diamond pip)  
 **Do not apply to production tokens until approved.**
 
 ---
 
-## Direction
+## Critique of v1 (what was weak)
 
-Move from warm cream + Instrument Serif “editorial campus” to a **cool, precise instrument UI** that matches Orbit Gap: black mark, geometric type, quiet surfaces, teal used for *progress/action accent* — not as the whole personality.
+| Issue | Why it fails | Fix in v2 |
+|-------|----------------|-----------|
+| **Zinc default trap** | `#F4F4F5` / `#E4E4E7` is stock Tailwind/shadcn — escaped cream only to look like every SaaS kit | Cool **blue-gray** canvas (`#F1F3F7`) and lines (`#D9DEE7`) with a slight steel cast |
+| **Ink as every primary CTA** | Pure black buttons read as fashion/portfolio, not “calm readiness.” Logo can be black without every action being black | **Ink = text + mark.** **Primary CTA = `signal`** (action energy). Ghost/secondary = outline ink |
+| **Generic teal `#0F766E`** | Tailwind teal-700 clone | Custom **verdigris** `#1B5F56` / soft `#E3F0ED` — deeper, less candy |
+| **Syne + DM Sans** | Syne is quirky “2023 startup” display; DM Sans is interchangeable with Inter | **IBM Plex Sans** single family — engineered “instrument” voice, excellent UI metrics, distinctive without gimmick |
+| **Radius 8 everywhere** | Still soft-card SaaS | Controls **6px**; structural chrome **0–4px**; prefer hairlines over rounded panels |
+| **Focus blue `#2563EB`** | Stock indigo-blue, fights the brand | Focus = **ink ring** at 2px (or signal at 40% for links) — one system, not three accent hues |
+| **No product density story** | Same airy marketing spacing would hurt interview sessions | Two densities: **marketing** (airy) vs **session** (compact, 12–16px rhythm) |
+| **Nav underline only** | Correct but thin identity | Active = weight 600 + 2px ink bar; optional tiny Orbit pip for current section later |
+| **Board looked template-clean** | Documentation aesthetic ≠ product soul | v2 board emphasizes signal CTA + Plex + steel canvas |
 
-**Leave behind:** warm paper `#e8e6e0`, Instrument Serif as brand voice, graph-paper as default wallpaper, soft mint pill nav, 10px bubbly controls everywhere.
+**Kept from v1:** Drop warm cream + Instrument Serif + graph-paper default + mint pills; Orbit Gap as brand anchor; dividers over card stacks; reduced motion rules.
 
 ---
 
-## 1. Color system (UI-2.1)
+## Direction (v2)
+
+TayyariKarlo should feel like a **precision practice instrument**: cool steel-gray field, black Orbit Gap mark, **one** deep verdigris for “go / progress,” IBM Plex for engineered clarity. Not a campus brochure, not a zinc dashboard kit, not a black-button fashion site.
+
+---
+
+## 1. Color system (UI-2.1) — v2
 
 | Token | Hex | Role |
 |-------|-----|------|
-| `ink` | `#0A0A0A` | Primary text + primary CTA + logo |
-| `ink-soft` | `#3F3F46` | Secondary text |
-| `mute` | `#71717A` | Tertiary / hints |
-| `canvas` | `#F4F4F5` | Page background (cool zinc, replaces `paper`) |
-| `surface` | `#FFFFFF` | Elevated panels / forms (replaces `paper-lift`) |
-| `line` | `#E4E4E7` | Borders / dividers |
-| `signal` | `#0F766E` | Links, progress, selected accents (cooler teal) |
-| `signal-hover` | `#0D5F59` | Hover for signal |
-| `signal-soft` | `#CCFBF1` | Soft selected backgrounds |
-| `danger` | `#B42318` | Errors (unchanged intent) |
+| `ink` | `#0B0F14` | Text, logo, icons (blue-black, not pure fashion black) |
+| `ink-soft` | `#3C4553` | Secondary text |
+| `mute` | `#6B7380` | Hints / meta |
+| `canvas` | `#F1F3F7` | Page background (steel-cool; replaces `paper`) |
+| `surface` | `#FFFFFF` | Forms / elevated sheets |
+| `line` | `#D9DEE7` | Dividers / borders |
+| `signal` | `#1B5F56` | **Primary CTAs**, links, progress fill |
+| `signal-hover` | `#154A43` | Hover |
+| `signal-soft` | `#E3F0ED` | Selected / soft accent wash |
+| `danger` | `#B42318` | Errors |
 | `danger-soft` | `#FDECEA` | Error wash |
-| `focus` | `#2563EB` | Focus ring (distinct from brand teal) |
-| `ok` | `#15803D` | Success (new explicit token) |
-| `ok-soft` | `#DCFCE7` | Success wash |
-| `warn` | `#B45309` | Warning (new) |
-| `warn-soft` | `#FEF3C7` | Warning wash |
+| `ok` | `#1F6B45` | Success |
+| `ok-soft` | `#E5F6EC` | Success wash |
+| `warn` | `#9A6700` | Warning |
+| `warn-soft` | `#FFF4D6` | Warning wash |
+| `focus` | `#0B0F14` | Focus ring (2px ink; high contrast, brand-aligned) |
 
-**Contrast:** `ink` on `canvas` / `surface` and white on `ink` CTAs meet WCAG AA for body+UI.
+**CTA rules**
+- **Primary** = `signal` fill + white label  
+- **Secondary / ghost** = transparent/`surface` + `line` border + `ink` text  
+- **Destructive** = `danger`  
+- Do **not** use ink fills for default primary buttons
 
-**Primary button** = `ink` fill + white label (logo-aligned).  
-**Secondary** = `surface` + `line` border + `ink` text.  
-**Accent / text links** = `signal`.
+**Contrast:** ink on canvas/surface and white on signal meet WCAG AA for UI text.
 
 ---
 
-## 2. Typography (UI-2.2)
+## 2. Typography (UI-2.2) — v2
 
 | Role | Family | Notes |
 |------|--------|-------|
-| Display / headings | **Syne** (600–700) | Geometric, modern; pairs with Orbit Gap |
-| UI / body | **DM Sans** (400–600) | Readable, neutral, not Inter/Sora default stack |
+| All UI + headings | **IBM Plex Sans** (400 / 500 / 600 / 700) | One engineered family; display = 600–700, tighter tracking (−0.02em) |
+| Mono (code / Signal traces later) | **IBM Plex Mono** | Optional; ready for interview/tech surfaces |
 
 ### Scale
 
 | Step | Size | Line | Use |
 |------|------|------|-----|
-| display | clamp(2.25rem, 5vw, 3.5rem) | 1.05 | Page heroes |
-| h1 | 1.875rem | 1.15 | Screen titles |
-| h2 | 1.25rem | 1.25 | Section titles |
+| display | clamp(2.1rem, 4.5vw, 3.25rem) | 1.08 / tracking −0.03em | Marketing heroes only |
+| h1 | 1.75rem | 1.2 | Screen titles |
+| h2 | 1.125rem | 1.3 | Section titles |
 | body | 1rem | 1.55 | Copy |
 | ui | 0.9375rem | 1.4 | Controls |
-| caption | 0.75rem | 1.35 | Eyebrows / meta (tracking +0.08em uppercase optional) |
+| caption | 0.75rem | 1.35 | Meta; tracking +0.06em if uppercase |
 
-Wordmark beside logo may stay Syne medium; do **not** use serif for brand chrome.
+Wordmark: Plex Sans 600 — same as UI (mark carries uniqueness).
 
 ---
 
-## 3. Layout & spacing (UI-2.3)
+## 3. Layout & spacing (UI-2.3) — v2
 
 | Token | Value |
 |-------|-------|
 | Space scale | 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 |
-| Control radius | **8px** (was 10) |
-| App content max | `42rem` (keep focused) |
-| Marketing content max | `72rem` |
+| Control radius | **6px** |
+| Panel radius | **0–4px** (prefer square structural edges) |
+| App content max | `40rem` (slightly tighter focus) |
+| Marketing max | `68rem` |
 | Breakpoints | sm 640 · md 768 · lg 1024 · xl 1280 |
 
-**Layout rules**
-- Prefer **dividers + whitespace** over nested bordered cards.
-- One primary column in app shell; avoid dashboard widget grids.
-- `graph-bg`: retire as default; optional micro-dot or none — brand mark carries identity.
+**Densities**
+- **Marketing / auth:** generous vertical rhythm (32–48)
+- **App lists / progress:** 12–16 row gaps, hairline separators
+- **Live session (interview / Signal):** compact; sticky chrome; minimize decorative empty space
+
+**Background**
+- Default: flat `canvas`
+- Marketing optional: very faint steel micro-dots (not graph paper)
+- App shell: flat; identity from Orbit Gap lockup
 
 ---
 
-## 4. Component conventions (UI-2.4)
+## 4. Component conventions (UI-2.4) — v2
 
 | Component | Convention |
 |-----------|------------|
-| **Nav** | Text links; active = `ink` weight + bottom 2px `ink` bar (no mint pill) |
-| **Button primary** | `ink` bg, white text, radius 8, subtle shadow optional |
-| **Button ghost** | Border `line`, hover `surface` lift |
-| **Field** | White/`surface`, `line` border, focus ring `focus` |
-| **Lists** | Row separators; hover soft `canvas` wash — not card stacks |
-| **Tabs/filters** | Underline or segment control, not chip clouds |
-| **Dialogs** | Surface modal, ink title, muted body |
-| **Progress** | `signal` fill on `line` track |
-| **Loading** | Orbit Gap mark + short status text (branded) |
-| **Empty** | Mark (muted) + one sentence + one CTA |
-| **Error** | `danger-soft` strip + clear recovery action |
+| **Nav** | Text; inactive `ink-soft`; active `ink` 600 + 2px ink underline |
+| **Button primary** | `signal` bg, white text, radius 6, minimal shadow |
+| **Button ghost** | `line` border, `ink` text; hover `signal-soft` border tint |
+| **Field** | `surface`, `line` border, focus ring ink 2px |
+| **Lists** | Hairline rows; hover `canvas`; no nested cards |
+| **Tabs** | Underline tabs; avoid pill chip clusters |
+| **Progress** | `signal` on `line` track |
+| **Loading** | Small Orbit Gap + one status line (“Checking session…”) |
+| **Empty** | Muted mark + one sentence + **one** signal CTA |
+| **Error** | `danger-soft` strip + recovery action |
 
-**Motion:** Keep `--dur-fast` 160ms / `--dur` 240ms; respect `prefers-reduced-motion`. Prefer opacity/transform only — no decorative bounce.
+**Motion:** 160ms / 240ms; opacity + translate only; honor `prefers-reduced-motion`.
 
 ---
 
-## 5. Token rename mapping (for UI-2.6 apply)
+## 5. Token mapping (for UI-2.6)
 
-| Current | Proposed |
-|---------|----------|
-| `paper` | `canvas` (aliases during migrate OK) |
+| Current | v2 |
+|---------|-----|
+| `paper` | `canvas` `#F1F3F7` (alias during migrate) |
 | `paper-lift` | `surface` |
-| `font-display` | Syne (not Instrument Serif) |
-| `font-sans` | DM Sans (not Sora) |
-| Primary button color | `ink` (not `signal`) |
-| `signal` | Accent / progress / links only |
+| `font-display` / `font-sans` | both → IBM Plex Sans (display weight via utility) |
+| Primary button | `signal` (not ink) |
+| `signal` | `#1B5F56` custom verdigris |
+| `focus` | ink ring |
+| Instrument Serif / Sora | removed from brand |
 
 ---
 
 ## 6. Out of scope until Phase 3
 
-Full page redesigns (Home hero composition, workspace IA, assessment chrome). Phase 2.6 only lands tokens + Button/Field/shell foundation after approval.
+Page-level redesigns (Home hero, workspace IA, assessment/interview chrome). UI-2.6 only: tokens + Button/Field/shell foundation.
 
 ---
 
-## Approval checklist
+## Approval checklist (v2)
 
-- [ ] Color system (incl. ink primary CTAs)
-- [ ] Typography (Syne + DM Sans)
-- [ ] Spacing / radius / no default graph paper
-- [ ] Component conventions above
+- [ ] Steel canvas + verdigris signal (not zinc + Tailwind teal)
+- [ ] IBM Plex Sans (not Syne / DM Sans)
+- [ ] Signal primary CTAs; ink for type/logo only
+- [ ] Tighter radii + density split (marketing vs session)
+- [ ] No default graph paper
 
-Reply with approval, or list changes (e.g. keep teal primary buttons, different font pair).
+Approve v2, or call out specific reversions (e.g. prefer black primary buttons).
