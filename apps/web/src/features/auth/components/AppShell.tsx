@@ -4,25 +4,25 @@ import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../hooks/useAuth';
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
-  `cursor-pointer rounded-[8px] px-3 py-1.5 text-sm font-medium no-underline transition-[background-color,color,transform] duration-200 ease-out hover:no-underline active:translate-y-px ${
+  `cursor-pointer border-b-2 px-2.5 py-1.5 text-sm no-underline transition-[color,border-color] duration-200 ease-out hover:no-underline ${
     isActive
-      ? 'bg-signal-soft text-signal-hover shadow-[inset_0_0_0_1px_rgb(15_110_92/0.18)]'
-      : 'text-ink-soft hover:bg-ink/5 hover:text-ink'
+      ? 'border-ink font-semibold text-ink'
+      : 'border-transparent font-medium text-ink-soft hover:text-ink'
   }`;
 
 export function AppShell() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="graph-bg flex min-h-screen flex-col">
-      <header className="sticky top-0 z-20 border-b border-line/90 bg-paper-lift/85 px-5 py-3.5 backdrop-blur-md sm:px-8 lg:px-12">
+    <div className="app-canvas flex min-h-screen flex-col">
+      <header className="sticky top-0 z-20 border-b border-line bg-surface/90 px-5 py-3.5 backdrop-blur-md sm:px-8 lg:px-12">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2">
             <BrandLockup
               to="/app"
               className="shrink-0"
               markClassName="h-7 w-7 shrink-0 text-ink"
-              wordmarkClassName="font-display text-[1.45rem] tracking-[-0.02em] text-ink"
+              wordmarkClassName="font-display text-[1.35rem] tracking-[-0.02em] text-ink"
             />
             <nav
               className="flex flex-wrap items-center gap-1"
@@ -57,7 +57,7 @@ export function AppShell() {
           </div>
         </div>
       </header>
-      <main className="ui-enter mx-auto w-full max-w-3xl flex-1 px-5 py-10 sm:px-8 lg:px-12">
+      <main className="ui-enter mx-auto w-full max-w-[40rem] flex-1 px-5 py-10 sm:px-8 lg:px-12">
         <Outlet />
       </main>
     </div>

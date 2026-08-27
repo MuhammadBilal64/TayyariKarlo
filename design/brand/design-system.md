@@ -1,8 +1,7 @@
 # TayyariKarlo — Design System Proposal (Phase 2)
 
-**Status:** Awaiting owner approval (UI-2.5) — **v2 after self-critique**  
-**Brand anchor:** Orbit Gap mark (black incomplete orbit + diamond pip)  
-**Do not apply to production tokens until approved.**
+**Status:** **Approved** (UI-2.5) — v2 applied in foundation (UI-2.6)  
+**Brand anchor:** Orbit Gap mark (black incomplete orbit + diamond pip)
 
 ---
 

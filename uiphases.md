@@ -129,7 +129,7 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 ## Phase 2 — Visual design system
 
 **Goal:** Tokens + component conventions from approved brand — propose, approve, then apply foundation.  
-**Status:** In Progress (proposal ready — awaiting UI-2.5)  
+**Status:** Completed (v2 approved + foundation applied)  
 **Gate:** Present system before major page restyles.  
 **Spec:** [design/brand/design-system.md](design/brand/design-system.md) · board [design/brand/design-system-board.jpg](design/brand/design-system-board.jpg)
 
@@ -139,8 +139,8 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | UI-2.2 | Typography proposal | Completed | Distinctive readable pairing; scale for display/body/UI | Spec for sizes/weights/line-heights | UI-1.5 | Spec review |
 | UI-2.3 | Layout & spacing proposal | Completed | Spacing scale, widths, breakpoints; less nested cards | Spec written | UI-1.5 | Spec review |
 | UI-2.4 | Component conventions | Completed | Nav, buttons, fields, lists, dialogs, progress, empty/loading/error | Spec + notes vs current `shared/ui` | UI-2.1–2.3 | Spec review |
-| UI-2.5 | Design-system approval gate | Pending | **Stop** for owner approval | Explicit approval | UI-2.4 | — |
-| UI-2.6 | Apply foundation tokens | Pending | Update `apps/web/src/index.css` + primitives (`Button`, `Field`, shells) to approved system | Tokens live; no full page redesign yet unless trivial | UI-2.5 | `pnpm --filter web typecheck` + spot browser |
+| UI-2.5 | Design-system approval gate | Completed | **Stop** for owner approval | Explicit approval (v2) | UI-2.4 | — |
+| UI-2.6 | Apply foundation tokens | Completed | Update `apps/web/src/index.css` + primitives (`Button`, `Field`, shells) to approved system | Tokens live; no full page redesign yet unless trivial | UI-2.5 | `pnpm --filter web typecheck` + spot browser |
 
 **Avoid:** purple SaaS defaults, warm-cream + default-serif AI cluster, broadsheet newspaper density, glassmorphism overload, card stacks for their own sake.
 
@@ -249,3 +249,4 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | 2026-11-06 | UI-1.5: `BrandMark` / `BrandLockup` on Home, AppShell, AuthShell; Vite favicon replaced. Phase 1 complete — next Phase 2 design system proposal. |
 | 2026-11-06 | Phase 2 proposal authored (`design-system.md` + board). **Awaiting UI-2.5 approval before token apply.** |
 | 2026-11-06 | Design system **v2** after critique (steel canvas, verdigris CTAs, IBM Plex). Still at UI-2.5. |
+| 2026-11-06 | UI-2.5 approved. UI-2.6 applied tokens/fonts/Button/Field/AppShell. Next: Phase 3 page redesigns. |
