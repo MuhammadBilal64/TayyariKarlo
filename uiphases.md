@@ -154,7 +154,7 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
-| UI-3.1 | Home + marketing chrome | Pending | Redesign `/` brand-first hero composition | Distinctive, responsive; logo integrated; flows intact | UI-2.6 | Browser desktop/mobile |
+| UI-3.1 | Home + marketing chrome | In Progress | Redesign `/` brand-first hero composition | Distinctive, responsive; logo integrated; flows intact | UI-2.6 | Browser desktop/mobile |
 | UI-3.2 | Auth shell + login/register | Pending | Redesign AuthShell, Login, Register | Consistent brand; a11y; forms work | UI-3.1 | Browser + auth flow |
 | UI-3.3 | App shell navigation | Pending | Redesign AppShell header/nav | Clear hierarchy; responsive nav | UI-3.2 | Browser |
 | UI-3.4 | Workspace / progress | Pending | Redesign `/app` progress + empty/rich states | Stronger hierarchy; data still correct | UI-3.3 | Browser + API data |
@@ -250,3 +250,4 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | 2026-11-06 | Phase 2 proposal authored (`design-system.md` + board). **Awaiting UI-2.5 approval before token apply.** |
 | 2026-11-06 | Design system **v2** after critique (steel canvas, verdigris CTAs, IBM Plex). Still at UI-2.5. |
 | 2026-11-06 | UI-2.5 approved. UI-2.6 applied tokens/fonts/Button/Field/AppShell. Next: Phase 3 page redesigns. |
+| 2026-11-06 | UI-3.1 Home mocks: v1 → v2 full-bleed sparse (recommended). Awaiting mock approval to implement. |
