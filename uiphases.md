@@ -173,8 +173,8 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
 | UI-4.1 | Asset opportunity map | Completed | Map in `design/mockups/assets/OPPORTUNITY_MAP.md` | Short list with rationale (skip filler); **awaiting pick of A–D** | UI-3.1+ | Review |
-| UI-4.2 | Generate candidate assets | Pending | Art-directed originals matching brand | Generated images presented | UI-4.1 | Visual review |
-| UI-4.3 | Asset approval gate | Pending | **Stop** for owner approval | Explicit approval | UI-4.2 | — |
+| UI-4.2 | Generate candidate assets | Completed | OG-1/2/3 + apple-touch/PWA PNGs in `design/mockups/assets/` | Generated images presented | UI-4.1 | Visual review |
+| UI-4.3 | Asset approval gate | In progress | **Stop** for owner approval (pick OG-1 or OG-2; B PNGs ready) | Explicit approval | UI-4.2 | — |
 | UI-4.4 | Integrate approved assets | Pending | Optimize, correct aspect ratios, responsive | Live in app; no placeholders | UI-4.3 | Browser + perf sanity |
 
 **Avoid:** stock clichés, generic AI blobs, people-at-laptops filler, decorative noise.
