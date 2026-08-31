@@ -18,4 +18,5 @@
 
 ## Gate
 
-Approve **OG-1 or OG-2** (and confirm B PNGs). Then integrate into `index.html` + `public/`.
+**Approved:** OG-1 + B PNGs.  
+**Integrated:** `apps/web/public/og-image.jpg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest`, meta tags in `index.html`.
