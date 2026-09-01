@@ -13,26 +13,31 @@ export function HomePage() {
   }
 
   return (
-    <div className="graph-bg flex min-h-screen flex-col px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
-      <header className="flex items-center justify-between gap-4">
+    <div className="app-canvas relative flex min-h-screen flex-col overflow-hidden">
+      {/* Steel Stage watermark — approved hero-v3-steel-stage */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-[48%] right-[-28%] hidden -translate-y-1/2 sm:right-[-16%] md:block lg:right-[-4%] xl:right-[4%]"
+      >
+        <BrandMark
+          decorative
+          className="h-[min(58vw,36rem)] w-[min(58vw,36rem)] text-ink opacity-[0.09]"
+        />
+      </div>
+
+      <header className="relative z-10 flex items-center justify-between gap-4 px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
         <BrandLockup
           to="/"
           markClassName="h-8 w-8 shrink-0 text-ink"
-          wordmarkClassName="font-display text-[1.65rem] tracking-[-0.02em] text-ink"
+          wordmarkClassName="font-display text-[1.35rem] tracking-[-0.02em] text-ink sm:text-[1.45rem]"
         />
         {!isAuthenticated ? (
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-4">
             <Link
               to="/login"
               className="cursor-pointer text-sm font-medium text-ink no-underline transition-colors duration-200 hover:text-signal hover:underline"
             >
               Sign in
-            </Link>
-            <Link
-              to="/register"
-              className="cursor-pointer no-underline hover:no-underline"
-            >
-              <Button className="px-3.5 py-2 text-sm">Create account</Button>
             </Link>
           </nav>
         ) : (
@@ -47,63 +52,60 @@ export function HomePage() {
         )}
       </header>
 
-      <section className="ui-enter mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center py-16 sm:py-20">
-        <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
-          Technical interview prep
-        </p>
-        <div className="mt-5 flex items-center gap-4 sm:gap-5">
-          <BrandMark className="h-14 w-14 shrink-0 text-ink sm:h-16 sm:w-16" />
-          <h1 className="font-display m-0 text-[clamp(2.4rem,6.5vw,4.2rem)] leading-none font-normal tracking-[-0.03em] text-ink">
-            TayyariKarlo
+      <section className="ui-enter relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+        <div className="max-w-xl">
+          <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
+            Close the gap
+          </p>
+          <h1 className="font-display mt-5 m-0 text-[clamp(2.35rem,6vw,3.75rem)] leading-[1.05] font-bold tracking-[-0.03em] text-ink">
+            Practice until the signal is clean.
           </h1>
-        </div>
-        <p className="mt-4 max-w-md text-base leading-relaxed text-ink-soft">
-          Practice assessments, see where you are weak, and rehearse interviews
-          before the real round.
-        </p>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-ink-soft sm:text-[1.05rem]">
+            See weak topics. Rehearse interviews. Handle messy evidence.
+          </p>
 
-        {isAuthenticated && user ? (
-          <div className="mt-8 max-w-md border-t border-line pt-5">
-            <p className="m-0 text-[0.95rem] text-ink-soft">
-              Signed in as{' '}
-              <strong className="font-semibold text-ink">{user.name}</strong> (
-              {user.email})
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
+          {isAuthenticated && user ? (
+            <div className="mt-9">
+              <p className="m-0 text-[0.95rem] text-ink-soft">
+                Signed in as{' '}
+                <strong className="font-semibold text-ink">{user.name}</strong>
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  to="/app"
+                  className="cursor-pointer no-underline hover:no-underline"
+                >
+                  <Button>Open workspace</Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    void logout();
+                  }}
+                >
+                  Sign out
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
-                to="/app"
+                to="/register"
                 className="cursor-pointer no-underline hover:no-underline"
               >
-                <Button>Open workspace</Button>
+                <Button className="min-w-40">Create account</Button>
               </Link>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  void logout();
-                }}
+              <Link
+                to="/login"
+                className="cursor-pointer no-underline hover:no-underline"
               >
-                Sign out
-              </Button>
+                <Button variant="ghost" className="min-w-32">
+                  Sign in
+                </Button>
+              </Link>
             </div>
-          </div>
-        ) : (
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/register"
-              className="cursor-pointer no-underline hover:no-underline"
-            >
-              <Button className="min-w-38">Create account</Button>
-            </Link>
-            <Link
-              to="/login"
-              className="cursor-pointer no-underline hover:no-underline"
-            >
-              <Button variant="ghost" className="min-w-38">
-                Sign in
-              </Button>
-            </Link>
-          </div>
-        )}
+          )}
+        </div>
       </section>
     </div>
   );
