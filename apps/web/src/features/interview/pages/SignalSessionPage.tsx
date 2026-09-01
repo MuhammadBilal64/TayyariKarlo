@@ -18,10 +18,10 @@ function statusLabel(status: string) {
 }
 
 const fieldClass =
-  'w-full cursor-text rounded-[6px] border border-line bg-surface px-3.5 py-2.5 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-mute/70 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)]';
+  'ui-input py-2.5';
 
 const underlineAction =
-  'cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-0 pb-1 text-[0.9rem] font-medium text-ink-soft transition-[color,border-color,opacity] duration-200 hover:border-ink/45 hover:text-ink focus-visible:outline-none focus-visible:text-ink disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:border-transparent disabled:hover:text-ink-soft';
+  'cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-0 pb-1 text-[0.9rem] font-medium text-ink-soft transition-[color,border-color,opacity] duration-200 hover:border-ink/45 hover:text-ink focus-visible:outline-none focus-visible:border-ink focus-visible:text-ink disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:border-transparent disabled:hover:text-ink-soft';
 
 export function SignalSessionPage() {
   const { sessionId = '' } = useParams();

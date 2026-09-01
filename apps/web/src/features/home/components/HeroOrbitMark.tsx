@@ -25,9 +25,21 @@ export function HeroOrbitMark({ className = '' }: HeroOrbitMarkProps) {
           y2="8"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="#0b0f14" stopOpacity="0.45" />
-          <stop offset="50%" stopColor="#1b5f56" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#2a8f82" stopOpacity="1" />
+          <stop
+            offset="0%"
+            stopColor="var(--color-ink)"
+            stopOpacity="0.45"
+          />
+          <stop
+            offset="50%"
+            stopColor="var(--color-signal)"
+            stopOpacity="0.9"
+          />
+          <stop
+            offset="100%"
+            stopColor="var(--color-signal-bright)"
+            stopOpacity="1"
+          />
         </linearGradient>
         <linearGradient
           id="hero-orbit-pip"
@@ -37,8 +49,8 @@ export function HeroOrbitMark({ className = '' }: HeroOrbitMarkProps) {
           y2="8"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="#0b0f14" />
-          <stop offset="100%" stopColor="#1b5f56" />
+          <stop offset="0%" stopColor="var(--color-ink)" />
+          <stop offset="100%" stopColor="var(--color-signal)" />
         </linearGradient>
         <filter
           id="hero-orbit-glow"

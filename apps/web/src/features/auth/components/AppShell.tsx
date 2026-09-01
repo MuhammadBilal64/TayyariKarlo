@@ -17,10 +17,10 @@ function WorkspaceNavLink({
       to={to}
       end={end}
       className={({ isActive }) =>
-        `relative inline-flex cursor-pointer items-center border-b-2 px-2.5 py-2 text-[0.9375rem] no-underline transition-[color,border-color] duration-200 ease-out hover:no-underline ${
+        `relative inline-flex cursor-pointer items-center border-b-2 px-2.5 py-2 text-[0.9375rem] no-underline transition-[color,border-color] duration-200 ease-out hover:no-underline focus-visible:outline-offset-4 ${
           isActive
             ? 'border-ink font-semibold text-ink'
-            : 'border-transparent font-medium text-ink-soft hover:text-ink'
+            : 'border-transparent font-medium text-ink-soft hover:border-ink/35 hover:text-ink focus-visible:border-ink/50 focus-visible:text-ink'
         }`
       }
     >

@@ -182,7 +182,7 @@ function SetupPageForm({
                         <button
                           key={level}
                           type="button"
-                          className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 focus-visible:outline-none ${
+                          className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 focus-visible:outline-none focus-visible:border-ink ${
                             active
                               ? 'border-ink font-semibold text-ink'
                               : 'border-transparent font-medium text-ink-soft hover:border-ink/45 hover:text-ink'
@@ -210,7 +210,7 @@ function SetupPageForm({
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
             aria-label="Question count"
-            className="h-12 w-[5.5rem] cursor-text rounded-[6px] border border-line bg-surface px-3.5 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)]"
+            className="ui-input h-12 w-[5.5rem] px-3.5 py-0"
           />
           <p className="mt-2 m-0 text-[0.85rem] text-mute">
             {available === null

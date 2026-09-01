@@ -41,7 +41,7 @@ function variantLabel(variant: SignalVariant) {
 type InterviewMode = 'classic' | 'signal';
 
 const underlineSelect =
-  'cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 focus-visible:outline-none'
+  'cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 focus-visible:outline-none focus-visible:border-ink'
 
 export function InterviewSetupPage() {
   const { accessToken } = useAuth();
@@ -198,7 +198,7 @@ export function InterviewSetupPage() {
                     placeholder="Node.js, PostgreSQL, NestJS"
                     rows={2}
                     required
-                    className="w-full max-w-md cursor-text resize-y rounded-[6px] border border-line bg-surface px-3.5 py-2.5 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-mute/70 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)] sm:ml-auto"
+                    className="ui-input max-w-md resize-y py-2.5 sm:ml-auto"
                   />
                   <p className="mt-2 m-0 text-[0.8rem] text-mute sm:text-right">
                     Comma-separated. Only what you want tested.

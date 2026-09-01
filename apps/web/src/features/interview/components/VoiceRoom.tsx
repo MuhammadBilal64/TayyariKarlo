@@ -290,7 +290,7 @@ export function VoiceRoom({
         {phase === 'asking' ? (
           <button
             type="button"
-            className="mt-3 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-0 pb-1 text-[0.85rem] font-semibold text-signal transition-[color,border-color] duration-200 hover:border-signal/50 hover:text-signal-hover focus-visible:outline-none"
+            className="mt-3 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-0 pb-1 text-[0.85rem] font-semibold text-signal transition-[color,border-color] duration-200 hover:border-signal/50 hover:text-signal-hover focus-visible:outline-none focus-visible:border-signal"
             onClick={() => void play('question', openTurn.id)}
           >
             Replay question
@@ -331,7 +331,7 @@ export function VoiceRoom({
                 rows={5}
                 disabled={phase === 'thinking' || phase === 'asking'}
                 placeholder="Your words show up here after you speak. You can correct them before the clock ends."
-                className="w-full cursor-text resize-y rounded-[6px] border border-line bg-surface px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-mute/70 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)] disabled:cursor-not-allowed disabled:opacity-70"
+                className="ui-input resize-y"
               />
             </label>
             <div className="mt-4 flex flex-wrap gap-2.5">
