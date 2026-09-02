@@ -13,19 +13,25 @@ export function HomePage() {
   }
 
   return (
-    <div className="app-canvas relative flex min-h-screen flex-col overflow-hidden">
-      {/* Steel Stage watermark — approved hero-v3-steel-stage */}
+    <div
+      className="relative flex min-h-screen flex-col overflow-hidden"
+      style={{
+        background:
+          'linear-gradient(165deg, #f5f7fa 0%, #f1f3f7 42%, #e8ecf2 100%)',
+      }}
+    >
+      {/* Steel Stage watermark — kept clear of the type column */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-[48%] right-[-28%] hidden -translate-y-1/2 sm:right-[-16%] md:block lg:right-[-4%] xl:right-[4%]"
+        className="pointer-events-none absolute top-1/2 right-[-32%] hidden -translate-y-1/2 md:block lg:right-[-12%] xl:right-[-2%]"
       >
         <BrandMark
           decorative
-          className="h-[min(58vw,36rem)] w-[min(58vw,36rem)] text-ink opacity-[0.09]"
+          className="h-[min(62vw,40rem)] w-[min(62vw,40rem)] text-ink opacity-[0.085]"
         />
       </div>
 
-      <header className="relative z-10 flex items-center justify-between gap-4 px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
+      <header className="relative z-10 flex shrink-0 items-center justify-between gap-4 px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
         <BrandLockup
           to="/"
           markClassName="h-8 w-8 shrink-0 text-ink"
@@ -52,7 +58,7 @@ export function HomePage() {
         )}
       </header>
 
-      <section className="ui-enter relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+      <section className="ui-enter relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-5 pb-[12vh] pt-6 sm:px-8 lg:px-12">
         <div className="max-w-xl">
           <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
             Close the gap
