@@ -149,7 +149,7 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 ## Phase 3 — Page-by-page UI/UX redesign
 
 **Goal:** Apply approved system page by page; preserve all functionality.  
-**Status:** Pending  
+**Status:** Completed  
 **Note:** Substantial screens follow mockup → approve → implement per [ui-design.md](ui-design.md) when required.
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
@@ -184,13 +184,13 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 ## Phase 5 — Implementation polish & integration
 
 **Goal:** Close gaps between approved design and code quality.  
-**Status:** Pending
+**Status:** Completed
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
-| UI-5.1 | Interaction states | Pending | Hover/focus/disabled/active; reduced-motion | Consistent; keyboard focus visible | Phase 3–4 | Keyboard + a11y spot |
-| UI-5.2 | Token cleanup | Pending | Remove one-off colors/fonts fighting the system | Few raw hex/font exceptions | UI-5.1 | Grep + visual |
-| UI-5.3 | Regression pass | Pending | Auth, assessments, interviews still work | No functional regressions | UI-5.2 | Manual smoke |
+| UI-5.1 | Interaction states | Completed | Shared `.ui-input`, focus rings, nav/underline hover-focus, reduced-motion for `ui-enter`/presence/chips | Consistent; keyboard focus visible | Phase 3–4 | Keyboard + a11y spot |
+| UI-5.2 | Token cleanup | Completed | `--shadow-focus` / signal shadows / steel tokens; Field + forms on `.ui-input`; hero orbit uses CSS vars | Few raw hex/font exceptions | UI-5.1 | Grep + visual |
+| UI-5.3 | Regression pass | Completed | Smoke Home, Progress, Assessments setup, Interviews setup; login redirects when signed in; `tsc --noEmit` clean | No functional regressions | UI-5.2 | Manual smoke |
 
 ---
 
