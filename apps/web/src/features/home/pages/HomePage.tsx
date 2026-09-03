@@ -20,14 +20,14 @@ export function HomePage() {
           'linear-gradient(165deg, #f5f7fa 0%, #f1f3f7 42%, #e8ecf2 100%)',
       }}
     >
-      {/* Steel Stage watermark — kept clear of the type column */}
+      {/* Steel Stage watermark — sized to sit quietly beside copy */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-1/2 right-[-32%] hidden -translate-y-1/2 md:block lg:right-[-12%] xl:right-[-2%]"
+        className="pointer-events-none absolute top-[52%] right-[-6%] hidden -translate-y-1/2 md:block lg:right-[4%] xl:right-[8%]"
       >
         <BrandMark
           decorative
-          className="h-[min(62vw,40rem)] w-[min(62vw,40rem)] text-ink opacity-[0.085]"
+          className="h-[min(42vw,26rem)] w-[min(42vw,26rem)] text-ink opacity-[0.08]"
         />
       </div>
 
@@ -37,16 +37,7 @@ export function HomePage() {
           markClassName="h-8 w-8 shrink-0 text-ink"
           wordmarkClassName="font-display text-[1.35rem] tracking-[-0.02em] text-ink sm:text-[1.45rem]"
         />
-        {!isAuthenticated ? (
-          <nav className="flex items-center gap-4">
-            <Link
-              to="/login"
-              className="cursor-pointer text-sm font-medium text-ink no-underline transition-colors duration-200 hover:text-signal hover:underline"
-            >
-              Sign in
-            </Link>
-          </nav>
-        ) : (
+        {isAuthenticated ? (
           <nav className="flex items-center gap-3">
             <Link
               to="/app"
@@ -55,7 +46,7 @@ export function HomePage() {
               <Button className="px-3.5 py-2 text-sm">Open workspace</Button>
             </Link>
           </nav>
-        )}
+        ) : null}
       </header>
 
       <section className="ui-enter relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-5 pb-[12vh] pt-6 sm:px-8 lg:px-12">
