@@ -48,7 +48,7 @@ export function AppShell() {
     <div className="app-canvas flex min-h-screen flex-col">
       <header className="sticky top-0 z-20 border-b border-line bg-surface px-5 py-3 sm:px-8 lg:px-12">
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-7 gap-y-2">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-x-7 gap-y-2 sm:w-auto">
             <BrandLockup
               to="/app"
               className="shrink-0"
@@ -70,7 +70,7 @@ export function AppShell() {
               </WorkspaceNavLink>
             </nav>
           </div>
-          <div className="flex items-center gap-3.5">
+          <div className="ml-auto flex w-full items-center justify-end gap-3.5 sm:w-auto">
             {user ? (
               <p className="m-0 hidden max-w-[11rem] truncate text-sm text-ink-soft sm:block">
                 {user.name}
