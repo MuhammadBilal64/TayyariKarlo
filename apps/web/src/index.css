@@ -171,6 +171,62 @@
     animation: ui-enter var(--dur) var(--ease-out) both;
   }
 
+  /* Home Steel Stage atmosphere */
+  .home-steel-stage {
+    background: linear-gradient(
+      165deg,
+      #f7f9fc 0%,
+      #f1f3f7 40%,
+      #e6ebf2 78%,
+      #e3efe9 100%
+    );
+  }
+
+  .home-orbit-glow {
+    background: radial-gradient(
+      circle,
+      rgb(27 95 86 / 0.16) 0%,
+      rgb(27 95 86 / 0.05) 42%,
+      transparent 70%
+    );
+    filter: blur(2px);
+    animation: home-glow-breathe 7s ease-in-out infinite;
+  }
+
+  .hero-orbit-mark {
+    transform-origin: 50% 50%;
+    animation: hero-orbit-revolve 56s linear infinite;
+    will-change: transform;
+  }
+
+  .home-enter {
+    animation: home-enter-up 700ms var(--ease-out) both;
+  }
+
+  .home-enter-1 {
+    animation-delay: 40ms;
+  }
+  .home-enter-2 {
+    animation-delay: 120ms;
+  }
+  .home-enter-3 {
+    animation-delay: 200ms;
+  }
+  .home-enter-4 {
+    animation-delay: 280ms;
+  }
+  .home-enter-5 {
+    animation-delay: 380ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-orbit-mark,
+    .home-orbit-glow,
+    .home-enter {
+      animation: none;
+    }
+  }
+
   .ui-progress {
     transition: width var(--dur) var(--ease-out);
   }
@@ -254,6 +310,38 @@
   from {
     opacity: 0;
     transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-orbit-revolve {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes home-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes home-enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
