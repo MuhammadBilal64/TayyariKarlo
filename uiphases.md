@@ -197,13 +197,13 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 ## Phase 6 — Browser verification & visual refinement
 
 **Goal:** Browser truth over “it compiles.”  
-**Status:** Pending
+**Status:** Completed
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
-| UI-6.1 | Desktop visual QA | Pending | All primary routes | Matches approved direction | UI-5.3 | Browser |
-| UI-6.2 | Tablet / mobile QA | Pending | Representative breakpoints | No broken layouts; nav usable | UI-6.1 | Browser resize/emulation |
-| UI-6.3 | Fix findings | Pending | Spacing, contrast, overflow, hierarchy issues | Findings closed or listed as deferred with reason | UI-6.2 | Re-inspect |
+| UI-6.1 | Desktop visual QA | Completed | Home, Progress, Assessments setup, Interviews setup, Results | Matches approved Score Stage direction | UI-5.3 | Browser |
+| UI-6.2 | Tablet / mobile QA | Completed | 768 tablet + 390 mobile; no overflow-x; topic/difficulty wrap | No broken layouts; nav usable | UI-6.1 | Browser resize/emulation |
+| UI-6.3 | Fix findings | Completed | Mobile header: Sign out stayed left after wrap → right-align actions cluster | Findings closed or listed as deferred with reason | UI-6.2 | Re-inspect |
 
 ---
 
