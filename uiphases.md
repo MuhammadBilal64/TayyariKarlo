@@ -210,12 +210,12 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 ## Phase 7 — Documentation & completion
 
 **Goal:** Sync docs; completion summary; wait for merge approval.  
-**Status:** Pending
+**Status:** In Progress (awaiting merge approval)
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
-| UI-7.1 | Final `uiphases.md` sync | Pending | All tasks accurate; verification notes | Doc matches reality | UI-6.3 | Review |
-| UI-7.2 | Completion report | Pending | Logo, system, pages, assets, QA, commits, remaining issues | Report delivered in chat | UI-7.1 | — |
+| UI-7.1 | Final `uiphases.md` sync | Completed | Phases 0–6 marked complete; inventory current | Doc matches reality | UI-6.3 | Review |
+| UI-7.2 | Completion report | Completed | Delivered in chat (logo, system, pages, assets, QA, commits) | Report delivered in chat | UI-7.1 | — |
 | UI-7.3 | Merge approval gate | Pending | **Do not merge** without owner | Owner decision | UI-7.2 | — |
 
 ---
@@ -252,3 +252,5 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | 2026-11-06 | UI-2.5 approved. UI-2.6 applied tokens/fonts/Button/Field/AppShell. Next: Phase 3 page redesigns. |
 | 2026-11-06 | UI-3.1 Home mocks: v1 → v2 full-bleed sparse (recommended). Awaiting mock approval to implement. |
 | 2026-11-06 | Steel Stage approved; HomePage implemented to match `hero-v3-steel-stage.jpg`. |
+| 2026-11-08 | Phases 3–6 closed: Score Stage Progress/Assessments/Interviews, status patterns, OG-1 + icons, interaction/token polish, desktop+mobile QA (Sign out wrap fix). |
+| 2026-11-08 | Phase 7: docs synced; completion report in chat. **Awaiting UI-7.3 merge approval — do not merge.** |
