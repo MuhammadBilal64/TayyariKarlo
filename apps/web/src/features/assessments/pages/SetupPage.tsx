@@ -176,8 +176,7 @@ function SetupPageForm({
                     aria-label={`Difficulty for ${topicLabel(value)}`}
                   >
                     {DIFFICULTIES.map((level) => {
-                      const active =
-                        topicSelected && difficulty === level;
+                      const active = topicSelected && difficulty === level;
                       return (
                         <button
                           key={level}
@@ -187,9 +186,7 @@ function SetupPageForm({
                               ? 'border-ink font-semibold text-ink'
                               : 'border-transparent font-medium text-ink-soft hover:border-ink/45 hover:text-ink'
                           }`}
-                          onClick={() =>
-                            selectTopicDifficulty(value, level)
-                          }
+                          onClick={() => selectTopicDifficulty(value, level)}
                         >
                           {difficultyLabel(level)}
                         </button>

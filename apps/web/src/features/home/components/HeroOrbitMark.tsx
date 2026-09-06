@@ -25,11 +25,7 @@ export function HeroOrbitMark({ className = '' }: HeroOrbitMarkProps) {
           y2="8"
           gradientUnits="userSpaceOnUse"
         >
-          <stop
-            offset="0%"
-            stopColor="var(--color-ink)"
-            stopOpacity="0.45"
-          />
+          <stop offset="0%" stopColor="var(--color-ink)" stopOpacity="0.45" />
           <stop
             offset="50%"
             stopColor="var(--color-signal)"

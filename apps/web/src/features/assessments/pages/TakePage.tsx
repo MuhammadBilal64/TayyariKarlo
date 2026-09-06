@@ -207,7 +207,10 @@ export function TakePage() {
         {question.options.map((option, optionIndex) => {
           const checked = selected === optionIndex;
           return (
-            <li key={`${question.id}-${optionIndex}`} className="border-b border-line">
+            <li
+              key={`${question.id}-${optionIndex}`}
+              className="border-b border-line"
+            >
               <label
                 className={`ui-row flex cursor-pointer items-start gap-3.5 border-l-2 py-4 pl-3.5 transition-[background-color,border-color] duration-200 ${
                   checked

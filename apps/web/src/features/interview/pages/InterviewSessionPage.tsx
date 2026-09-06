@@ -309,7 +309,9 @@ export function InterviewSessionPage() {
           </div>
 
           <form className="mt-6" onSubmit={onSubmit}>
-            {error ? <StatusBanner className="mb-4">{error}</StatusBanner> : null}
+            {error ? (
+              <StatusBanner className="mb-4">{error}</StatusBanner>
+            ) : null}
             <label className="block">
               <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
                 Your response

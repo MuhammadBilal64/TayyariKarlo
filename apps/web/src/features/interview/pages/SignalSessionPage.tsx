@@ -17,8 +17,7 @@ function statusLabel(status: string) {
   return status.replaceAll('_', ' ');
 }
 
-const fieldClass =
-  'ui-input py-2.5';
+const fieldClass = 'ui-input py-2.5';
 
 const underlineAction =
   'cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-0 pb-1 text-[0.9rem] font-medium text-ink-soft transition-[color,border-color,opacity] duration-200 hover:border-ink/45 hover:text-ink focus-visible:outline-none focus-visible:border-ink focus-visible:text-ink disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:border-transparent disabled:hover:text-ink-soft';

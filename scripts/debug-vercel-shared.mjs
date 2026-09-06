@@ -70,10 +70,15 @@ if (linkExists) {
     linkTarget = fs.realpathSync(webLink);
   }
 }
-log('B', 'debug-vercel-shared.mjs:workspace-link', 'apps/web node_modules @tayyari/shared', {
-  linkExists,
-  linkTarget,
-});
+log(
+  'B',
+  'debug-vercel-shared.mjs:workspace-link',
+  'apps/web node_modules @tayyari/shared',
+  {
+    linkExists,
+    linkTarget,
+  },
+);
 
 // H-D: exports point only at dist?
 log('D', 'debug-vercel-shared.mjs:exports', 'shared package exports/types', {
@@ -96,11 +101,16 @@ if (fs.existsSync(distDir)) {
 }
 
 const distExistsBeforeTsc = fs.existsSync(sharedDistDts);
-log('A', 'debug-vercel-shared.mjs:pre-tsc', 'shared dist before tsc (Vercel-like)', {
-  distDtsExists: distExistsBeforeTsc,
-  distJsExists: fs.existsSync(sharedDistJs),
-  simulatedMissingDist: moved,
-});
+log(
+  'A',
+  'debug-vercel-shared.mjs:pre-tsc',
+  'shared dist before tsc (Vercel-like)',
+  {
+    distDtsExists: distExistsBeforeTsc,
+    distJsExists: fs.existsSync(sharedDistJs),
+    simulatedMissingDist: moved,
+  },
+);
 
 const tsc = spawnSync(
   process.platform === 'win32' ? 'npx.cmd' : 'npx',
@@ -113,12 +123,22 @@ const tsc = spawnSync(
 );
 
 const tscOut = `${tsc.stdout || ''}${tsc.stderr || ''}`;
-const cannotFindShared = tscOut.includes("Cannot find module '@tayyari/shared'");
-log('A', 'debug-vercel-shared.mjs:tsc-without-dist', 'tsc -b with shared dist missing', {
-  exitCode: tsc.status,
-  cannotFindShared,
-  errorSample: tscOut.split('\n').filter((l) => l.includes('TS2307') || l.includes('error TS')).slice(0, 5),
-});
+const cannotFindShared = tscOut.includes(
+  "Cannot find module '@tayyari/shared'",
+);
+log(
+  'A',
+  'debug-vercel-shared.mjs:tsc-without-dist',
+  'tsc -b with shared dist missing',
+  {
+    exitCode: tsc.status,
+    cannotFindShared,
+    errorSample: tscOut
+      .split('\n')
+      .filter((l) => l.includes('TS2307') || l.includes('error TS'))
+      .slice(0, 5),
+  },
+);
 
 // Restore dist and build shared, then tsc again
 if (moved && fs.existsSync(backupDir)) {
@@ -147,12 +167,25 @@ const tsc2 = spawnSync(
 );
 
 const tsc2Out = `${tsc2.stdout || ''}${tsc2.stderr || ''}`;
-log('E', 'debug-vercel-shared.mjs:tsc-with-dist', 'tsc -b after shared dist exists', {
-  exitCode: tsc2.status,
-  cannotFindShared: tsc2Out.includes("Cannot find module '@tayyari/shared'"),
-  errorSample: tsc2Out.split('\n').filter((l) => l.includes('error TS')).slice(0, 5),
-});
+log(
+  'E',
+  'debug-vercel-shared.mjs:tsc-with-dist',
+  'tsc -b after shared dist exists',
+  {
+    exitCode: tsc2.status,
+    cannotFindShared: tsc2Out.includes("Cannot find module '@tayyari/shared'"),
+    errorSample: tsc2Out
+      .split('\n')
+      .filter((l) => l.includes('error TS'))
+      .slice(0, 5),
+  },
+);
 
 console.log('Wrote', logPath);
-console.log('without dist: exit', tsc.status, 'cannotFindShared', cannotFindShared);
+console.log(
+  'without dist: exit',
+  tsc.status,
+  'cannotFindShared',
+  cannotFindShared,
+);
 console.log('with dist: exit', tsc2.status);

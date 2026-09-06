@@ -41,7 +41,7 @@ function variantLabel(variant: SignalVariant) {
 type InterviewMode = 'classic' | 'signal';
 
 const underlineSelect =
-  'cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 focus-visible:outline-none focus-visible:border-ink'
+  'cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 focus-visible:outline-none focus-visible:border-ink';
 
 export function InterviewSetupPage() {
   const { accessToken } = useAuth();

@@ -37,7 +37,10 @@ function TrendMarks({ trends }: { trends: ProgressSummary['trends'] }) {
   const max = Math.max(...trends.map((point) => point.percent), 1);
 
   return (
-    <div className="mt-3 flex h-8 items-end justify-center gap-1.5" aria-hidden="true">
+    <div
+      className="mt-3 flex h-8 items-end justify-center gap-1.5"
+      aria-hidden="true"
+    >
       {trends.map((point) => (
         <span
           key={point.attemptId}

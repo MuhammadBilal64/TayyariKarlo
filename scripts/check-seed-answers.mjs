@@ -14,10 +14,7 @@ const known = [
     'O(log n)',
   ],
   ['Horizontal scaling means:', 'Adding more machines/instances'],
-  [
-    'A stack follows which access order?',
-    'LIFO',
-  ],
+  ['A stack follows which access order?', 'LIFO'],
 ];
 
 let m;

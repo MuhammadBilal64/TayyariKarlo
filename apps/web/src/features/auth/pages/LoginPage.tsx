@@ -102,9 +102,7 @@ export function LoginPage() {
           onChange={(event) => setPassword(event.target.value)}
           required
         />
-        {error ? (
-          <StatusBanner className="mb-3.5">{error}</StatusBanner>
-        ) : null}
+        {error ? <StatusBanner className="mb-3.5">{error}</StatusBanner> : null}
         <Button type="submit" className="mt-1 w-full" disabled={submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}
         </Button>
