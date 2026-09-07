@@ -155,7 +155,7 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
 | UI-3.1 | Home + marketing chrome | Completed | Redesign `/` brand-first hero composition (Steel Stage) | Distinctive, responsive; logo integrated; flows intact | UI-2.6 | Browser desktop/mobile |
-| UI-3.2 | Auth shell + login/register | Pending | Redesign AuthShell, Login, Register | Consistent brand; a11y; forms work | UI-3.1 | Browser + auth flow |
+| UI-3.2 | Auth shell + login/register | Completed | Redesign AuthShell, Login, Register (Steel Stage + Orbit Gap) | Consistent brand; a11y; forms work | UI-3.1 | Browser + auth flow |
 | UI-3.3 | App shell navigation | Pending | Redesign AppShell header/nav | Clear hierarchy; responsive nav | UI-3.2 | Browser |
 | UI-3.4 | Workspace / progress | Pending | Redesign `/app` progress + empty/rich states | Stronger hierarchy; data still correct | UI-3.3 | Browser + API data |
 | UI-3.5 | Assessments flow | Pending | Setup → take → results visual redesign | Flows and scoring unchanged | UI-3.4 | Browser E2E smoke |

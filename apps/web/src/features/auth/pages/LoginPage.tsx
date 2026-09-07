@@ -52,25 +52,6 @@ export function LoginPage() {
 
   return (
     <AuthShell
-      eyebrow="Interview prep"
-      quote="Come back to the problem set. One session closer."
-      brandBody="Sign in to continue assessments, track weak topics, and practice under real interview pressure."
-      brandFooter={
-        <div className="flex flex-wrap gap-5">
-          <span className="inline-flex items-center gap-2">
-            <i className="inline-block size-1.5 rounded-full bg-signal" />
-            Assessments
-          </span>
-          <span className="inline-flex items-center gap-2">
-            <i className="inline-block size-1.5 rounded-full bg-signal" />
-            Progress
-          </span>
-          <span className="inline-flex items-center gap-2">
-            <i className="inline-block size-1.5 rounded-full bg-signal" />
-            Mock interviews
-          </span>
-        </div>
-      }
       formEyebrow="Welcome back"
       title="Sign in"
       subtitle="Use the email you registered with."
@@ -102,7 +83,7 @@ export function LoginPage() {
           required
         />
         {error ? (
-          <p className="mb-3.5 rounded-[10px] bg-danger-soft px-3.5 py-2.5 text-[0.85rem] text-danger">
+          <p className="mb-3.5 rounded-[6px] bg-danger-soft px-3.5 py-2.5 text-[0.85rem] text-danger">
             {error}
           </p>
         ) : null}
