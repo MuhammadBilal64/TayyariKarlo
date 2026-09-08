@@ -1,4 +1,4 @@
-import { registerSchema } from '@tayyari/shared';
+﻿import { registerSchema } from '@tayyari/shared';
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
@@ -52,6 +52,25 @@ export function RegisterPage() {
 
   return (
     <AuthShell
+      eyebrow="Start preparing"
+      quote="A quiet place to get interview-ready."
+      brandBody={
+        <ul className="m-0 grid list-none gap-2.5 p-0">
+          <li className="flex items-start gap-2.5">
+            <span className="mt-1.5 size-2 shrink-0 rounded-[2px] bg-signal" />
+            Timed assessments by topic and difficulty
+          </li>
+          <li className="flex items-start gap-2.5">
+            <span className="mt-1.5 size-2 shrink-0 rounded-[2px] bg-signal" />
+            Clear progress on weak areas
+          </li>
+          <li className="flex items-start gap-2.5">
+            <span className="mt-1.5 size-2 shrink-0 rounded-[2px] bg-signal" />
+            Practice interviews when you are ready
+          </li>
+        </ul>
+      }
+      brandFooter="No clutter. Just the work that moves you forward."
       formEyebrow="New account"
       title="Create account"
       subtitle="Three fields. You can refine your profile later."
@@ -94,7 +113,7 @@ export function RegisterPage() {
           required
         />
         {error ? (
-          <p className="mb-3.5 rounded-[6px] bg-danger-soft px-3.5 py-2.5 text-[0.85rem] text-danger">
+          <p className="mb-3.5 rounded-[10px] bg-danger-soft px-3.5 py-2.5 text-[0.85rem] text-danger">
             {error}
           </p>
         ) : null}
