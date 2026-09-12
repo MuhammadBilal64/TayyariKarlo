@@ -36,22 +36,64 @@ function TrendMarks({ trends }: { trends: ProgressSummary['trends'] }) {
   const max = Math.max(...trends.map((point) => point.percent), 1);
 
   return (
-    <>
-      <div className="mt-5 flex h-10 items-end gap-1.5" aria-hidden="true">
-        {trends.map((point) => (
+    <div className="mt-3 flex h-8 items-end justify-center gap-1.5" aria-hidden="true">
+      {trends.map((point) => (
+        <span
+          key={point.attemptId}
+          className="ui-progress block w-[0.4rem] rounded-t-[2px] bg-signal/85"
+          style={{
+            height: `${Math.max(10, (point.percent / max) * 100)}%`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ScoreStage({
+  hasScore,
+  skillScore,
+  completedCount,
+  trends,
+}: {
+  hasScore: boolean;
+  skillScore: number | null;
+  completedCount: number;
+  trends: ProgressSummary['trends'];
+}) {
+  return (
+    <div className="relative flex min-h-[8.5rem] w-full flex-col items-center justify-center px-3 py-5 md:min-h-[9.5rem]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-1/2 h-[11rem] w-[11rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-signal/14 blur-3xl md:h-[13rem] md:w-[13rem]"
+      />
+      {hasScore && skillScore !== null ? (
+        <>
+          <p className="font-display relative m-0 text-[clamp(2.85rem,8vw,4.25rem)] leading-[0.95] font-normal tracking-[-0.04em] text-ink">
+            {Math.round(skillScore)}
+            <em className="italic text-signal">%</em>
+          </p>
+          <p className="relative mt-2 m-0 text-center text-[0.8rem] leading-snug text-ink-soft">
+            Skill score from {completedCount} completed attempt
+            {completedCount === 1 ? '' : 's'}
+          </p>
+          <div className="relative">
+            <TrendMarks trends={trends} />
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Mock A empty glyph: short stub bar, not a typographic dash */}
           <span
-            key={point.attemptId}
-            className="ui-progress block w-[0.45rem] rounded-t-[2px] bg-signal/85"
-            style={{
-              height: `${Math.max(12, (point.percent / max) * 100)}%`,
-            }}
+            aria-hidden
+            className="relative block h-1 w-11 rounded-[1px] bg-mute/70"
           />
-        ))}
-      </div>
-      <p className="mt-2.5 m-0 text-[0.78rem] text-mute">
-        Recent completed scores (oldest → newest)
-      </p>
-    </>
+          <p className="relative mt-3 m-0 max-w-[11.5rem] text-center text-[0.8rem] leading-snug text-ink-soft">
+            Unlock with your first completed set.
+          </p>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -78,7 +120,6 @@ export function WorkspacePage() {
       setLoading(true);
       setError(null);
       try {
-        // Progress is required; recommendations can fail independently.
         const [summaryResult, recsResult] = await Promise.allSettled([
           getProgressSummary(accessToken),
           getRecommendations(accessToken),
@@ -125,7 +166,7 @@ export function WorkspacePage() {
   if (error || !progress) {
     return (
       <section>
-        <p className="rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
+        <p className="rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
           {error ?? 'Unable to load progress'}
         </p>
         <Link
@@ -143,82 +184,71 @@ export function WorkspacePage() {
   const hasAttempts = progress.recentAttempts.length > 0;
 
   return (
-    <section>
-      <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
+    <section className="w-full">
+      <p className="m-0 text-[0.7rem] font-semibold tracking-[0.18em] text-signal uppercase">
         Progress
       </p>
-      <h1 className="font-display mt-3 text-[clamp(2rem,4vw,2.8rem)] leading-none font-normal tracking-[-0.03em] text-ink">
-        Where you stand
-      </h1>
 
-      <div className="mt-5 border-b border-line pb-6">
-        {hasScore ? (
-          <p className="font-display m-0 text-[clamp(3.5rem,12vw,5.25rem)] leading-[0.95] font-normal tracking-[-0.04em] text-ink">
-            {Math.round(skillScore)}
-            <em className="italic text-signal">%</em>
-          </p>
-        ) : (
-          <p className="font-display m-0 text-[clamp(3.5rem,12vw,5.25rem)] leading-[0.95] font-normal tracking-[-0.04em] text-mute">
-            —
-          </p>
-        )}
-        <p className="mt-3.5 m-0 max-w-md text-base text-ink-soft">
-          {hasScore
-            ? `Skill score from ${progress.completedCount} completed attempt${progress.completedCount === 1 ? '' : 's'}`
-            : 'No completed attempts yet. Take a short set to unlock your skill score and history.'}
-        </p>
-        {hasScore ? <TrendMarks trends={progress.trends} /> : null}
+      {/* Score Stage hero — title left, readout right */}
+      <div className="mt-3 grid items-center gap-4 border-b border-line pb-8 md:grid-cols-[minmax(0,1.15fr)_minmax(12rem,0.85fr)] md:gap-6 md:pb-9">
+        <h1 className="font-display m-0 text-[clamp(2.15rem,4.2vw,3rem)] leading-[1.06] font-semibold tracking-[-0.03em] text-ink italic">
+          Where you stand
+        </h1>
+        <ScoreStage
+          hasScore={hasScore}
+          skillScore={skillScore}
+          completedCount={progress.completedCount}
+          trends={progress.trends}
+        />
       </div>
 
-      <p className="mt-7 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
+      <p className="mt-8 mb-0 text-[0.8rem] font-semibold text-ink-soft">
         Focus next
       </p>
       {recommendations.length > 0 ? (
-        <ol className="m-0 grid list-none gap-0 border-t border-line p-0">
-          {recommendations.map((rec, index) => (
+        <ul className="mt-3 m-0 list-none border-t border-line p-0">
+          {recommendations.map((rec) => (
             <li key={rec.topic} className="border-b border-line">
               <Link
                 to={practiceHref(rec)}
-                className="ui-row grid cursor-pointer grid-cols-[1.5rem_1fr] items-start gap-x-3.5 gap-y-3 py-4 no-underline hover:no-underline sm:grid-cols-[1.5rem_1fr_auto]"
+                className="ui-row grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-x-5 gap-y-1 py-[1.15rem] no-underline hover:no-underline"
               >
-                <span className="font-display text-[1.25rem] leading-tight text-signal">
-                  {index + 1}
-                </span>
-                <div>
-                  <p className="m-0 text-[0.98rem] font-semibold text-ink">
+                <div className="min-w-0">
+                  <p className="m-0 text-[1rem] font-semibold text-ink">
                     {topicLabel(rec.topic)}
                   </p>
-                  <p className="mt-1.5 m-0 text-[0.88rem] leading-snug text-ink-soft">
+                  <p className="mt-1 m-0 text-[0.875rem] leading-snug text-ink-soft">
                     {rec.reason}
                   </p>
-                  <p className="mt-1.5 m-0 text-[0.75rem] font-semibold tracking-[0.08em] text-mute uppercase">
+                  <p className="mt-1.5 m-0 text-[0.7rem] font-semibold tracking-[0.1em] text-mute uppercase">
                     Suggested · {difficultyLabel(rec.suggestedDifficulty)}
                   </p>
                 </div>
-                <span className="col-start-2 inline-flex cursor-pointer items-center justify-center rounded-[10px] bg-signal px-3.5 py-2 text-[0.85rem] font-semibold whitespace-nowrap text-white transition-[background-color,transform] duration-200 hover:bg-signal-hover sm:col-start-auto sm:self-center">
+                <span className="inline-flex shrink-0 items-center gap-1 self-center text-[0.9rem] font-semibold whitespace-nowrap text-signal">
                   Practice
+                  <span aria-hidden>→</span>
                 </span>
               </Link>
             </li>
           ))}
-        </ol>
+        </ul>
       ) : (
-        <p className="m-0 border-y border-line py-4 text-[0.95rem] text-ink-soft">
+        <p className="mt-3 m-0 border-y border-line py-4 text-[0.95rem] text-ink-soft">
           Recommendations unavailable right now. Start any assessment to keep
           practicing.
         </p>
       )}
 
-      <p className="mt-7 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
+      <p className="mt-8 mb-0 text-[0.8rem] font-semibold text-ink-soft">
         Recent attempts
       </p>
       {hasAttempts ? (
-        <ul className="m-0 list-none border-t border-line p-0">
+        <ul className="mt-3 m-0 list-none border-t border-line p-0">
           {progress.recentAttempts.map((attempt) => (
             <li key={attempt.id} className="border-b border-line">
               <Link
                 to={`/app/assessments/${attempt.id}/results`}
-                className="ui-row grid cursor-pointer grid-cols-[1fr_auto] gap-x-4 gap-y-1 py-3.5 no-underline hover:no-underline"
+                className="ui-row grid cursor-pointer grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 py-3.5 no-underline hover:no-underline"
                 aria-label={`View results: ${Math.round(attempt.percent)} percent`}
               >
                 <div>
@@ -232,7 +262,7 @@ export function WorkspacePage() {
                     {formatAttemptDate(attempt.completedAt)}
                   </p>
                 </div>
-                <span className="font-display self-center text-[1.45rem] leading-none text-ink">
+                <span className="font-display text-[1.4rem] leading-none text-ink">
                   {Math.round(attempt.percent)}
                   <em className="text-[0.85em] italic text-signal">%</em>
                 </span>
@@ -241,24 +271,17 @@ export function WorkspacePage() {
           ))}
         </ul>
       ) : (
-        <p className="m-0 border-y border-line py-4 text-[0.95rem] text-ink-soft">
+        <p className="mt-3 m-0 border-y border-line py-4 text-[0.95rem] text-ink-soft">
           Nothing here yet — your scored sets will show up.
         </p>
       )}
 
-      <div className="mt-8 flex flex-wrap gap-2.5 border-t border-line pt-6">
+      <div className="mt-9 border-t border-line pt-7">
         <Button
-          className="min-w-40 px-5 py-3"
+          className="min-w-[11rem] px-5 py-3"
           onClick={() => navigate('/app/assessments')}
         >
           Start assessment
-        </Button>
-        <Button
-          variant="ghost"
-          className="min-w-40 px-5 py-3"
-          onClick={() => navigate('/app/interviews')}
-        >
-          Begin interview
         </Button>
       </div>
     </section>
