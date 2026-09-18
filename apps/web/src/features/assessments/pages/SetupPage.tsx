@@ -122,90 +122,98 @@ function SetupPageForm({
   const maxCount = available && available > 0 ? Math.min(50, available) : 50;
 
   return (
-    <section>
+    <section className="w-full">
       <Link
         to="/app"
-        className="mb-5 inline-block cursor-pointer text-sm font-semibold text-signal"
+        className="mb-5 inline-block cursor-pointer text-sm font-semibold text-signal no-underline hover:underline"
       >
-        ← Workspace
+        ← Progress
       </Link>
-      <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
+      <p className="m-0 text-[0.7rem] font-semibold tracking-[0.18em] text-signal uppercase">
         Assessment
       </p>
-      <h1 className="font-display mt-3 text-[clamp(2rem,4vw,2.8rem)] leading-none font-normal tracking-[-0.03em] text-ink">
+      <h1 className="font-display mt-3 text-[clamp(2.15rem,4.2vw,3rem)] leading-[1.06] font-semibold tracking-[-0.03em] text-ink italic">
         Choose your set
       </h1>
-      <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-soft">
-        Pick a topic and difficulty. We’ll pull a fresh mix of MCQs — no answer
-        key until you submit.
+      <p className="mt-3 max-w-xl text-base leading-relaxed text-ink-soft">
+        Pick topic, difficulty, and length — then begin.
       </p>
 
       <form className="mt-8" onSubmit={onSubmit}>
         {error ? (
-          <p className="mb-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
+          <p className="mb-4 rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
             {error}
           </p>
         ) : null}
 
-        <p className="mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
-          Topic
-        </p>
-        <ul className="m-0 grid list-none gap-1.5 p-0">
-          {TOPICS.map((value) => (
-            <li key={value}>
-              <label
-                className={`ui-chip flex cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3.5 ${
-                  topic === value
-                    ? 'border-signal bg-signal-soft shadow-[0_8px_18px_rgb(15_110_92/0.1)]'
-                    : 'border-line bg-paper-lift hover:border-signal/40 hover:bg-white'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="topic"
-                  className="accent-signal"
-                  checked={topic === value}
-                  onChange={() => setTopic(value)}
-                />
-                <span
-                  className={`text-[0.95rem] ${topic === value ? 'font-semibold text-ink' : 'text-ink'}`}
-                >
-                  {topicLabel(value)}
-                </span>
-              </label>
-            </li>
-          ))}
+        <p className="mb-0 text-[0.8rem] font-semibold text-ink-soft">Topic</p>
+        <ul className="mt-3 m-0 list-none border-t border-line p-0">
+          {TOPICS.map((value) => {
+            const selected = topic === value;
+            return (
+              <li key={value} className="border-b border-line">
+                <label className="ui-row flex cursor-pointer items-center gap-3 py-[0.95rem]">
+                  <input
+                    type="radio"
+                    name="topic"
+                    className="sr-only"
+                    checked={selected}
+                    onChange={() => setTopic(value)}
+                  />
+                  <span
+                    aria-hidden
+                    className={`size-1.5 shrink-0 rotate-45 ${
+                      selected ? 'bg-signal' : 'bg-transparent'
+                    }`}
+                  />
+                  <span
+                    className={`text-[1rem] ${
+                      selected
+                        ? 'font-semibold text-ink'
+                        : 'font-medium text-ink-soft'
+                    }`}
+                  >
+                    {topicLabel(value)}
+                  </span>
+                </label>
+              </li>
+            );
+          })}
         </ul>
 
-        <p className="mt-7 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
+        <p className="mt-8 mb-0 text-[0.8rem] font-semibold text-ink-soft">
           Difficulty
         </p>
-        <div className="grid grid-cols-3 gap-2">
-          {DIFFICULTIES.map((value) => (
-            <label
-              key={value}
-              className={`ui-chip cursor-pointer rounded-[10px] border px-2 py-3 text-center text-[0.9rem] font-medium ${
-                difficulty === value
-                  ? 'border-signal bg-signal-soft font-semibold text-signal-hover shadow-[0_8px_18px_rgb(15_110_92/0.1)]'
-                  : 'border-line bg-white text-ink hover:border-signal/40'
-              }`}
-            >
-              <input
-                type="radio"
-                name="difficulty"
-                className="sr-only"
-                checked={difficulty === value}
-                onChange={() => setDifficulty(value)}
-              />
-              {difficultyLabel(value)}
-            </label>
-          ))}
+        <div className="mt-3 flex flex-wrap gap-5 border-b border-line pb-4">
+          {DIFFICULTIES.map((value) => {
+            const selected = difficulty === value;
+            return (
+              <label key={value} className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="difficulty"
+                  className="sr-only"
+                  checked={selected}
+                  onChange={() => setDifficulty(value)}
+                />
+                <span
+                  className={`inline-block border-b-2 pb-1 text-[0.95rem] transition-[color,border-color] duration-200 ${
+                    selected
+                      ? 'border-ink font-semibold text-ink'
+                      : 'border-transparent font-medium text-ink-soft hover:text-ink'
+                  }`}
+                >
+                  {difficultyLabel(value)}
+                </span>
+              </label>
+            );
+          })}
         </div>
 
-        <p className="mt-7 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
+        <p className="mt-8 mb-0 text-[0.8rem] font-semibold text-ink-soft">
           Questions
         </p>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <input
             type="number"
             min={1}
@@ -213,7 +221,7 @@ function SetupPageForm({
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
             aria-label="Question count"
-            className="w-[5.5rem] cursor-text rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/30 focus:border-focus focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)]"
+            className="w-[5.5rem] cursor-text rounded-[6px] border border-line bg-surface px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)]"
           />
           <p className="m-0 text-[0.85rem] text-mute">
             {available === null
@@ -224,10 +232,10 @@ function SetupPageForm({
           </p>
         </div>
 
-        <div className="mt-8 border-t border-line pt-6">
+        <div className="mt-9 border-t border-line pt-7">
           <Button
             type="submit"
-            className="w-full max-w-64"
+            className="min-w-[11rem] px-5 py-3"
             disabled={submitting || available === 0}
           >
             {submitting ? 'Starting…' : 'Start assessment'}
