@@ -91,7 +91,7 @@ export function TakePage() {
   if (error && !attempt) {
     return (
       <section>
-        <p className="rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
+        <p className="rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
           {error}
         </p>
         <Link
@@ -167,48 +167,40 @@ export function TakePage() {
   }
 
   return (
-    <section>
-      <div className="mb-2 flex items-baseline justify-between gap-4">
-        <p className="m-0 text-[0.8rem] font-semibold tracking-[0.04em] text-mute uppercase">
-          Question{' '}
-          <span className="font-medium tracking-normal text-ink-soft normal-case">
-            {index + 1} of {total}
-          </span>
-        </p>
-        <p className="m-0 text-[0.85rem] font-medium text-ink-soft">
-          {topicLabel(attempt.topic)} · {difficultyLabel(attempt.difficulty)}
+    <section className="w-full">
+      <p className="m-0 text-[0.85rem] text-ink-soft">
+        {topicLabel(attempt.topic)} · {difficultyLabel(attempt.difficulty)}
+      </p>
+      <div className="mt-3 mb-2 flex items-baseline justify-between gap-4">
+        <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
+          Question {index + 1} of {total}
         </p>
       </div>
-      <div
-        className="h-[3px] overflow-hidden rounded-full bg-line"
-        aria-hidden="true"
-      >
+      <div className="h-[3px] overflow-hidden bg-line" aria-hidden="true">
         <i
           className="ui-progress block h-full bg-signal not-italic"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <h1 className="font-display mt-7 text-[clamp(1.55rem,3.2vw,2.05rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
+      <h1 className="font-display mt-7 text-[clamp(1.55rem,3.2vw,2.05rem)] leading-[1.25] font-semibold tracking-[-0.02em] text-ink">
         {question.prompt}
       </h1>
 
       {error ? (
-        <p className="mt-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
+        <p className="mt-4 rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
           {error}
         </p>
       ) : null}
 
-      <ul className="mt-6 grid list-none gap-2.5 p-0">
+      <ul className="mt-6 m-0 list-none border-t border-line p-0">
         {question.options.map((option, optionIndex) => {
           const checked = selected === optionIndex;
           return (
-            <li key={`${question.id}-${optionIndex}`}>
+            <li key={`${question.id}-${optionIndex}`} className="border-b border-line">
               <label
-                className={`flex cursor-pointer items-start gap-3.5 rounded-[10px] border px-4 py-4 transition-[border-color,background-color,transform,box-shadow] duration-200 ease-out active:translate-y-px ${
-                  checked
-                    ? 'border-signal bg-signal-soft shadow-[0_8px_20px_rgb(15_110_92/0.12)]'
-                    : 'border-line bg-white hover:-translate-y-px hover:border-signal/45 hover:shadow-[0_10px_24px_rgb(18_21_28/0.07)]'
+                className={`ui-row flex cursor-pointer items-start gap-3.5 py-4 transition-[background-color] duration-200 ${
+                  checked ? 'bg-signal-soft/70' : ''
                 }`}
               >
                 <input
@@ -219,16 +211,14 @@ export function TakePage() {
                   onChange={() => selectOption(optionIndex)}
                 />
                 <span
-                  className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[0.75rem] font-semibold transition-[background-color,border-color,color] duration-200 ${
-                    checked
-                      ? 'border-signal bg-signal text-white'
-                      : 'border-line bg-paper-lift text-ink-soft'
+                  className={`w-5 shrink-0 pt-0.5 text-[0.85rem] font-semibold ${
+                    checked ? 'text-signal' : 'text-mute'
                   }`}
                   aria-hidden="true"
                 >
                   {optionLetter(optionIndex)}
                 </span>
-                <p className="m-0 pt-0.5 text-[0.98rem] leading-snug text-ink">
+                <p className="m-0 flex-1 text-[0.98rem] leading-snug text-ink">
                   {option}
                 </p>
               </label>
@@ -237,7 +227,7 @@ export function TakePage() {
         })}
       </ul>
 
-      <div className="mt-8 flex flex-wrap gap-2.5 border-t border-line pt-5">
+      <div className="mt-8 flex flex-wrap gap-2.5 border-t border-line pt-6">
         <Button
           variant="ghost"
           className="min-w-34 px-5 py-3"
