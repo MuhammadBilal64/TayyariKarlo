@@ -8,7 +8,7 @@ import {
   type Topic,
 } from '@tayyari/shared';
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -75,6 +75,11 @@ function SetupPageForm({
     };
   }, [accessToken, topic, difficulty]);
 
+  function selectTopicDifficulty(nextTopic: Topic, nextDifficulty: Difficulty) {
+    setTopic(nextTopic);
+    setDifficulty(nextDifficulty);
+  }
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -123,20 +128,14 @@ function SetupPageForm({
 
   return (
     <section className="w-full">
-      <Link
-        to="/app"
-        className="mb-5 inline-block cursor-pointer text-sm font-semibold text-signal no-underline hover:underline"
-      >
-        ← Progress
-      </Link>
       <p className="m-0 text-[0.7rem] font-semibold tracking-[0.18em] text-signal uppercase">
         Assessment
       </p>
-      <h1 className="font-display mt-3 text-[clamp(2.15rem,4.2vw,3rem)] leading-[1.06] font-semibold tracking-[-0.03em] text-ink italic">
+      <h1 className="font-display mt-3 text-[clamp(2.15rem,4.2vw,3rem)] leading-[1.06] font-semibold tracking-[-0.03em] text-ink">
         Choose your set
       </h1>
       <p className="mt-3 max-w-xl text-base leading-relaxed text-ink-soft">
-        Pick topic, difficulty, and length — then begin.
+        Choose a topic and difficulty to begin.
       </p>
 
       <form className="mt-8" onSubmit={onSubmit}>
@@ -146,74 +145,67 @@ function SetupPageForm({
           </p>
         ) : null}
 
-        <p className="mb-0 text-[0.8rem] font-semibold text-ink-soft">Topic</p>
-        <ul className="mt-3 m-0 list-none border-t border-line p-0">
+        <ul className="m-0 list-none border-t border-line p-0">
           {TOPICS.map((value) => {
-            const selected = topic === value;
+            const topicSelected = topic === value;
             return (
               <li key={value} className="border-b border-line">
-                <label className="ui-row flex cursor-pointer items-center gap-3 py-[0.95rem]">
-                  <input
-                    type="radio"
-                    name="topic"
-                    className="sr-only"
-                    checked={selected}
-                    onChange={() => setTopic(value)}
-                  />
-                  <span
-                    aria-hidden
-                    className={`size-1.5 shrink-0 rotate-45 ${
-                      selected ? 'bg-signal' : 'bg-transparent'
-                    }`}
-                  />
-                  <span
-                    className={`text-[1rem] ${
-                      selected
-                        ? 'font-semibold text-ink'
-                        : 'font-medium text-ink-soft'
-                    }`}
+                <div className="ui-row grid grid-cols-1 items-center gap-x-6 gap-y-3 py-[1.05rem] sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <button
+                    type="button"
+                    className="inline-flex cursor-pointer items-center gap-3 border-0 bg-transparent p-0 text-left"
+                    onClick={() => selectTopicDifficulty(value, difficulty)}
                   >
-                    {topicLabel(value)}
-                  </span>
-                </label>
+                    <span
+                      aria-hidden
+                      className={`size-1.5 shrink-0 rotate-45 ${
+                        topicSelected ? 'bg-signal' : 'bg-transparent'
+                      }`}
+                    />
+                    <span
+                      className={`text-[1rem] ${
+                        topicSelected
+                          ? 'font-semibold text-ink'
+                          : 'font-medium text-ink-soft'
+                      }`}
+                    >
+                      {topicLabel(value)}
+                    </span>
+                  </button>
+
+                  <div
+                    className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:justify-end"
+                    role="group"
+                    aria-label={`Difficulty for ${topicLabel(value)}`}
+                  >
+                    {DIFFICULTIES.map((level) => {
+                      const active =
+                        topicSelected && difficulty === level;
+                      return (
+                        <button
+                          key={level}
+                          type="button"
+                          className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 ${
+                            active
+                              ? 'border-ink font-semibold text-ink'
+                              : 'border-transparent font-medium text-ink-soft hover:text-ink'
+                          }`}
+                          onClick={() =>
+                            selectTopicDifficulty(value, level)
+                          }
+                        >
+                          {difficultyLabel(level)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </li>
             );
           })}
         </ul>
 
-        <p className="mt-8 mb-0 text-[0.8rem] font-semibold text-ink-soft">
-          Difficulty
-        </p>
-        <div className="mt-3 flex flex-wrap gap-5 border-b border-line pb-4">
-          {DIFFICULTIES.map((value) => {
-            const selected = difficulty === value;
-            return (
-              <label key={value} className="cursor-pointer">
-                <input
-                  type="radio"
-                  name="difficulty"
-                  className="sr-only"
-                  checked={selected}
-                  onChange={() => setDifficulty(value)}
-                />
-                <span
-                  className={`inline-block border-b-2 pb-1 text-[0.95rem] transition-[color,border-color] duration-200 ${
-                    selected
-                      ? 'border-ink font-semibold text-ink'
-                      : 'border-transparent font-medium text-ink-soft hover:text-ink'
-                  }`}
-                >
-                  {difficultyLabel(value)}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-
-        <p className="mt-8 mb-0 text-[0.8rem] font-semibold text-ink-soft">
-          Questions
-        </p>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
+        <div className="mt-8">
           <input
             type="number"
             min={1}
@@ -223,16 +215,16 @@ function SetupPageForm({
             aria-label="Question count"
             className="w-[5.5rem] cursor-text rounded-[6px] border border-line bg-surface px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)]"
           />
-          <p className="m-0 text-[0.85rem] text-mute">
+          <p className="mt-2 m-0 text-[0.85rem] text-mute">
             {available === null
               ? 'Between 1 and 50'
               : available === 0
                 ? 'No questions in this set yet'
-                : `${available} available · pick 1–${maxCount}`}
+                : `${available} available`}
           </p>
         </div>
 
-        <div className="mt-9 border-t border-line pt-7">
+        <div className="mt-8">
           <Button
             type="submit"
             className="min-w-[11rem] px-5 py-3"
