@@ -213,7 +213,7 @@ function SetupPageForm({
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
             aria-label="Question count"
-            className="w-[5.5rem] cursor-text rounded-[6px] border border-line bg-surface px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)]"
+            className="h-12 w-[5.5rem] cursor-text rounded-[6px] border border-line bg-surface px-3.5 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)]"
           />
           <p className="mt-2 m-0 text-[0.85rem] text-mute">
             {available === null
@@ -227,7 +227,7 @@ function SetupPageForm({
         <div className="mt-8">
           <Button
             type="submit"
-            className="min-w-[11rem] px-5 py-3"
+            className="h-12 min-w-[11rem] px-5"
             disabled={submitting || available === 0}
           >
             {submitting ? 'Starting…' : 'Start assessment'}

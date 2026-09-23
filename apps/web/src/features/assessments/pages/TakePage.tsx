@@ -168,12 +168,12 @@ export function TakePage() {
 
   return (
     <section className="w-full">
-      <p className="m-0 text-[0.85rem] text-ink-soft">
-        {topicLabel(attempt.topic)} · {difficultyLabel(attempt.difficulty)}
-      </p>
-      <div className="mt-3 mb-2 flex items-baseline justify-between gap-4">
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
           Question {index + 1} of {total}
+        </p>
+        <p className="m-0 text-[0.85rem] text-ink-soft">
+          {topicLabel(attempt.topic)} · {difficultyLabel(attempt.difficulty)}
         </p>
       </div>
       <div className="h-[3px] overflow-hidden bg-line" aria-hidden="true">
@@ -183,7 +183,7 @@ export function TakePage() {
         />
       </div>
 
-      <h1 className="font-display mt-7 text-[clamp(1.55rem,3.2vw,2.05rem)] leading-[1.25] font-semibold tracking-[-0.02em] text-ink">
+      <h1 className="font-display mt-7 text-[clamp(1.55rem,3.2vw,2.05rem)] leading-[1.3] font-semibold tracking-[-0.02em] text-ink text-balance">
         {question.prompt}
       </h1>
 
@@ -199,8 +199,10 @@ export function TakePage() {
           return (
             <li key={`${question.id}-${optionIndex}`} className="border-b border-line">
               <label
-                className={`ui-row flex cursor-pointer items-start gap-3.5 py-4 transition-[background-color] duration-200 ${
-                  checked ? 'bg-signal-soft/70' : ''
+                className={`ui-row flex cursor-pointer items-start gap-3.5 border-l-2 py-4 transition-[background-color,border-color] duration-200 ${
+                  checked
+                    ? 'border-l-signal bg-signal-soft/70'
+                    : 'border-l-transparent'
                 }`}
               >
                 <input
@@ -211,9 +213,7 @@ export function TakePage() {
                   onChange={() => selectOption(optionIndex)}
                 />
                 <span
-                  className={`w-5 shrink-0 pt-0.5 text-[0.85rem] font-semibold ${
-                    checked ? 'text-signal' : 'text-mute'
-                  }`}
+                  className="w-5 shrink-0 pt-0.5 text-[0.85rem] font-semibold text-signal"
                   aria-hidden="true"
                 >
                   {optionLetter(optionIndex)}
@@ -227,10 +227,10 @@ export function TakePage() {
         })}
       </ul>
 
-      <div className="mt-8 flex flex-wrap gap-2.5 border-t border-line pt-6">
+      <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t border-line pt-6">
         <Button
           variant="ghost"
-          className="min-w-34 px-5 py-3"
+          className="h-12 min-w-[8.5rem] px-5"
           disabled={index === 0 || submitting}
           onClick={() => setIndex((value) => Math.max(0, value - 1))}
         >
@@ -238,7 +238,7 @@ export function TakePage() {
         </Button>
         {isLast ? (
           <Button
-            className="min-w-34 px-5 py-3"
+            className="h-12 min-w-[8.5rem] px-5"
             disabled={selected === undefined || submitting}
             onClick={() => {
               void onSubmit(attempt);
@@ -248,19 +248,21 @@ export function TakePage() {
           </Button>
         ) : (
           <Button
-            className="min-w-34 px-5 py-3"
+            className="h-12 min-w-[8.5rem] px-5"
             disabled={selected === undefined}
             onClick={() => setIndex((value) => Math.min(total - 1, value + 1))}
           >
             Next
           </Button>
         )}
-        <Link
-          to="/app"
-          className="ml-auto self-center text-sm font-medium text-mute no-underline hover:text-ink hover:underline"
+        <Button
+          variant="ghost"
+          className="ml-auto h-12 min-w-[8.5rem] px-5"
+          disabled={submitting}
+          onClick={() => navigate('/app')}
         >
           Exit
-        </Link>
+        </Button>
       </div>
     </section>
   );
