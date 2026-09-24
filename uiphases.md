@@ -159,7 +159,7 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | UI-3.3 | App shell navigation | Completed | Redesign AppShell header/nav (flat chrome, ink underline + diamond pip) | Clear hierarchy; responsive nav; Orbit Gap lockup | UI-3.2 | Browser |
 | UI-3.4 | Workspace / progress | Completed | Score Stage Progress (A): split hero score stage, hairline Focus next, Practice → | Stronger hierarchy; data still correct | UI-3.3 | Browser + API data |
 | UI-3.5 | Assessments flow | Completed | Setup S2 (theme-aligned) + Take T2 + Results R2 Score Stage | Flows and scoring unchanged; hairline instrument UI | UI-3.4 | Browser E2E smoke |
-| UI-3.6 | Interviews flow | Pending | Setup + classic session/results + Signal session chrome | Classic + Signal usable; no logic rewrite | UI-3.5 | Browser E2E smoke |
+| UI-3.6 | Interviews flow | Completed | Setup + classic session/results + Signal session chrome (Score Stage family); mocks in `design/mockups/interviews/` | Classic + Signal usable; hairline instrument UI; no logic rewrite | UI-3.5 | Browser E2E smoke |
 | UI-3.7 | Cross-cutting states | Pending | Loading, empty, success, error polish | Consistent patterns across pages | UI-3.6 | Browser |
 
 ---

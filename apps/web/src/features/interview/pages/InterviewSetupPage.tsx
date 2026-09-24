@@ -6,10 +6,9 @@ import {
   type SignalVariant,
 } from '@tayyari/shared';
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
-import { Field } from '../../../shared/ui/Field';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { createInterview } from '../api/interviewsApi';
 import { createSignalInterview } from '../api/signalInterviewsApi';
@@ -39,6 +38,9 @@ function variantLabel(variant: SignalVariant) {
 }
 
 type InterviewMode = 'classic' | 'signal';
+
+const underlineSelect =
+  'cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200';
 
 export function InterviewSetupPage() {
   const { accessToken } = useAuth();
@@ -107,168 +109,181 @@ export function InterviewSetupPage() {
   }
 
   return (
-    <section>
-      <Link
-        to="/app"
-        className="mb-5 inline-block cursor-pointer text-sm font-semibold text-signal"
-      >
-        ← Workspace
-      </Link>
-      <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
-        Interviews
+    <section className="w-full">
+      <p className="m-0 text-[0.7rem] font-semibold tracking-[0.18em] text-signal uppercase">
+        Interview
       </p>
-      <h1 className="font-display mt-3 text-[clamp(2rem,4vw,2.8rem)] leading-none font-normal tracking-[-0.03em] text-ink">
+      <h1 className="font-display mt-3 text-[clamp(2.15rem,4.2vw,3rem)] leading-[1.06] font-semibold tracking-[-0.03em] text-ink">
         Choose the round
       </h1>
-      <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-soft">
-        Signal Integrity is an investigation with imperfect evidence. Classic
-        oral is five timed questions with feedback after each answer.
+      <p className="mt-3 max-w-xl text-base leading-relaxed text-ink-soft">
+        Signal Integrity or classic oral — pick mode, role, and level.
       </p>
 
       <form className="mt-8" onSubmit={onSubmit}>
         {error ? (
-          <p className="mb-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
+          <p className="mb-4 rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
             {error}
           </p>
         ) : null}
 
-        <p className="mt-2 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
-          Mode
-        </p>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {(
-            [
-              [
-                'signal',
-                'Signal Integrity',
-                'Investigate checkout latency when traces may be delayed, partial, or conflicting.',
-              ],
-              [
-                'classic',
-                'Classic oral',
-                'Five questions, two minutes each. Local model scores each answer.',
-              ],
-            ] as const
-          ).map(([value, title, copy]) => (
-            <label
-              key={value}
-              className={`cursor-pointer rounded-[12px] border px-4 py-4 ${
-                mode === value
-                  ? 'border-signal bg-signal-soft shadow-[0_8px_18px_rgb(15_110_92/0.1)]'
-                  : 'border-line bg-white hover:border-signal/40'
-              }`}
-            >
-              <input
-                type="radio"
-                name="mode"
-                className="sr-only"
-                checked={mode === value}
-                onChange={() => setMode(value)}
-              />
-              <p className="m-0 text-[0.95rem] font-semibold text-ink">
-                {title}
-              </p>
-              <p className="mt-1 mb-0 text-[0.8rem] leading-relaxed text-mute">
-                {copy}
-              </p>
-            </label>
-          ))}
-        </div>
-
-        <Field
-          label="Role you’re targeting"
-          name="role"
-          value={role}
-          onChange={(event) => setRole(event.target.value)}
-          placeholder="Backend Engineer"
-          required
-          autoComplete="organization-title"
-        />
-
-        {mode === 'classic' ? (
-          <label className="mb-3.5 block">
-            <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-              Technologies to press on
-            </span>
-            <textarea
-              name="techStack"
-              value={techStackText}
-              onChange={(event) => setTechStackText(event.target.value)}
-              placeholder="Node.js, PostgreSQL, NestJS"
-              rows={3}
-              required
-              className="w-full cursor-text resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)]"
-            />
-            <span className="mt-1.5 block text-xs text-mute">
-              Comma-separated. Only what you want tested.
-            </span>
-          </label>
-        ) : null}
-
-        <p className="mt-2 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
-          Level
-        </p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {EXPERIENCE_LEVELS.map((level) => (
-            <label
-              key={level}
-              className={`ui-chip cursor-pointer rounded-[10px] border px-2 py-3 text-center text-[0.85rem] font-medium ${
-                experienceLevel === level
-                  ? 'border-signal bg-signal-soft font-semibold text-signal-hover shadow-[0_8px_18px_rgb(15_110_92/0.1)]'
-                  : 'border-line bg-white text-ink hover:border-signal/40'
-              }`}
-            >
-              <input
-                type="radio"
-                name="experienceLevel"
-                className="sr-only"
-                checked={experienceLevel === level}
-                onChange={() => setExperienceLevel(level)}
-              />
-              {levelLabel(level)}
-            </label>
-          ))}
-        </div>
-
-        {mode === 'signal' ? (
-          <>
-            <p className="mt-5 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
-              Evidence condition
-            </p>
-            <div className="grid gap-2 sm:grid-cols-3">
-              {SIGNAL_VARIANTS.map((item) => (
-                <label
-                  key={item}
-                  className={`cursor-pointer rounded-[10px] border px-3 py-3 text-center text-[0.85rem] font-medium ${
-                    variant === item
-                      ? 'border-signal bg-signal-soft font-semibold text-signal-hover'
-                      : 'border-line bg-white text-ink hover:border-signal/40'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="variant"
-                    className="sr-only"
-                    checked={variant === item}
-                    onChange={() => setVariant(item)}
-                  />
-                  {variantLabel(item)}
-                </label>
-              ))}
+        <ul className="m-0 list-none border-t border-line p-0">
+          <li className="border-b border-line">
+            <div className="ui-row grid grid-cols-1 items-center gap-x-6 gap-y-3 py-[1.05rem] sm:grid-cols-[minmax(8rem,auto)_minmax(0,1fr)]">
+              <p className="m-0 text-[0.9rem] font-semibold text-ink">Mode</p>
+              <div
+                className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:justify-end"
+                role="group"
+                aria-label="Interview mode"
+              >
+                {(
+                  [
+                    ['signal', 'Signal Integrity'],
+                    ['classic', 'Classic oral'],
+                  ] as const
+                ).map(([value, label]) => {
+                  const active = mode === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`${underlineSelect} ${
+                        active
+                          ? 'border-ink font-semibold text-ink'
+                          : 'border-transparent font-medium text-ink-soft hover:text-ink'
+                      }`}
+                      onClick={() => setMode(value)}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </>
-        ) : null}
+          </li>
 
-        <p className="mt-5 m-0 text-[0.85rem] leading-relaxed text-mute">
+          <li className="border-b border-line">
+            <div className="ui-row grid grid-cols-1 items-center gap-x-6 gap-y-3 py-[1.05rem] sm:grid-cols-[minmax(8rem,auto)_minmax(0,1fr)]">
+              <label
+                htmlFor="interview-role"
+                className="m-0 text-[0.9rem] font-semibold text-ink"
+              >
+                Role
+              </label>
+              <input
+                id="interview-role"
+                name="role"
+                value={role}
+                onChange={(event) => setRole(event.target.value)}
+                placeholder="Backend Engineer"
+                required
+                autoComplete="organization-title"
+                className="h-10 w-full max-w-md cursor-text border-0 border-b border-line bg-transparent px-0 text-right text-[0.95rem] text-ink outline-none transition-[border-color] duration-200 placeholder:text-mute/70 hover:border-ink/30 focus:border-ink sm:ml-auto sm:text-right"
+              />
+            </div>
+          </li>
+
+          {mode === 'classic' ? (
+            <li className="border-b border-line">
+              <div className="ui-row grid grid-cols-1 items-start gap-x-6 gap-y-3 py-[1.05rem] sm:grid-cols-[minmax(8rem,auto)_minmax(0,1fr)]">
+                <label
+                  htmlFor="interview-stack"
+                  className="m-0 pt-2 text-[0.9rem] font-semibold text-ink"
+                >
+                  Press on
+                </label>
+                <div className="sm:text-right">
+                  <textarea
+                    id="interview-stack"
+                    name="techStack"
+                    value={techStackText}
+                    onChange={(event) => setTechStackText(event.target.value)}
+                    placeholder="Node.js, PostgreSQL, NestJS"
+                    rows={2}
+                    required
+                    className="w-full max-w-md cursor-text resize-y rounded-[6px] border border-line bg-surface px-3.5 py-2.5 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-mute/70 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)] sm:ml-auto"
+                  />
+                  <p className="mt-2 m-0 text-[0.8rem] text-mute sm:text-right">
+                    Comma-separated. Only what you want tested.
+                  </p>
+                </div>
+              </div>
+            </li>
+          ) : null}
+
+          <li className="border-b border-line">
+            <div className="ui-row grid grid-cols-1 items-center gap-x-6 gap-y-3 py-[1.05rem] sm:grid-cols-[minmax(8rem,auto)_minmax(0,1fr)]">
+              <p className="m-0 text-[0.9rem] font-semibold text-ink">Level</p>
+              <div
+                className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:justify-end"
+                role="group"
+                aria-label="Experience level"
+              >
+                {EXPERIENCE_LEVELS.map((level) => {
+                  const active = experienceLevel === level;
+                  return (
+                    <button
+                      key={level}
+                      type="button"
+                      className={`${underlineSelect} ${
+                        active
+                          ? 'border-ink font-semibold text-ink'
+                          : 'border-transparent font-medium text-ink-soft hover:text-ink'
+                      }`}
+                      onClick={() => setExperienceLevel(level)}
+                    >
+                      {levelLabel(level)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </li>
+
+          {mode === 'signal' ? (
+            <li className="border-b border-line">
+              <div className="ui-row grid grid-cols-1 items-center gap-x-6 gap-y-3 py-[1.05rem] sm:grid-cols-[minmax(8rem,auto)_minmax(0,1fr)]">
+                <p className="m-0 text-[0.9rem] font-semibold text-ink">
+                  Evidence condition
+                </p>
+                <div
+                  className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:justify-end"
+                  role="group"
+                  aria-label="Evidence condition"
+                >
+                  {SIGNAL_VARIANTS.map((item) => {
+                    const active = variant === item;
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        className={`${underlineSelect} ${
+                          active
+                            ? 'border-ink font-semibold text-ink'
+                            : 'border-transparent font-medium text-ink-soft hover:text-ink'
+                        }`}
+                        onClick={() => setVariant(item)}
+                      >
+                        {variantLabel(item)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </li>
+          ) : null}
+        </ul>
+
+        <p className="mt-5 m-0 max-w-2xl text-[0.85rem] leading-relaxed text-mute">
           {mode === 'signal'
             ? 'You choose what to examine. Evidence can be delayed, partial, or conflicting. Scores cite what you did, not a guessed root cause alone.'
             : 'Five questions, two minutes each. The local model scores what you said and explains it before the next question.'}
         </p>
 
-        <div className="mt-6 border-t border-line pt-6">
+        <div className="mt-8">
           <Button
             type="submit"
-            className="w-full max-w-64"
+            className="h-12 min-w-[11rem] px-5"
             disabled={submitting}
           >
             {submitting
