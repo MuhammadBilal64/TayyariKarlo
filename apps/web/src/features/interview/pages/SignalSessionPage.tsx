@@ -133,17 +133,17 @@ export function SignalSessionPage() {
 
   return (
     <section className="ui-enter w-full">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-        <div>
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line pb-6">
+        <div className="min-w-0">
           <p className="m-0 text-[0.7rem] font-semibold tracking-[0.18em] text-signal uppercase">
             Signal Integrity
           </p>
-          <h1 className="font-display mt-2 text-[clamp(2.15rem,4.2vw,3rem)] leading-[1.06] font-semibold tracking-[-0.03em] text-ink">
+          <h1 className="font-display mt-2 m-0 text-[clamp(1.9rem,3.5vw,2.6rem)] leading-[1.08] font-semibold tracking-[-0.03em] text-ink">
             {session.scenarioTitle}
           </h1>
         </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <p className="m-0 text-[0.8rem] text-mute">
+        <div className="flex items-center gap-4">
+          <p className="m-0 text-[0.85rem] text-mute">
             t={session.simulatedTimeSeconds}s ·{' '}
             {session.variant.replaceAll('_', ' ')}
           </p>
@@ -154,44 +154,45 @@ export function SignalSessionPage() {
             Exit
           </Link>
         </div>
-      </div>
-      <p className="mt-3 max-w-3xl text-base leading-relaxed text-ink-soft">
-        {session.briefing}
-      </p>
+      </header>
 
       {error ? (
-        <p className="mt-4 rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
+        <p className="mt-5 rounded-[6px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
           {error}
         </p>
       ) : null}
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
-        <div>
-          <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
-            Live signals
+      <div className="mt-8 grid items-start gap-y-10 lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+        {/* Left: observation desk */}
+        <div className="min-w-0 lg:border-r lg:border-line lg:pr-12 xl:pr-16">
+          <p className="m-0 text-[0.7rem] font-semibold tracking-[0.16em] text-signal uppercase">
+            Observe
           </p>
-          <ul className="mt-3 m-0 list-none border-t border-line p-0">
+          <h2 className="mt-2 m-0 text-[1.05rem] font-semibold text-ink">
+            Live signals
+          </h2>
+          <ul className="mt-4 m-0 list-none border-t border-line p-0">
             {session.visibleSignals.map((signal) => (
-              <li key={signal.key} className="border-b border-line py-3.5">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <p className="m-0 text-[0.9rem] font-semibold text-ink">
+              <li key={signal.key} className="border-b border-line py-4">
+                <div className="flex items-baseline justify-between gap-4">
+                  <p className="m-0 text-[0.95rem] font-semibold text-ink">
                     {signal.label}
                   </p>
-                  <p className="m-0 text-[0.95rem] font-medium text-ink">
+                  <p className="m-0 shrink-0 text-[0.95rem] font-medium text-ink">
                     {signal.value}
                   </p>
                 </div>
-                <p className="mt-1 mb-0 text-[0.8rem] text-mute">
+                <p className="mt-1.5 mb-0 text-[0.82rem] text-mute">
                   {signal.interpretation}
                 </p>
               </li>
             ))}
           </ul>
 
-          <p className="mt-8 mb-0 text-[0.8rem] font-semibold text-ink-soft">
+          <h2 className="mt-10 m-0 text-[1.05rem] font-semibold text-ink">
             Evidence locker
-          </p>
-          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line pb-4">
+          </h2>
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
             <button
               type="button"
               className={`${underlineAction} border-transparent font-medium text-ink-soft hover:text-ink`}
@@ -215,112 +216,125 @@ export function SignalSessionPage() {
             ))}
           </div>
 
-          <ul className="mt-4 m-0 list-none p-0">
-            {session.unlockedEvidence.map((item) => (
-              <li
-                key={item.key}
-                className="mb-3 border-l-2 border-signal bg-signal-soft/40 px-3.5 py-3"
-              >
-                <p className="m-0 text-[0.7rem] font-semibold tracking-[0.12em] text-signal uppercase">
-                  {statusLabel(item.status)}
-                </p>
-                <p className="mt-1 mb-0 text-[0.95rem] font-semibold text-ink">
-                  {item.title}
-                </p>
-                <p className="mt-1 mb-0 whitespace-pre-wrap text-[0.9rem] leading-relaxed text-ink-soft">
-                  {item.payload}
-                </p>
-                {item.completenessNote ? (
-                  <p className="mt-2 mb-0 text-[0.8rem] text-mute">
-                    {item.completenessNote}
+          {session.unlockedEvidence.length > 0 ? (
+            <ul className="mt-6 m-0 list-none space-y-3 p-0">
+              {session.unlockedEvidence.map((item) => (
+                <li
+                  key={item.key}
+                  className="border-l-2 border-signal bg-signal-soft/35 px-4 py-3.5"
+                >
+                  <p className="m-0 text-[0.7rem] font-semibold tracking-[0.12em] text-signal uppercase">
+                    {statusLabel(item.status)}
                   </p>
-                ) : null}
-                <p className="mt-2 mb-0 text-[0.75rem] text-mute">
-                  Event t={item.eventTimeSeconds}s · Available t=
-                  {item.availableAtSeconds}s · {item.provenance}
-                </p>
-              </li>
-            ))}
-          </ul>
+                  <p className="mt-1.5 mb-0 text-[0.95rem] font-semibold text-ink">
+                    {item.title}
+                  </p>
+                  <p className="mt-1.5 mb-0 whitespace-pre-wrap text-[0.9rem] leading-relaxed text-ink-soft">
+                    {item.payload}
+                  </p>
+                  {item.completenessNote ? (
+                    <p className="mt-2 mb-0 text-[0.8rem] text-mute">
+                      {item.completenessNote}
+                    </p>
+                  ) : null}
+                  <p className="mt-2 mb-0 text-[0.75rem] text-mute">
+                    Event t={item.eventTimeSeconds}s · Available t=
+                    {item.availableAtSeconds}s · {item.provenance}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-5 m-0 text-[0.85rem] text-mute">
+              Request evidence from the locker to fill this panel.
+            </p>
+          )}
         </div>
 
-        <div>
-          <div className="border-y border-line py-4">
-            <p className="m-0 text-[0.7rem] font-semibold tracking-[0.18em] text-signal uppercase">
-              Interviewer
-            </p>
-            <p className="mt-2 mb-0 text-[0.95rem] leading-relaxed text-ink">
-              {session.interviewerMessage}
-            </p>
-          </div>
+        {/* Right: response desk */}
+        <div className="min-w-0">
+          <p className="m-0 text-[0.7rem] font-semibold tracking-[0.16em] text-signal uppercase">
+            Respond
+          </p>
+          <h2 className="mt-2 m-0 text-[1.05rem] font-semibold text-ink">
+            Interviewer
+          </h2>
+          <p className="mt-4 m-0 border-t border-line pt-4 text-[0.95rem] leading-relaxed text-ink">
+            {session.interviewerMessage || session.briefing}
+          </p>
 
           {!completed ? (
-            <>
-              <label className="mt-6 block">
-                <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-                  Ask a mapped question
-                </span>
-                <textarea
-                  value={question}
-                  onChange={(event) => setQuestion(event.target.value)}
-                  rows={3}
-                  className={fieldClass}
-                  placeholder="Traffic? Payments? Cache?"
-                />
-              </label>
-              <Button
-                className="mt-2.5 h-12 min-w-[7rem] px-5"
-                disabled={busy || !question.trim()}
-                onClick={() =>
-                  void run({
-                    type: 'ask_question',
-                    question: question.trim(),
-                  }).then(() => setQuestion(''))
-                }
-              >
-                Ask
-              </Button>
-
-              <label className="mt-7 block">
-                <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-                  Working hypothesis
-                </span>
-                <textarea
-                  value={claim}
-                  onChange={(event) => setClaim(event.target.value)}
-                  rows={4}
-                  className={fieldClass}
-                  placeholder="What do you think is happening, and what supports it?"
-                />
-              </label>
-              <label className="mt-3 block">
-                <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-                  Missing evidence
-                </span>
-                <input
-                  value={missing}
-                  onChange={(event) => setMissing(event.target.value)}
-                  className={fieldClass}
-                />
-              </label>
-              <label className="mt-3 block">
-                <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-                  Confidence 0–4
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  max={4}
-                  value={confidence}
-                  onChange={(event) =>
-                    setConfidence(Number(event.target.value))
-                  }
-                  className={`${fieldClass} w-24`}
-                />
-              </label>
-              <div className="mt-3">
+            <div className="mt-8 space-y-8">
+              <div>
+                <label className="block">
+                  <span className="mb-2 block text-[0.8rem] font-medium text-ink-soft">
+                    Ask a mapped question
+                  </span>
+                  <textarea
+                    value={question}
+                    onChange={(event) => setQuestion(event.target.value)}
+                    rows={2}
+                    className={fieldClass}
+                    placeholder="Traffic? Payments? Cache?"
+                  />
+                </label>
                 <Button
-                  className="h-12 min-w-[11rem] px-5"
+                  className="mt-3 h-12 min-w-[7rem] px-5"
+                  disabled={busy || !question.trim()}
+                  onClick={() =>
+                    void run({
+                      type: 'ask_question',
+                      question: question.trim(),
+                    }).then(() => setQuestion(''))
+                  }
+                >
+                  Ask
+                </Button>
+              </div>
+
+              <div className="border-t border-line pt-8">
+                <label className="block">
+                  <span className="mb-2 block text-[0.8rem] font-medium text-ink-soft">
+                    Working hypothesis
+                  </span>
+                  <textarea
+                    value={claim}
+                    onChange={(event) => setClaim(event.target.value)}
+                    rows={3}
+                    className={fieldClass}
+                    placeholder="What do you think is happening, and what supports it?"
+                  />
+                </label>
+                <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_6.5rem]">
+                  <label className="block min-w-0">
+                    <span className="mb-2 block text-[0.8rem] font-medium text-ink-soft">
+                      Missing evidence
+                    </span>
+                    <input
+                      value={missing}
+                      onChange={(event) => setMissing(event.target.value)}
+                      className={fieldClass}
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-[0.8rem] font-medium text-ink-soft">
+                      Confidence
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={4}
+                      value={confidence}
+                      onChange={(event) =>
+                        setConfidence(Number(event.target.value))
+                      }
+                      className={fieldClass}
+                      aria-label="Confidence 0 to 4"
+                    />
+                  </label>
+                </div>
+                <Button
+                  className="mt-4 h-12 min-w-[11rem] px-5"
                   disabled={busy || !claim.trim()}
                   onClick={() => {
                     if (session.hypotheses.length > 0) {
@@ -349,113 +363,120 @@ export function SignalSessionPage() {
                 </Button>
               </div>
 
-              <p className="mt-8 mb-0 text-[0.8rem] font-semibold text-ink-soft">
-                Commit an action
-              </p>
-              <ul className="mt-3 m-0 list-none border-t border-line p-0">
-                {session.decisionOptions.map((option) => {
-                  const active = decisionKey === option.key;
-                  return (
-                    <li key={option.key} className="border-b border-line">
-                      <label
-                        className={`ui-row flex cursor-pointer items-start gap-3 border-l-2 py-3.5 transition-[background-color,border-color] duration-200 ${
-                          active
-                            ? 'border-l-signal bg-signal-soft/70'
-                            : 'border-l-transparent'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          className="sr-only"
-                          checked={active}
-                          onChange={() => setDecisionKey(option.key)}
-                        />
-                        <div className="min-w-0">
-                          <p
-                            className={`m-0 text-[0.95rem] ${
-                              active
-                                ? 'font-semibold text-ink'
-                                : 'font-medium text-ink'
-                            }`}
-                          >
-                            {option.label}
-                          </p>
-                          <p className="mt-1 mb-0 text-[0.8rem] text-mute">
-                            {option.description}
-                          </p>
-                        </div>
-                      </label>
-                    </li>
-                  );
-                })}
-              </ul>
-              <label className="mt-4 block">
-                <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-                  Reasoning
-                </span>
-                <textarea
-                  value={reasoning}
-                  onChange={(event) => setReasoning(event.target.value)}
-                  rows={3}
-                  className={fieldClass}
-                />
-              </label>
-              <label className="mt-3 block">
-                <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-                  Expected effect
-                </span>
-                <input
-                  value={expectedEffect}
-                  onChange={(event) => setExpectedEffect(event.target.value)}
-                  className={fieldClass}
-                />
-              </label>
-              <label className="mt-3 block">
-                <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-                  Verification plan
-                </span>
-                <textarea
-                  value={verificationPlan}
-                  onChange={(event) => setVerificationPlan(event.target.value)}
-                  rows={2}
-                  className={fieldClass}
-                />
-              </label>
-              <Button
-                className="mt-4 h-12 min-w-[11rem] px-5"
-                disabled={
-                  busy ||
-                  !decisionKey ||
-                  !reasoning.trim() ||
-                  !expectedEffect.trim() ||
-                  !verificationPlan.trim()
-                }
-                onClick={() =>
-                  void run({
-                    type: 'commit_decision',
-                    decisionKey,
-                    reasoning: reasoning.trim(),
-                    expectedEffect: expectedEffect.trim(),
-                    verificationPlan: verificationPlan.trim(),
-                    supportingEvidenceKeys: selectedKeys,
-                  })
-                }
-              >
-                Commit decision
-              </Button>
-            </>
+              <div className="border-t border-line pt-8">
+                <h2 className="m-0 text-[1.05rem] font-semibold text-ink">
+                  Commit an action
+                </h2>
+                <ul className="mt-4 m-0 list-none border-t border-line p-0">
+                  {session.decisionOptions.map((option) => {
+                    const active = decisionKey === option.key;
+                    return (
+                      <li key={option.key} className="border-b border-line">
+                        <label
+                          className={`ui-row flex cursor-pointer items-start gap-3 border-l-2 py-4 transition-[background-color,border-color] duration-200 ${
+                            active
+                              ? 'border-l-signal bg-signal-soft/70'
+                              : 'border-l-transparent'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            className="sr-only"
+                            checked={active}
+                            onChange={() => setDecisionKey(option.key)}
+                          />
+                          <div className="min-w-0">
+                            <p
+                              className={`m-0 text-[0.95rem] ${
+                                active
+                                  ? 'font-semibold text-ink'
+                                  : 'font-medium text-ink'
+                              }`}
+                            >
+                              {option.label}
+                            </p>
+                            <p className="mt-1 mb-0 text-[0.8rem] text-mute">
+                              {option.description}
+                            </p>
+                          </div>
+                        </label>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <label className="mt-5 block">
+                  <span className="mb-2 block text-[0.8rem] font-medium text-ink-soft">
+                    Reasoning
+                  </span>
+                  <textarea
+                    value={reasoning}
+                    onChange={(event) => setReasoning(event.target.value)}
+                    rows={2}
+                    className={fieldClass}
+                  />
+                </label>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label className="block min-w-0">
+                    <span className="mb-2 block text-[0.8rem] font-medium text-ink-soft">
+                      Expected effect
+                    </span>
+                    <input
+                      value={expectedEffect}
+                      onChange={(event) =>
+                        setExpectedEffect(event.target.value)
+                      }
+                      className={fieldClass}
+                    />
+                  </label>
+                  <label className="block min-w-0">
+                    <span className="mb-2 block text-[0.8rem] font-medium text-ink-soft">
+                      Verification plan
+                    </span>
+                    <input
+                      value={verificationPlan}
+                      onChange={(event) =>
+                        setVerificationPlan(event.target.value)
+                      }
+                      className={fieldClass}
+                    />
+                  </label>
+                </div>
+                <Button
+                  className="mt-5 h-12 min-w-[11rem] px-5"
+                  disabled={
+                    busy ||
+                    !decisionKey ||
+                    !reasoning.trim() ||
+                    !expectedEffect.trim() ||
+                    !verificationPlan.trim()
+                  }
+                  onClick={() =>
+                    void run({
+                      type: 'commit_decision',
+                      decisionKey,
+                      reasoning: reasoning.trim(),
+                      expectedEffect: expectedEffect.trim(),
+                      verificationPlan: verificationPlan.trim(),
+                      supportingEvidenceKeys: selectedKeys,
+                    })
+                  }
+                >
+                  Commit decision
+                </Button>
+              </div>
+            </div>
           ) : null}
 
           {session.hypotheses.length > 0 ? (
-            <div className="mt-8">
-              <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
+            <div className="mt-8 border-t border-line pt-8">
+              <h2 className="m-0 text-[1.05rem] font-semibold text-ink">
                 Hypotheses
-              </p>
-              <ul className="mt-3 m-0 list-none border-t border-line p-0">
+              </h2>
+              <ul className="mt-4 m-0 list-none border-t border-line p-0">
                 {session.hypotheses.map((item) => (
                   <li
                     key={item.id}
-                    className="border-b border-line py-3 text-[0.9rem] text-ink-soft"
+                    className="border-b border-line py-3.5 text-[0.9rem] text-ink-soft"
                   >
                     {item.supersedesId ? 'Revised: ' : ''}
                     {item.claim}
@@ -468,22 +489,22 @@ export function SignalSessionPage() {
       </div>
 
       {completed && session.evaluation ? (
-        <div className="mt-10 border-t border-line pt-8">
+        <div className="mt-14 border-t border-line pt-10">
           <p className="m-0 text-[0.7rem] font-semibold tracking-[0.18em] text-signal uppercase">
             Debrief
           </p>
           <h2 className="font-display mt-2 m-0 text-[clamp(1.6rem,3vw,2.1rem)] font-semibold tracking-[-0.02em] text-ink">
             Round complete
           </h2>
-          <p className="mt-3 max-w-3xl text-base leading-relaxed text-ink-soft">
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-ink-soft">
             {session.evaluation.overallSummary}
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-mute">
             {session.evaluation.scenarioExplanation}
           </p>
-          <ul className="mt-6 m-0 list-none border-t border-line p-0">
+          <ul className="mt-8 m-0 grid list-none gap-x-10 border-t border-line p-0 md:grid-cols-2">
             {session.evaluation.dimensions.map((item) => (
-              <li key={item.key} className="border-b border-line py-[1.05rem]">
+              <li key={item.key} className="border-b border-line py-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                   <p className="m-0 text-[0.95rem] font-semibold text-ink">
                     {item.label}
@@ -494,7 +515,7 @@ export function SignalSessionPage() {
                       : `${item.score}/4`}
                   </span>
                 </div>
-                <p className="mt-1 mb-0 text-[0.85rem] text-ink-soft">
+                <p className="mt-1.5 mb-0 text-[0.85rem] text-ink-soft">
                   {item.explanation}
                 </p>
                 {item.evidenceRefs.length > 0 ? (
@@ -513,16 +534,16 @@ export function SignalSessionPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-sm text-ink-soft">
+          <p className="mt-5 text-sm text-ink-soft">
             Practice next: {session.evaluation.recommendedPractice}
           </p>
 
           {session.decisions[0] ? (
-            <div className="mt-8 border-t border-line pt-6">
-              <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
+            <div className="mt-10 border-t border-line pt-8">
+              <h2 className="m-0 text-[1.05rem] font-semibold text-ink">
                 Decision replay
-              </p>
-              <p className="mt-2 text-sm text-ink-soft">
+              </h2>
+              <p className="mt-3 text-sm text-ink-soft">
                 Original: {session.decisions[0].description}
               </p>
               {session.replay ? (
@@ -548,10 +569,10 @@ export function SignalSessionPage() {
                     value={replayReason}
                     onChange={(event) => setReplayReason(event.target.value)}
                     rows={3}
-                    className={`mt-3 ${fieldClass}`}
+                    className={`mt-4 ${fieldClass}`}
                     placeholder="Would you keep or change this decision with what you know now?"
                   />
-                  <div className="mt-3 flex flex-wrap gap-2.5">
+                  <div className="mt-4 flex flex-wrap gap-2.5">
                     <Button
                       className="h-12 min-w-[11rem] px-5"
                       disabled={busy}
@@ -573,7 +594,7 @@ export function SignalSessionPage() {
             </div>
           ) : null}
 
-          <div className="mt-8 flex flex-wrap gap-2.5 border-t border-line pt-7">
+          <div className="mt-10 flex flex-wrap gap-2.5 border-t border-line pt-8">
             <Button
               className="h-12 min-w-[11rem] px-5"
               onClick={() => navigate('/app/interviews')}
@@ -591,15 +612,13 @@ export function SignalSessionPage() {
         </div>
       ) : null}
 
-      <div className="mt-10 border-t border-line pt-6">
-        <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
-          Event log
-        </p>
-        <ul className="mt-3 m-0 list-none border-t border-line p-0">
+      <div className="mt-14 border-t border-line pt-8">
+        <h2 className="m-0 text-[1.05rem] font-semibold text-ink">Event log</h2>
+        <ul className="mt-4 m-0 list-none border-t border-line p-0">
           {session.events.map((event) => (
             <li
               key={event.id}
-              className="border-b border-line py-2.5 text-[0.8rem] text-mute"
+              className="border-b border-line py-3 text-[0.82rem] text-mute"
             >
               #{event.sequence} t={event.simulatedTimeSeconds}s ·{' '}
               {event.summary}

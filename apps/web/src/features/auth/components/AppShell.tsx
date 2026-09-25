@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { BrandLockup } from '../../../shared/ui/BrandLockup';
 import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../hooks/useAuth';
@@ -41,6 +41,8 @@ function WorkspaceNavLink({
 
 export function AppShell() {
   const { user, logout } = useAuth();
+  const { pathname } = useLocation();
+  const wideDesk = pathname.includes('/interviews/signal/');
 
   return (
     <div className="app-canvas flex min-h-screen flex-col">
@@ -86,7 +88,11 @@ export function AppShell() {
           </div>
         </div>
       </header>
-      <main className="ui-enter mx-auto w-full max-w-[48rem] flex-1 px-5 py-9 sm:px-8 lg:px-10 lg:py-11">
+      <main
+        className={`ui-enter mx-auto w-full flex-1 px-5 py-9 sm:px-8 lg:px-10 lg:py-11 ${
+          wideDesk ? 'max-w-[72rem]' : 'max-w-[48rem]'
+        }`}
+      >
         <Outlet />
       </main>
     </div>
