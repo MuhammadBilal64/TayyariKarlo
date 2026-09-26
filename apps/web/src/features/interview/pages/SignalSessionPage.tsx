@@ -1,6 +1,6 @@
 import type { SignalSession, SignalVariant } from '@tayyari/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -18,7 +18,7 @@ const fieldClass =
   'w-full cursor-text rounded-[6px] border border-line bg-surface px-3.5 py-2.5 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-mute/70 hover:border-ink/25 focus:border-ink focus:shadow-[0_0_0_3px_rgb(11_15_20/0.12)]';
 
 const underlineAction =
-  'cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color,opacity] duration-200 disabled:cursor-not-allowed disabled:opacity-45';
+  'cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-0 pb-1 text-[0.9rem] font-medium text-ink-soft transition-[color,border-color,opacity] duration-200 hover:border-ink/45 hover:text-ink focus-visible:outline-none focus-visible:text-ink disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:border-transparent disabled:hover:text-ink-soft';
 
 export function SignalSessionPage() {
   const { sessionId = '' } = useParams();
@@ -123,7 +123,7 @@ export function SignalSessionPage() {
   if (!session) {
     return (
       <section>
-        <p className="text-ink-soft">{error ?? 'Loading investigation…'}</p>
+        <p className="text-ink-soft">{error ?? 'Loading investigation?'}</p>
       </section>
     );
   }
@@ -142,17 +142,18 @@ export function SignalSessionPage() {
             {session.scenarioTitle}
           </h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <p className="m-0 text-[0.85rem] text-mute">
-            t={session.simulatedTimeSeconds}s ·{' '}
+            t={session.simulatedTimeSeconds}s ?{' '}
             {session.variant.replaceAll('_', ' ')}
           </p>
-          <Link
-            to="/app/interviews"
-            className="text-[0.85rem] font-medium text-ink-soft no-underline hover:text-ink"
+          <Button
+            variant="ghost"
+            className="min-w-[5.5rem] px-4"
+            onClick={() => navigate('/app/interviews')}
           >
             Exit
-          </Link>
+          </Button>
         </div>
       </header>
 
@@ -195,7 +196,7 @@ export function SignalSessionPage() {
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
             <button
               type="button"
-              className={`${underlineAction} border-transparent font-medium text-ink-soft hover:text-ink`}
+              className={underlineAction}
               disabled={busy || completed}
               onClick={() => void run({ type: 'advance_clock', seconds: 30 })}
             >
@@ -205,7 +206,7 @@ export function SignalSessionPage() {
               <button
                 key={item.key}
                 type="button"
-                className={`${underlineAction} border-transparent font-medium text-ink-soft hover:text-ink`}
+                className={underlineAction}
                 disabled={busy || completed}
                 onClick={() =>
                   void run({ type: 'request_evidence', evidenceKey: item.key })
@@ -238,8 +239,8 @@ export function SignalSessionPage() {
                     </p>
                   ) : null}
                   <p className="mt-2 mb-0 text-[0.75rem] text-mute">
-                    Event t={item.eventTimeSeconds}s · Available t=
-                    {item.availableAtSeconds}s · {item.provenance}
+                    Event t={item.eventTimeSeconds}s ? Available t=
+                    {item.availableAtSeconds}s ? {item.provenance}
                   </p>
                 </li>
               ))}
@@ -279,7 +280,7 @@ export function SignalSessionPage() {
                   />
                 </label>
                 <Button
-                  className="mt-3 h-12 min-w-[7rem] px-5"
+                  className="mt-3 min-w-[7rem] px-5"
                   disabled={busy || !question.trim()}
                   onClick={() =>
                     void run({
@@ -334,7 +335,7 @@ export function SignalSessionPage() {
                   </label>
                 </div>
                 <Button
-                  className="mt-4 h-12 min-w-[11rem] px-5"
+                  className="mt-4 min-w-[11rem] px-5"
                   disabled={busy || !claim.trim()}
                   onClick={() => {
                     if (session.hypotheses.length > 0) {
@@ -442,7 +443,7 @@ export function SignalSessionPage() {
                   </label>
                 </div>
                 <Button
-                  className="mt-5 h-12 min-w-[11rem] px-5"
+                  className="mt-5 min-w-[11rem] px-5"
                   disabled={
                     busy ||
                     !decisionKey ||
@@ -574,7 +575,7 @@ export function SignalSessionPage() {
                   />
                   <div className="mt-4 flex flex-wrap gap-2.5">
                     <Button
-                      className="h-12 min-w-[11rem] px-5"
+                      className="min-w-[11rem] px-5"
                       disabled={busy}
                       onClick={() => void onReplay('keep')}
                     >
@@ -582,7 +583,7 @@ export function SignalSessionPage() {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="h-12 min-w-[11rem] px-5"
+                      className="min-w-[11rem] px-5"
                       disabled={busy}
                       onClick={() => void onReplay('change')}
                     >
@@ -596,14 +597,14 @@ export function SignalSessionPage() {
 
           <div className="mt-10 flex flex-wrap gap-2.5 border-t border-line pt-8">
             <Button
-              className="h-12 min-w-[11rem] px-5"
+              className="min-w-[11rem] px-5"
               onClick={() => navigate('/app/interviews')}
             >
               Start another interview
             </Button>
             <Button
               variant="ghost"
-              className="h-12 min-w-[11rem] px-5"
+              className="min-w-[11rem] px-5"
               onClick={() => navigate('/app')}
             >
               Back to progress
@@ -620,7 +621,7 @@ export function SignalSessionPage() {
               key={event.id}
               className="border-b border-line py-3 text-[0.82rem] text-mute"
             >
-              #{event.sequence} t={event.simulatedTimeSeconds}s ·{' '}
+              #{event.sequence} t={event.simulatedTimeSeconds}s ?{' '}
               {event.summary}
             </li>
           ))}

@@ -185,10 +185,10 @@ function SetupPageForm({
                         <button
                           key={level}
                           type="button"
-                          className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 ${
+                          className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 focus-visible:outline-none ${
                             active
                               ? 'border-ink font-semibold text-ink'
-                              : 'border-transparent font-medium text-ink-soft hover:text-ink'
+                              : 'border-transparent font-medium text-ink-soft hover:border-ink/45 hover:text-ink'
                           }`}
                           onClick={() =>
                             selectTopicDifficulty(value, level)
@@ -227,7 +227,7 @@ function SetupPageForm({
         <div className="mt-8">
           <Button
             type="submit"
-            className="h-12 min-w-[11rem] px-5"
+            className="min-w-[11rem] px-5"
             disabled={submitting || available === 0}
           >
             {submitting ? 'Starting…' : 'Start assessment'}

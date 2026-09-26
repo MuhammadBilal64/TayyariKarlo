@@ -230,7 +230,7 @@ export function TakePage() {
       <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t border-line pt-6">
         <Button
           variant="ghost"
-          className="h-12 min-w-[8.5rem] px-5"
+          className="min-w-[8.5rem] px-5"
           disabled={index === 0 || submitting}
           onClick={() => setIndex((value) => Math.max(0, value - 1))}
         >
@@ -238,7 +238,7 @@ export function TakePage() {
         </Button>
         {isLast ? (
           <Button
-            className="h-12 min-w-[8.5rem] px-5"
+            className="min-w-[8.5rem] px-5"
             disabled={selected === undefined || submitting}
             onClick={() => {
               void onSubmit(attempt);
@@ -248,7 +248,7 @@ export function TakePage() {
           </Button>
         ) : (
           <Button
-            className="h-12 min-w-[8.5rem] px-5"
+            className="min-w-[8.5rem] px-5"
             disabled={selected === undefined}
             onClick={() => setIndex((value) => Math.min(total - 1, value + 1))}
           >
@@ -257,7 +257,7 @@ export function TakePage() {
         )}
         <Button
           variant="ghost"
-          className="ml-auto h-12 min-w-[8.5rem] px-5"
+          className="ml-auto min-w-[8.5rem] px-5"
           disabled={submitting}
           onClick={() => navigate('/app')}
         >

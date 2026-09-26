@@ -228,20 +228,11 @@ export function InterviewSessionPage() {
         <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
           {topic.label} · {session.role}
         </p>
-        <div className="flex items-center gap-3">
-          {isMock ? (
-            <span className="text-[0.72rem] font-semibold tracking-[0.06em] text-mute uppercase">
-              Scripted practice
-            </span>
-          ) : null}
-          <button
-            type="button"
-            className="cursor-pointer border-0 bg-transparent p-0 text-[0.85rem] font-medium text-ink-soft hover:text-ink"
-            onClick={() => navigate('/app/interviews')}
-          >
-            Exit round
-          </button>
-        </div>
+        {isMock ? (
+          <span className="text-[0.72rem] font-semibold tracking-[0.06em] text-mute uppercase">
+            Scripted practice
+          </span>
+        ) : null}
       </div>
       <div className="h-[3px] overflow-hidden bg-line" aria-hidden="true">
         <i
@@ -338,14 +329,14 @@ export function InterviewSessionPage() {
             <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t border-line pt-6">
               <Button
                 type="submit"
-                className="h-12 min-w-[11rem] px-5"
+                className="min-w-[11rem] px-5"
                 disabled={submitting}
               >
                 {submitting ? 'Submitting…' : 'Submit response'}
               </Button>
               <Button
                 variant="ghost"
-                className="ml-auto h-12 min-w-[8.5rem] px-5"
+                className="ml-auto min-w-[8.5rem] px-5"
                 disabled={submitting}
                 onClick={() => navigate('/app/interviews')}
               >

@@ -40,7 +40,7 @@ function variantLabel(variant: SignalVariant) {
 type InterviewMode = 'classic' | 'signal';
 
 const underlineSelect =
-  'cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200';
+  'cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 focus-visible:outline-none'
 
 export function InterviewSetupPage() {
   const { accessToken } = useAuth();
@@ -150,7 +150,7 @@ export function InterviewSetupPage() {
                       className={`${underlineSelect} ${
                         active
                           ? 'border-ink font-semibold text-ink'
-                          : 'border-transparent font-medium text-ink-soft hover:text-ink'
+                          : 'border-transparent font-medium text-ink-soft hover:border-ink/45 hover:text-ink'
                       }`}
                       onClick={() => setMode(value)}
                     >
@@ -228,7 +228,7 @@ export function InterviewSetupPage() {
                       className={`${underlineSelect} ${
                         active
                           ? 'border-ink font-semibold text-ink'
-                          : 'border-transparent font-medium text-ink-soft hover:text-ink'
+                          : 'border-transparent font-medium text-ink-soft hover:border-ink/45 hover:text-ink'
                       }`}
                       onClick={() => setExperienceLevel(level)}
                     >
@@ -260,7 +260,7 @@ export function InterviewSetupPage() {
                         className={`${underlineSelect} ${
                           active
                             ? 'border-ink font-semibold text-ink'
-                            : 'border-transparent font-medium text-ink-soft hover:text-ink'
+                            : 'border-transparent font-medium text-ink-soft hover:border-ink/45 hover:text-ink'
                         }`}
                         onClick={() => setVariant(item)}
                       >
@@ -283,7 +283,7 @@ export function InterviewSetupPage() {
         <div className="mt-8">
           <Button
             type="submit"
-            className="h-12 min-w-[11rem] px-5"
+            className="min-w-[11rem] px-5"
             disabled={submitting}
           >
             {submitting

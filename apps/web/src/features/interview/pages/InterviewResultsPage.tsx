@@ -188,14 +188,14 @@ export function InterviewResultsPage() {
 
       <div className="mt-9 flex flex-wrap gap-2.5 border-t border-line pt-7">
         <Button
-          className="h-12 min-w-[11rem] px-5"
+          className="min-w-[11rem] px-5"
           onClick={() => navigate('/app/interviews')}
         >
           Run another round
         </Button>
         <Button
           variant="ghost"
-          className="h-12 min-w-[11rem] px-5"
+          className="min-w-[11rem] px-5"
           onClick={() => navigate('/app')}
         >
           Back to progress
