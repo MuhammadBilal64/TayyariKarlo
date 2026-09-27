@@ -78,7 +78,8 @@ export function AppShell() {
             ) : null}
             <Button
               variant="ghost"
-              className="min-w-[5.75rem] px-3.5 text-sm"
+              size="sm"
+              className="min-w-[5.5rem]"
               onClick={() => {
                 void logout();
               }}
