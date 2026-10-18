@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "pnpm -r --if-present run test",
-    "typecheck": "pnpm -r --if-present run typecheck"
+    "typecheck": "pnpm --filter @tayyari/shared build && pnpm -r --if-present run typecheck"
   },
   "devDependencies": {
     "prettier": "^3.4.2"

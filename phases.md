@@ -15,6 +15,8 @@ Statuses: `Pending` | `In Progress` | `Completed`
 **Goal:** Monorepo skeleton, tooling, Postgres, CI. No auth product UI yet.  
 **Status:** Completed (pending PR merge)
 
+Follow-up before merge: CI lint check-only, ConfigModule env load, README prisma generate, typecheck builds shared first.
+
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
 | 1.1 | Root pnpm workspace | Completed | Create workspace root, `pnpm-workspace.yaml`, root scripts, `apps/` + `packages/` folders | Workspace installs; folders exist | — | `pnpm install` succeeds |

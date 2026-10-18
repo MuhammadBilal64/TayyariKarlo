@@ -55,11 +55,12 @@ Defaults match the Compose Postgres service. See root [`.env.example`](.env.exam
 docker compose up -d
 ```
 
-### 4. Migrate the database
+### 4. Generate Prisma Client and migrate
 
 ```bash
+pnpm --filter @tayyari/api prisma:generate
 pnpm --filter @tayyari/api exec prisma migrate deploy
-# or during development:
+# or during development (create + apply migrations):
 pnpm --filter @tayyari/api prisma:migrate
 ```
 
@@ -69,11 +70,14 @@ pnpm --filter @tayyari/api prisma:migrate
 pnpm --filter @tayyari/shared build
 ```
 
+Required before `pnpm typecheck` or running the apps if `packages/shared/dist` is missing.
+
 ### 6. Run apps
 
 ```bash
 pnpm dev
 ```
+
 
 - API: http://localhost:3000/api/v1/health  
 - Web: http://localhost:5173  
