@@ -1,0 +1,20 @@
+{
+  "name": "tayyari-karlo",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --if-present run dev",
+    "build": "pnpm --filter @tayyari/shared build && pnpm --filter @tayyari/api --filter @tayyari/web run build",
+    "lint": "pnpm -r --if-present run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r --if-present run test",
+    "typecheck": "pnpm --filter @tayyari/shared build && pnpm -r --if-present run typecheck"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  }
+}
