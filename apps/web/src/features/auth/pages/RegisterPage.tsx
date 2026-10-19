@@ -22,7 +22,7 @@ export function RegisterPage() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -38,7 +38,7 @@ export function RegisterPage() {
     setSubmitting(true);
     try {
       await register(parsed.data);
-      navigate('/', { replace: true });
+      navigate('/app', { replace: true });
     } catch (err) {
       setError(
         err instanceof ApiError

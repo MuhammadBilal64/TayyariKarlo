@@ -1,6 +1,6 @@
 import { loginSchema } from '@tayyari/shared';
 import { useState, type FormEvent } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { Field } from '../../../shared/ui/Field';
@@ -11,6 +11,9 @@ import { useAuth } from '../hooks/useAuth';
 export function LoginPage() {
   const { login, isAuthenticated, isBootstrapping } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo =
+    (location.state as { from?: string } | null)?.from ?? '/app';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +24,7 @@ export function LoginPage() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={redirectTo} replace />;
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -37,7 +40,7 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       await login(parsed.data);
-      navigate('/', { replace: true });
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : 'Unable to sign in right now',

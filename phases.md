@@ -42,7 +42,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 | 2.4 | Refresh + logout | Completed | Refresh rotation; logout revokes token | Tokens rotate/revoke correctly | 2.3 | API tests |
 | 2.5 | JWT guard + `/users/me` | Completed | Protected current-user endpoint | Unauthorized blocked; me returns profile | 2.3 | API tests |
 | 2.6 | Web auth feature | Completed | Login/register pages; API integration | User can register and log in via UI | 2.3–2.5 | Manual + browser UI check |
-| 2.7 | Protected route shell | Pending | Redirect unauthenticated users | Protected routes require auth | 2.6 | Manual |
+| 2.7 | Protected route shell | Completed | Redirect unauthenticated users | Protected routes require auth | 2.6 | Manual + browser UI check |
 
 ---
 

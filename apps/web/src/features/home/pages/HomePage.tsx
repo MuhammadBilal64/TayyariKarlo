@@ -47,15 +47,19 @@ export function HomePage() {
               <strong className="font-semibold text-ink">{user.name}</strong> (
               {user.email})
             </p>
-            <Button
-              variant="ghost"
-              className="mt-4"
-              onClick={() => {
-                void logout();
-              }}
-            >
-              Sign out
-            </Button>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link to="/app" className="no-underline hover:no-underline">
+                <Button>Open workspace</Button>
+              </Link>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  void logout();
+                }}
+              >
+                Sign out
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="mt-8 flex flex-wrap gap-3">

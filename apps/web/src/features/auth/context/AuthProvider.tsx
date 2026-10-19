@@ -1,5 +1,5 @@
 import type { AuthUser, LoginInput, RegisterInput } from '@tayyari/shared';
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import * as authApi from '../api/authApi';
 import {
   clearAccessToken,
@@ -12,6 +12,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [accessToken, setToken] = useState<string | null>(null);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const bootstrapGeneration = useRef(0);
 
   const applySession = useCallback((token: string, nextUser: AuthUser) => {
     setAccessToken(token);
@@ -26,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    const generation = ++bootstrapGeneration.current;
 
     async function bootstrap() {
       try {
@@ -34,34 +35,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (existing) {
           try {
             const me = await authApi.getMe(existing);
-            if (!cancelled) {
+            if (generation === bootstrapGeneration.current) {
               applySession(existing, me);
-              return;
             }
+            return;
           } catch {
             clearAccessToken();
           }
         }
 
         const refreshed = await authApi.refresh();
-        if (!cancelled) {
+        if (generation === bootstrapGeneration.current) {
           applySession(refreshed.accessToken, refreshed.user);
         }
       } catch {
-        if (!cancelled) {
+        if (generation === bootstrapGeneration.current) {
           clearSession();
         }
       } finally {
-        if (!cancelled) {
+        if (generation === bootstrapGeneration.current) {
           setIsBootstrapping(false);
         }
       }
     }
 
     void bootstrap();
-    return () => {
-      cancelled = true;
-    };
   }, [applySession, clearSession]);
 
   const login = useCallback(
