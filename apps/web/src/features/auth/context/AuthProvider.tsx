@@ -1,5 +1,12 @@
 import type { AuthUser, LoginInput, RegisterInput } from '@tayyari/shared';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import * as authApi from '../api/authApi';
 import {
   clearAccessToken,

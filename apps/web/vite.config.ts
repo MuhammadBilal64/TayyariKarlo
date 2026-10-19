@@ -12,7 +12,10 @@ export default defineConfig({
     alias: {
       // Consume shared TypeScript source so Vite gets real ESM named exports
       // (package dist is CommonJS for Nest).
-      '@tayyari/shared': path.resolve(rootDir, '../../packages/shared/src/index.ts'),
+      '@tayyari/shared': path.resolve(
+        rootDir,
+        '../../packages/shared/src/index.ts',
+      ),
     },
   },
   server: {
