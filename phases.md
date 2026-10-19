@@ -49,11 +49,11 @@ Statuses: `Pending` | `In Progress` | `Completed`
 ## Phase 3 — Assessments
 
 **Branch:** `phase/03-assessments`  
-**Status:** Pending
+**Status:** In Progress
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
-| 3.1 | Questions API + seed | Pending | MCQ model; create/list/seed by topic/difficulty | Questions available in DB | Phase 2 | API tests |
+| 3.1 | Questions API + seed | Completed | MCQ model; create/list/seed by topic/difficulty | Questions available in DB | Phase 2 | API tests |
 | 3.2 | Start assessment | Pending | Category/difficulty/count → attempt with questions | Attempt created with N questions | 3.1 | API tests |
 | 3.3 | Submit + score | Pending | Score, %, correct/incorrect, topic breakdown | Results match answers | 3.2 | API tests |
 | 3.4 | Web assessment flow | Pending | Select → take quiz → results UI | Full UI flow works | 3.2–3.3 | Manual |

@@ -54,3 +54,18 @@ model RefreshToken {
   @@index([userId])
   @@map("refresh_tokens")
 }
+
+model Question {
+  id           String   @id @default(cuid())
+  prompt       String
+  topic        String
+  difficulty   String
+  options      String[]
+  correctIndex Int
+  explanation  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([topic, difficulty])
+  @@map("questions")
+}
