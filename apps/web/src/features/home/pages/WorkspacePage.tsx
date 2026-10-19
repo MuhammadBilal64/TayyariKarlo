@@ -40,8 +40,10 @@ function TrendMarks({ trends }: { trends: ProgressSummary['trends'] }) {
         {trends.map((point) => (
           <span
             key={point.attemptId}
-            className="block w-[0.45rem] rounded-t-[2px] bg-signal opacity-85"
-            style={{ height: `${Math.max(12, (point.percent / max) * 100)}%` }}
+            className="block w-[0.45rem] rounded-t-[2px] bg-signal/85"
+            style={{
+              height: `${Math.max(12, (point.percent / max) * 100)}%`,
+            }}
           />
         ))}
       </div>
@@ -75,22 +77,33 @@ export function WorkspacePage() {
       setLoading(true);
       setError(null);
       try {
-        const [summary, recs] = await Promise.all([
+        // Progress is required; recommendations can fail independently.
+        const [summaryResult, recsResult] = await Promise.allSettled([
           getProgressSummary(accessToken),
           getRecommendations(accessToken),
         ]);
-        if (!cancelled) {
-          setProgress(summary);
-          setRecommendations(recs.recommendations.slice(0, 3));
-        }
-      } catch (err) {
-        if (!cancelled) {
+
+        if (cancelled) return;
+
+        if (summaryResult.status === 'rejected') {
+          const err = summaryResult.reason;
+          setProgress(null);
+          setRecommendations([]);
           setError(
             err instanceof ApiError
               ? err.message
               : 'Unable to load progress right now',
           );
+          return;
         }
+
+        setProgress(summaryResult.value);
+        setError(null);
+        setRecommendations(
+          recsResult.status === 'fulfilled'
+            ? recsResult.value.recommendations.slice(0, 3)
+            : [],
+        );
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -163,35 +176,42 @@ export function WorkspacePage() {
       <p className="mt-7 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
         Focus next
       </p>
-      <ol className="m-0 grid list-none gap-0 border-t border-line p-0">
-        {recommendations.map((rec, index) => (
-          <li
-            key={rec.topic}
-            className="grid grid-cols-[1.5rem_1fr_auto] items-start gap-x-3.5 gap-y-3 border-b border-line py-4"
-          >
-            <span className="font-display text-[1.25rem] leading-tight text-signal">
-              {index + 1}
-            </span>
-            <div>
-              <p className="m-0 text-[0.98rem] font-semibold text-ink">
-                {topicLabel(rec.topic)}
-              </p>
-              <p className="mt-1.5 m-0 text-[0.88rem] leading-snug text-ink-soft">
-                {rec.reason}
-              </p>
-              <p className="mt-1.5 m-0 text-[0.75rem] font-semibold tracking-[0.08em] text-mute uppercase">
-                Suggested · {difficultyLabel(rec.suggestedDifficulty)}
-              </p>
-            </div>
-            <Link
-              to={practiceHref(rec)}
-              className="inline-flex items-center justify-center self-center rounded-[10px] bg-signal px-3.5 py-2 text-[0.85rem] font-semibold whitespace-nowrap text-white no-underline transition-colors hover:bg-signal-hover hover:no-underline"
+      {recommendations.length > 0 ? (
+        <ol className="m-0 grid list-none gap-0 border-t border-line p-0">
+          {recommendations.map((rec, index) => (
+            <li
+              key={rec.topic}
+              className="grid grid-cols-[1.5rem_1fr] items-start gap-x-3.5 gap-y-3 border-b border-line py-4 sm:grid-cols-[1.5rem_1fr_auto]"
             >
-              Practice
-            </Link>
-          </li>
-        ))}
-      </ol>
+              <span className="font-display text-[1.25rem] leading-tight text-signal">
+                {index + 1}
+              </span>
+              <div>
+                <p className="m-0 text-[0.98rem] font-semibold text-ink">
+                  {topicLabel(rec.topic)}
+                </p>
+                <p className="mt-1.5 m-0 text-[0.88rem] leading-snug text-ink-soft">
+                  {rec.reason}
+                </p>
+                <p className="mt-1.5 m-0 text-[0.75rem] font-semibold tracking-[0.08em] text-mute uppercase">
+                  Suggested · {difficultyLabel(rec.suggestedDifficulty)}
+                </p>
+              </div>
+              <Link
+                to={practiceHref(rec)}
+                className="col-start-2 inline-flex items-center justify-center rounded-[10px] bg-signal px-3.5 py-2 text-[0.85rem] font-semibold whitespace-nowrap text-white no-underline transition-colors hover:bg-signal-hover hover:no-underline sm:col-start-auto sm:self-center"
+              >
+                Practice
+              </Link>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="m-0 border-y border-line py-4 text-[0.95rem] text-ink-soft">
+          Recommendations unavailable right now. Start any assessment to keep
+          practicing.
+        </p>
+      )}
 
       <p className="mt-7 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
         Recent attempts
@@ -236,13 +256,6 @@ export function WorkspacePage() {
           onClick={() => navigate('/app/assessments')}
         >
           Start assessment
-        </Button>
-        <Button
-          variant="ghost"
-          className="min-w-40 px-5 py-3"
-          onClick={() => navigate('/app/assessments')}
-        >
-          Browse all topics
         </Button>
       </div>
     </section>

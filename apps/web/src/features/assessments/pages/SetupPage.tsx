@@ -26,16 +26,17 @@ function difficultyFromSearch(value: string | null): Difficulty {
   return parsed.success ? parsed.data : 'easy';
 }
 
-export function SetupPage() {
+function SetupPageForm({
+  initialTopic,
+  initialDifficulty,
+}: {
+  initialTopic: Topic;
+  initialDifficulty: Difficulty;
+}) {
   const { accessToken } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [topic, setTopic] = useState<Topic>(() =>
-    topicFromSearch(searchParams.get('topic')),
-  );
-  const [difficulty, setDifficulty] = useState<Difficulty>(() =>
-    difficultyFromSearch(searchParams.get('difficulty')),
-  );
+  const [topic, setTopic] = useState<Topic>(initialTopic);
+  const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty);
   const [count, setCount] = useState(5);
   const [available, setAvailable] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -228,5 +229,22 @@ export function SetupPage() {
         </div>
       </form>
     </section>
+  );
+}
+
+/** Remount when Practice query params change so topic/difficulty stay in sync. */
+export function SetupPage() {
+  const [searchParams] = useSearchParams();
+  const initialTopic = topicFromSearch(searchParams.get('topic'));
+  const initialDifficulty = difficultyFromSearch(
+    searchParams.get('difficulty'),
+  );
+
+  return (
+    <SetupPageForm
+      key={`${initialTopic}:${initialDifficulty}`}
+      initialTopic={initialTopic}
+      initialDifficulty={initialDifficulty}
+    />
   );
 }

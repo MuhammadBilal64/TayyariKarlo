@@ -80,4 +80,30 @@ describe('RecommendationsService', () => {
       result.recommendations.every((row) => row.suggestedDifficulty === 'easy'),
     ).toBe(true);
   });
+
+  it('suggests hard once average reaches the stretch threshold', async () => {
+    progressService.getSummary.mockResolvedValue({
+      attemptCount: 1,
+      completedCount: 1,
+      skillScore: 72,
+      recentAttempts: [],
+      weakTopics: [
+        {
+          topic: 'system_design',
+          attemptCount: 1,
+          averagePercent: 72,
+          latestPercent: 72,
+        },
+      ],
+      trends: [],
+    });
+
+    const result = await service.getForUser('user-1');
+    const systemDesign = result.recommendations.find(
+      (row) => row.topic === 'system_design',
+    );
+
+    expect(systemDesign?.suggestedDifficulty).toBe('hard');
+    expect(systemDesign?.reason).toContain('stretch');
+  });
 });

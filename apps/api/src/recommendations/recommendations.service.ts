@@ -74,8 +74,9 @@ export class RecommendationsService {
   }
 
   private suggestDifficulty(averagePercent: number): Difficulty {
+    // Align with ranking/reason threshold (70%): stretch ⇒ hard.
     if (averagePercent < 50) return 'easy';
-    if (averagePercent < 75) return 'medium';
+    if (averagePercent < 70) return 'medium';
     return 'hard';
   }
 }
