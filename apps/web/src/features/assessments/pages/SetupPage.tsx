@@ -5,12 +5,13 @@ import {
   type Difficulty,
   type Topic,
 } from '@tayyari/shared';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { startAssessment } from '../api/assessmentsApi';
+import { listQuestions } from '../api/questionsApi';
 import { difficultyLabel, topicLabel } from '../lib/labels';
 
 export function SetupPage() {
@@ -18,9 +19,43 @@ export function SetupPage() {
   const navigate = useNavigate();
   const [topic, setTopic] = useState<Topic>('system_design');
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
-  const [count, setCount] = useState(1);
+  const [count, setCount] = useState(5);
+  const [available, setAvailable] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadAvailable() {
+      if (!accessToken) {
+        setAvailable(null);
+        return;
+      }
+
+      try {
+        const questions = await listQuestions(
+          { topic, difficulty },
+          accessToken,
+        );
+        if (cancelled) return;
+        setAvailable(questions.length);
+        setCount((current) => {
+          if (questions.length === 0) return 1;
+          return Math.min(Math.max(current, 1), questions.length);
+        });
+      } catch {
+        if (!cancelled) {
+          setAvailable(null);
+        }
+      }
+    }
+
+    void loadAvailable();
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, topic, difficulty]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,6 +66,11 @@ export function SetupPage() {
       return;
     }
 
+    if (available === 0) {
+      setError('No questions available for this topic and difficulty yet');
+      return;
+    }
+
     const parsed = startAssessmentSchema.safeParse({
       topic,
       difficulty,
@@ -38,6 +78,11 @@ export function SetupPage() {
     });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? 'Invalid input');
+      return;
+    }
+
+    if (available !== null && parsed.data.count > available) {
+      setError(`Only ${available} questions available for this set`);
       return;
     }
 
@@ -55,6 +100,8 @@ export function SetupPage() {
       setSubmitting(false);
     }
   }
+
+  const maxCount = available && available > 0 ? Math.min(50, available) : 50;
 
   return (
     <section>
@@ -134,24 +181,30 @@ export function SetupPage() {
         <p className="mt-7 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
           Questions
         </p>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <input
             type="number"
             min={1}
-            max={50}
+            max={maxCount}
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
             aria-label="Question count"
             className="w-[5.5rem] rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none focus:border-focus focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)]"
           />
-          <p className="m-0 text-[0.85rem] text-mute">Between 1 and 50</p>
+          <p className="m-0 text-[0.85rem] text-mute">
+            {available === null
+              ? 'Between 1 and 50'
+              : available === 0
+                ? 'No questions in this set yet'
+                : `${available} available · pick 1–${maxCount}`}
+          </p>
         </div>
 
         <div className="mt-8 border-t border-line pt-6">
           <Button
             type="submit"
             className="w-full max-w-64"
-            disabled={submitting}
+            disabled={submitting || available === 0}
           >
             {submitting ? 'Starting…' : 'Start assessment'}
           </Button>

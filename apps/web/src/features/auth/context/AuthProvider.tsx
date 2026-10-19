@@ -51,7 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        const refreshed = await authApi.refresh();
+        // Logged-out users should not wait on a long refresh timeout.
+        const refreshed = await authApi.refresh({ timeoutMs: 2_500 });
         if (generation === bootstrapGeneration.current) {
           applySession(refreshed.accessToken, refreshed.user);
         }

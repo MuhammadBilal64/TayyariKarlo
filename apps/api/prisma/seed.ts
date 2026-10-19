@@ -4,14 +4,23 @@ import { QUESTION_SEED } from '../src/questions/question.seed-data';
 const prisma = new PrismaClient();
 
 async function main() {
-  const existing = await prisma.question.count();
-  if (existing > 0) {
-    console.log(`Questions already present (${existing}); skipping seed.`);
+  const existing = await prisma.question.findMany({
+    select: { prompt: true },
+  });
+  const existingPrompts = new Set(existing.map((row) => row.prompt));
+  const missing = QUESTION_SEED.filter(
+    (item) => !existingPrompts.has(item.prompt),
+  );
+
+  if (missing.length === 0) {
+    console.log(
+      `Questions already up to date (${existing.length}); skipping seed.`,
+    );
     return;
   }
 
   await prisma.question.createMany({
-    data: QUESTION_SEED.map((item) => ({
+    data: missing.map((item) => ({
       prompt: item.prompt,
       topic: item.topic,
       difficulty: item.difficulty,
@@ -21,7 +30,8 @@ async function main() {
     })),
   });
 
-  console.log(`Seeded ${QUESTION_SEED.length} questions.`);
+  const count = await prisma.question.count();
+  console.log(`Inserted ${missing.length} questions (total ${count}).`);
 }
 
 main()

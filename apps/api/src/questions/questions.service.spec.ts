@@ -78,25 +78,31 @@ describe('QuestionsService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('seeds questions when bank is empty', async () => {
-    prisma.question.count.mockResolvedValue(0);
+  it('inserts missing seed questions by prompt', async () => {
+    prisma.question.findMany.mockResolvedValue([]);
     prisma.question.createMany.mockResolvedValue({
       count: QUESTION_SEED.length,
     });
+    prisma.question.count.mockResolvedValue(QUESTION_SEED.length);
 
     await expect(service.seed()).resolves.toEqual({
       seeded: true,
+      inserted: QUESTION_SEED.length,
       count: QUESTION_SEED.length,
     });
     expect(prisma.question.createMany).toHaveBeenCalled();
   });
 
-  it('skips seed when questions already exist', async () => {
-    prisma.question.count.mockResolvedValue(10);
+  it('skips insert when all seed prompts already exist', async () => {
+    prisma.question.findMany.mockResolvedValue(
+      QUESTION_SEED.map((item) => ({ prompt: item.prompt })),
+    );
+    prisma.question.count.mockResolvedValue(QUESTION_SEED.length);
 
     await expect(service.seed()).resolves.toEqual({
       seeded: false,
-      count: 10,
+      inserted: 0,
+      count: QUESTION_SEED.length,
     });
     expect(prisma.question.createMany).not.toHaveBeenCalled();
   });

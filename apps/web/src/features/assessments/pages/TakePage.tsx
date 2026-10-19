@@ -5,6 +5,11 @@ import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { getAssessment, submitAssessment } from '../api/assessmentsApi';
+import {
+  clearAnswerDraft,
+  loadAnswerDraft,
+  saveAnswerDraft,
+} from '../lib/answer-draft';
 import { difficultyLabel, optionLetter, topicLabel } from '../lib/labels';
 
 export function TakePage() {
@@ -35,11 +40,23 @@ export function TakePage() {
         if (cancelled) return;
 
         if (data.status === 'completed') {
+          clearAnswerDraft(attemptId);
           navigate(`/app/assessments/${attemptId}/results`, { replace: true });
           return;
         }
 
         setAttempt(data);
+        const draft = loadAnswerDraft(attemptId);
+        if (draft) {
+          const allowed = new Set(data.questions.map((q) => q.id));
+          const restored: Record<string, number> = {};
+          for (const [questionId, selectedIndex] of Object.entries(draft)) {
+            if (allowed.has(questionId)) {
+              restored[questionId] = selectedIndex;
+            }
+          }
+          setAnswers(restored);
+        }
       } catch (err) {
         if (!cancelled) {
           setError(
@@ -60,6 +77,11 @@ export function TakePage() {
       cancelled = true;
     };
   }, [accessToken, attemptId, navigate]);
+
+  useEffect(() => {
+    if (!attemptId || !attempt || attempt.status === 'completed') return;
+    saveAnswerDraft(attemptId, answers);
+  }, [answers, attempt, attemptId]);
 
   if (loading) {
     return (
@@ -134,6 +156,7 @@ export function TakePage() {
         selectedIndex: answers[q.id]!,
       }));
       await submitAssessment(current.id, payload, accessToken);
+      clearAnswerDraft(current.id);
       navigate(`/app/assessments/${current.id}/results`);
     } catch (err) {
       setError(
