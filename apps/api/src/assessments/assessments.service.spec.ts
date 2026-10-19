@@ -10,7 +10,12 @@ describe('AssessmentsService', () => {
     assessmentAttempt: {
       create: jest.Mock;
       findFirst: jest.Mock;
+      update: jest.Mock;
     };
+    assessmentItem: {
+      update: jest.Mock;
+    };
+    $transaction: jest.Mock;
   };
   let questionsService: {
     findRandom: jest.Mock;
@@ -27,12 +32,29 @@ describe('AssessmentsService', () => {
     explanation: null,
   };
 
+  const question2 = {
+    id: 'q2',
+    prompt: 'Another?',
+    topic: 'system_design',
+    difficulty: 'easy',
+    options: ['X', 'Y', 'Z'],
+    correctIndex: 2,
+    explanation: 'Z is right',
+  };
+
   beforeEach(async () => {
     prisma = {
       assessmentAttempt: {
         create: jest.fn(),
         findFirst: jest.fn(),
+        update: jest.fn(),
       },
+      assessmentItem: {
+        update: jest.fn(),
+      },
+      $transaction: jest.fn(async (fn: (tx: typeof prisma) => Promise<void>) =>
+        fn(prisma),
+      ),
     };
     questionsService = {
       findRandom: jest.fn(),
@@ -106,5 +128,101 @@ describe('AssessmentsService', () => {
     await expect(
       service.getForUser('user-1', 'missing'),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('scores a submission and returns topic breakdown', async () => {
+    prisma.assessmentAttempt.findFirst.mockResolvedValue({
+      id: 'attempt-1',
+      topic: 'system_design',
+      difficulty: 'easy',
+      questionCount: 2,
+      status: 'in_progress',
+      startedAt: new Date('2026-07-21T10:00:00.000Z'),
+      items: [
+        {
+          id: 'item-1',
+          questionId: 'q1',
+          orderIndex: 0,
+          question,
+        },
+        {
+          id: 'item-2',
+          questionId: 'q2',
+          orderIndex: 1,
+          question: question2,
+        },
+      ],
+    });
+
+    const result = await service.submit('user-1', 'attempt-1', [
+      { questionId: 'q1', selectedIndex: 0 },
+      { questionId: 'q2', selectedIndex: 0 },
+    ]);
+
+    expect(result.status).toBe('completed');
+    expect(result.score).toBe(1);
+    expect(result.percent).toBe(50);
+    expect(result.correctCount).toBe(1);
+    expect(result.incorrectCount).toBe(1);
+    expect(result.items[0]?.isCorrect).toBe(true);
+    expect(result.items[1]?.isCorrect).toBe(false);
+    expect(result.items[1]?.correctIndex).toBe(2);
+    expect(result.topicBreakdown).toEqual([
+      {
+        topic: 'system_design',
+        correct: 1,
+        total: 2,
+        percent: 50,
+      },
+    ]);
+    expect(prisma.assessmentAttempt.update).toHaveBeenCalledTimes(1);
+    const updateCalls = prisma.assessmentAttempt.update.mock.calls as Array<
+      [
+        {
+          where: { id: string };
+          data: { status: string; score: number; percent: number };
+        },
+      ]
+    >;
+    const updateArg = updateCalls[0][0];
+    expect(updateArg.where.id).toBe('attempt-1');
+    expect(updateArg.data.status).toBe('completed');
+    expect(updateArg.data.score).toBe(1);
+    expect(updateArg.data.percent).toBe(50);
+  });
+
+  it('rejects resubmission of a completed attempt', async () => {
+    prisma.assessmentAttempt.findFirst.mockResolvedValue({
+      id: 'attempt-1',
+      status: 'completed',
+      items: [],
+    });
+
+    await expect(
+      service.submit('user-1', 'attempt-1', [
+        { questionId: 'q1', selectedIndex: 0 },
+      ]),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('rejects incomplete answer sets', async () => {
+    prisma.assessmentAttempt.findFirst.mockResolvedValue({
+      id: 'attempt-1',
+      topic: 'system_design',
+      difficulty: 'easy',
+      questionCount: 2,
+      status: 'in_progress',
+      startedAt: new Date(),
+      items: [
+        { id: 'item-1', questionId: 'q1', orderIndex: 0, question },
+        { id: 'item-2', questionId: 'q2', orderIndex: 1, question: question2 },
+      ],
+    });
+
+    await expect(
+      service.submit('user-1', 'attempt-1', [
+        { questionId: 'q1', selectedIndex: 0 },
+      ]),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });
