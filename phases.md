@@ -49,7 +49,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 ## Phase 3 — Assessments
 
 **Branch:** `phase/03-assessments`  
-**Status:** In Progress
+**Status:** Completed (ready for PR)
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
