@@ -63,11 +63,11 @@ Statuses: `Pending` | `In Progress` | `Completed`
 ## Phase 4 — Progress and recommendations
 
 **Branch:** `phase/04-progress`  
-**Status:** Pending
+**Status:** In Progress
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
-| 4.1 | Progress aggregates API | Pending | History, weak topics, trends | Dashboard data from attempts | Phase 3 | API tests |
+| 4.1 | Progress aggregates API | Completed | History, weak topics, trends | Dashboard data from attempts | Phase 3 | API tests |
 | 4.2 | Recommendations API | Pending | Ranked topics from history | Recommendations reflect weak areas | 4.1 | API tests |
 | 4.3 | Web dashboard | Pending | Skill score, recent attempts, recommendations | Dashboard renders real data | 4.1–4.2 | Manual |
 
