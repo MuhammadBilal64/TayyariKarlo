@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TayyariKarlo — Progress dashboard empty (mockup)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../auth/tokens.css" />
+    <style>
+      .shell {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid var(--line);
+        background: color-mix(in srgb, var(--paper-lift) 80%, transparent);
+        padding: 1rem 1.25rem;
+        backdrop-filter: blur(6px);
+      }
+
+      @media (min-width: 640px) {
+        .topbar {
+          padding-inline: 2rem;
+        }
+      }
+
+      .user-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .user-meta p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--ink-soft);
+      }
+
+      .btn-sm {
+        width: auto;
+        margin: 0;
+        padding: 0.5rem 0.85rem;
+        font-size: 0.85rem;
+      }
+
+      main {
+        width: 100%;
+        max-width: 42rem;
+        margin: 0 auto;
+        flex: 1;
+        padding: 2.5rem 1.25rem 3.5rem;
+      }
+
+      @media (min-width: 640px) {
+        main {
+          padding-inline: 2rem;
+        }
+      }
+
+      .score-block {
+        margin-top: 1.1rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .score {
+        margin: 0.25rem 0 0;
+        font-family: var(--font-display);
+        font-size: clamp(3.5rem, 12vw, 5.25rem);
+        font-weight: 400;
+        letter-spacing: -0.04em;
+        line-height: 0.95;
+        color: var(--mute);
+      }
+
+      .score-meta {
+        margin: 0.85rem 0 0;
+        font-size: 1rem;
+        color: var(--ink-soft);
+        max-width: 28rem;
+      }
+
+      .section-label {
+        margin: 1.75rem 0 0.65rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink-soft);
+      }
+
+      .focus {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        border-top: 1px solid var(--line);
+      }
+
+      .focus li {
+        display: grid;
+        grid-template-columns: 1.5rem 1fr auto;
+        gap: 0.75rem 0.85rem;
+        align-items: start;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .focus .n {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        line-height: 1.2;
+        color: var(--signal);
+      }
+
+      .focus .title {
+        margin: 0;
+        font-size: 0.98rem;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .focus .why {
+        margin: 0.3rem 0 0;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        color: var(--ink-soft);
+      }
+
+      .focus .diff {
+        margin: 0.35rem 0 0;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mute);
+      }
+
+      .focus .practice {
+        align-self: center;
+        width: auto;
+        margin: 0;
+        padding: 0.55rem 0.9rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+      }
+
+      .empty-note {
+        margin: 0;
+        padding: 1rem 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        font-size: 0.95rem;
+        color: var(--ink-soft);
+      }
+
+      .footer-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 2rem;
+      }
+
+      .footer-actions .btn {
+        width: auto;
+        min-width: 10rem;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body class="graph-bg">
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="#">TayyariKarlo</a>
+        <div class="user-meta">
+          <p>Ayesha Khan</p>
+          <button type="button" class="btn btn-ghost btn-sm">Sign out</button>
+        </div>
+      </header>
+
+      <main>
+        <p class="eyebrow">Progress</p>
+        <h1>Where you stand</h1>
+
+        <div class="score-block">
+          <p class="score">—</p>
+          <p class="score-meta">
+            No completed attempts yet. Take a short set to unlock your skill
+            score and history.
+          </p>
+        </div>
+
+        <p class="section-label">Focus next</p>
+        <ol class="focus">
+          <li>
+            <span class="n">1</span>
+            <div>
+              <p class="title">Data structures &amp; algorithms</p>
+              <p class="why">No attempts yet — start with an easy set</p>
+              <p class="diff">Suggested · Easy</p>
+            </div>
+            <button type="button" class="btn practice">Practice</button>
+          </li>
+          <li>
+            <span class="n">2</span>
+            <div>
+              <p class="title">Database systems</p>
+              <p class="why">No attempts yet — start with an easy set</p>
+              <p class="diff">Suggested · Easy</p>
+            </div>
+            <button type="button" class="btn practice">Practice</button>
+          </li>
+        </ol>
+
+        <p class="section-label">Recent attempts</p>
+        <p class="empty-note">
+          Nothing here yet — your scored sets will show up.
+        </p>
+
+        <div class="footer-actions">
+          <button type="button" class="btn">Start assessment</button>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
