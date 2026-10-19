@@ -32,7 +32,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 
 **Branch:** `phase/02-authentication`  
 **Goal:** Register / login / logout / refresh + profile.  
-**Status:** In Progress
+**Status:** Completed (ready for PR)
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
