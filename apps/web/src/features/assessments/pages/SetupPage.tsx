@@ -1,12 +1,14 @@
 import {
   DIFFICULTIES,
   TOPICS,
+  difficultySchema,
   startAssessmentSchema,
+  topicSchema,
   type Difficulty,
   type Topic,
 } from '@tayyari/shared';
 import { useEffect, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -14,11 +16,27 @@ import { startAssessment } from '../api/assessmentsApi';
 import { listQuestions } from '../api/questionsApi';
 import { difficultyLabel, topicLabel } from '../lib/labels';
 
-export function SetupPage() {
+function topicFromSearch(value: string | null): Topic {
+  const parsed = topicSchema.safeParse(value);
+  return parsed.success ? parsed.data : 'system_design';
+}
+
+function difficultyFromSearch(value: string | null): Difficulty {
+  const parsed = difficultySchema.safeParse(value);
+  return parsed.success ? parsed.data : 'easy';
+}
+
+function SetupPageForm({
+  initialTopic,
+  initialDifficulty,
+}: {
+  initialTopic: Topic;
+  initialDifficulty: Difficulty;
+}) {
   const { accessToken } = useAuth();
   const navigate = useNavigate();
-  const [topic, setTopic] = useState<Topic>('system_design');
-  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  const [topic, setTopic] = useState<Topic>(initialTopic);
+  const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty);
   const [count, setCount] = useState(5);
   const [available, setAvailable] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -211,5 +229,22 @@ export function SetupPage() {
         </div>
       </form>
     </section>
+  );
+}
+
+/** Remount when Practice query params change so topic/difficulty stay in sync. */
+export function SetupPage() {
+  const [searchParams] = useSearchParams();
+  const initialTopic = topicFromSearch(searchParams.get('topic'));
+  const initialDifficulty = difficultyFromSearch(
+    searchParams.get('difficulty'),
+  );
+
+  return (
+    <SetupPageForm
+      key={`${initialTopic}:${initialDifficulty}`}
+      initialTopic={initialTopic}
+      initialDifficulty={initialDifficulty}
+    />
   );
 }
