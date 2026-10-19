@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TayyariKarlo — Assessment results (mockup)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../auth/tokens.css" />
+    <style>
+      .shell {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid var(--line);
+        background: color-mix(in srgb, var(--paper-lift) 80%, transparent);
+        padding: 1rem 1.25rem;
+        backdrop-filter: blur(6px);
+      }
+
+      @media (min-width: 640px) {
+        .topbar {
+          padding-inline: 2rem;
+        }
+      }
+
+      .btn-sm {
+        width: auto;
+        margin: 0;
+        padding: 0.5rem 0.85rem;
+        font-size: 0.85rem;
+      }
+
+      main {
+        width: 100%;
+        max-width: 42rem;
+        margin: 0 auto;
+        flex: 1;
+        padding: 2.5rem 1.25rem 3.5rem;
+      }
+
+      @media (min-width: 640px) {
+        main {
+          padding-inline: 2rem;
+        }
+      }
+
+      .score-block {
+        margin-top: 1.25rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .score {
+        margin: 0.35rem 0 0;
+        font-family: var(--font-display);
+        font-size: clamp(3.5rem, 12vw, 5.5rem);
+        font-weight: 400;
+        letter-spacing: -0.04em;
+        line-height: 0.95;
+        color: var(--ink);
+      }
+
+      .score em {
+        font-style: italic;
+        color: var(--signal);
+      }
+
+      .score-meta {
+        margin: 0.85rem 0 0;
+        font-size: 1rem;
+        color: var(--ink-soft);
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1.35rem 0 0;
+      }
+
+      .stats p {
+        margin: 0;
+      }
+
+      .stats .k {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--mute);
+      }
+
+      .stats .v {
+        margin-top: 0.25rem;
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .section-label {
+        margin: 1.75rem 0 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink-soft);
+      }
+
+      .breakdown {
+        display: grid;
+        gap: 0.85rem;
+      }
+
+      .row {
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .row-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .row-top strong {
+        font-weight: 600;
+      }
+
+      .row-top span {
+        color: var(--mute);
+      }
+
+      .bar {
+        height: 6px;
+        border-radius: 999px;
+        background: var(--line);
+        overflow: hidden;
+      }
+
+      .bar > i {
+        display: block;
+        height: 100%;
+        background: var(--signal);
+      }
+
+      .review {
+        margin: 0.5rem 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .review li {
+        display: grid;
+        gap: 0.35rem;
+        padding: 0.95rem 1rem;
+        border-left: 3px solid var(--line);
+        background: var(--paper-lift);
+      }
+
+      .review li.ok {
+        border-left-color: var(--signal);
+      }
+
+      .review li.bad {
+        border-left-color: var(--danger);
+      }
+
+      .review .q {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--ink);
+      }
+
+      .review .a {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--ink-soft);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 2rem;
+        padding-top: 1.35rem;
+        border-top: 1px solid var(--line);
+      }
+
+      .actions .btn {
+        width: auto;
+        min-width: 10rem;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body class="graph-bg">
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="#">TayyariKarlo</a>
+        <button type="button" class="btn btn-ghost btn-sm">Sign out</button>
+      </header>
+
+      <main>
+        <p class="eyebrow">Results</p>
+        <h1>System design · Easy</h1>
+
+        <div class="score-block">
+          <p class="score">70<em>%</em></p>
+          <p class="score-meta">7 of 10 correct · completed just now</p>
+          <div class="stats">
+            <div>
+              <p class="k">Correct</p>
+              <p class="v">7</p>
+            </div>
+            <div>
+              <p class="k">Incorrect</p>
+              <p class="v">3</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="section-label">By topic</p>
+        <div class="breakdown">
+          <div class="row">
+            <div class="row-top">
+              <strong>System design</strong>
+              <span>7 / 10 · 70%</span>
+            </div>
+            <div class="bar"><i style="width: 70%"></i></div>
+          </div>
+        </div>
+
+        <p class="section-label">Review</p>
+        <ul class="review">
+          <li class="ok">
+            <p class="q">Queue isolation under spike traffic</p>
+            <p class="a">Your answer matched — durable queue with pull consumers</p>
+          </li>
+          <li class="bad">
+            <p class="q">CAP trade-off for multi-region reads</p>
+            <p class="a">You chose Consistency · Correct: Availability + partition tolerance</p>
+          </li>
+          <li class="ok">
+            <p class="q">Idempotent write keys</p>
+            <p class="a">Your answer matched — client-generated request id</p>
+          </li>
+        </ul>
+
+        <div class="actions">
+          <button type="button" class="btn">Try another set</button>
+          <button type="button" class="btn btn-ghost">Back to workspace</button>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

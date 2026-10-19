@@ -225,4 +225,50 @@ describe('AssessmentsService', () => {
       ]),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
+
+  it('returns stored results for a completed attempt', async () => {
+    prisma.assessmentAttempt.findFirst.mockResolvedValue({
+      id: 'attempt-1',
+      topic: 'system_design',
+      difficulty: 'easy',
+      questionCount: 1,
+      status: 'completed',
+      score: 1,
+      percent: 100,
+      startedAt: new Date('2026-10-19T15:00:00.000Z'),
+      completedAt: new Date('2026-10-19T15:10:00.000Z'),
+      items: [
+        {
+          id: 'item-1',
+          questionId: 'q1',
+          orderIndex: 0,
+          selectedIndex: 0,
+          isCorrect: true,
+          question,
+        },
+      ],
+    });
+
+    const result = await service.getResultForUser('user-1', 'attempt-1');
+
+    expect(result.status).toBe('completed');
+    expect(result.score).toBe(1);
+    expect(result.percent).toBe(100);
+    expect(result.items[0]?.isCorrect).toBe(true);
+  });
+
+  it('rejects result fetch for in-progress attempts', async () => {
+    prisma.assessmentAttempt.findFirst.mockResolvedValue({
+      id: 'attempt-1',
+      status: 'in_progress',
+      score: null,
+      percent: null,
+      completedAt: null,
+      items: [],
+    });
+
+    await expect(
+      service.getResultForUser('user-1', 'attempt-1'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
 });

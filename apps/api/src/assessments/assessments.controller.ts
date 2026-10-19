@@ -25,6 +25,11 @@ export class AssessmentsController {
     return this.assessmentsService.submit(user.sub, id, dto.answers);
   }
 
+  @Get(':id/result')
+  getResult(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
+    return this.assessmentsService.getResultForUser(user.sub, id);
+  }
+
   @Get(':id')
   getOne(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
     return this.assessmentsService.getForUser(user.sub, id);

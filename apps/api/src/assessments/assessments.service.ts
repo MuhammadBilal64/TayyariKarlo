@@ -64,6 +64,44 @@ export class AssessmentsService {
     return this.toAttemptResponse(attempt);
   }
 
+  async getResultForUser(
+    userId: string,
+    attemptId: string,
+  ): Promise<AssessmentResult> {
+    const attempt = await this.findAttemptForUser(userId, attemptId);
+
+    if (attempt.status !== 'completed') {
+      throw new BadRequestException('Assessment has not been submitted yet');
+    }
+
+    if (
+      attempt.score === null ||
+      attempt.percent === null ||
+      attempt.completedAt === null
+    ) {
+      throw new BadRequestException('Assessment result is incomplete');
+    }
+
+    return this.toResultResponse(attempt, {
+      score: attempt.score,
+      percent: attempt.percent,
+      completedAt: attempt.completedAt,
+      items: attempt.items.map((item) => {
+        if (item.selectedIndex === null || item.isCorrect === null) {
+          throw new BadRequestException('Assessment result is incomplete');
+        }
+        return {
+          questionId: item.questionId,
+          orderIndex: item.orderIndex,
+          selectedIndex: item.selectedIndex,
+          isCorrect: item.isCorrect,
+          correctIndex: item.question.correctIndex,
+          question: item.question,
+        };
+      }),
+    });
+  }
+
   async submit(
     userId: string,
     attemptId: string,
@@ -147,35 +185,19 @@ export class AssessmentsService {
       });
     });
 
-    const topicBreakdown = this.buildTopicBreakdown(
-      graded.map((entry) => ({
-        topic: entry.item.question.topic as Topic,
-        isCorrect: entry.isCorrect,
-      })),
-    );
-
-    return {
-      id: attempt.id,
-      topic: attempt.topic as Topic,
-      difficulty: attempt.difficulty as Difficulty,
-      questionCount: attempt.questionCount,
-      status: 'completed',
-      startedAt: attempt.startedAt.toISOString(),
-      completedAt: completedAt.toISOString(),
+    return this.toResultResponse(attempt, {
       score,
       percent,
-      correctCount: score,
-      incorrectCount: attempt.questionCount - score,
-      topicBreakdown,
+      completedAt,
       items: graded.map((entry) => ({
         questionId: entry.item.questionId,
         orderIndex: entry.item.orderIndex,
         selectedIndex: entry.selectedIndex,
         isCorrect: entry.isCorrect,
         correctIndex: entry.item.question.correctIndex,
-        question: this.questionsService.toPublic(entry.item.question),
+        question: entry.item.question,
       })),
-    };
+    });
   }
 
   private async findAttemptForUser(userId: string, attemptId: string) {
@@ -251,6 +273,66 @@ export class AssessmentsService {
       questions: attempt.items.map((item) =>
         this.questionsService.toPublic(item.question),
       ),
+    };
+  }
+
+  private toResultResponse(
+    attempt: {
+      id: string;
+      topic: string;
+      difficulty: string;
+      questionCount: number;
+      startedAt: Date;
+    },
+    graded: {
+      score: number;
+      percent: number;
+      completedAt: Date;
+      items: Array<{
+        questionId: string;
+        orderIndex: number;
+        selectedIndex: number;
+        isCorrect: boolean;
+        correctIndex: number;
+        question: {
+          id: string;
+          prompt: string;
+          topic: string;
+          difficulty: string;
+          options: string[];
+          explanation: string | null;
+        };
+      }>;
+    },
+  ): AssessmentResult {
+    const topicBreakdown = this.buildTopicBreakdown(
+      graded.items.map((item) => ({
+        topic: item.question.topic as Topic,
+        isCorrect: item.isCorrect,
+      })),
+    );
+
+    return {
+      id: attempt.id,
+      topic: attempt.topic as Topic,
+      difficulty: attempt.difficulty as Difficulty,
+      questionCount: attempt.questionCount,
+      status: 'completed',
+      startedAt: attempt.startedAt.toISOString(),
+      completedAt: graded.completedAt.toISOString(),
+      score: graded.score,
+      percent: graded.percent,
+      correctCount: graded.score,
+      incorrectCount: attempt.questionCount - graded.score,
+      topicBreakdown,
+      items: graded.items.map((item) => ({
+        questionId: item.questionId,
+        orderIndex: item.orderIndex,
+        selectedIndex: item.selectedIndex,
+        isCorrect: item.isCorrect,
+        correctIndex: item.correctIndex,
+        question: this.questionsService.toPublic(item.question),
+      })),
     };
   }
 }
