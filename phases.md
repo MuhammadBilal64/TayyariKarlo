@@ -13,9 +13,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 
 **Branch:** `phase/01-project-setup`  
 **Goal:** Monorepo skeleton, tooling, Postgres, CI. No auth product UI yet.  
-**Status:** Completed (pending PR merge)
-
-Follow-up before merge: CI lint check-only, ConfigModule env load, README prisma generate, typecheck builds shared first.
+**Status:** Completed (merged to `main` via PR #1)
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
@@ -34,17 +32,17 @@ Follow-up before merge: CI lint check-only, ConfigModule env load, README prisma
 
 **Branch:** `phase/02-authentication`  
 **Goal:** Register / login / logout / refresh + profile.  
-**Status:** Pending (start only after Phase 1 PR is merged)
+**Status:** Completed (ready for PR)
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
-| 2.1 | Prisma auth models | Pending | `User`, `Profile`, `RefreshToken` + migration | Migration applied | Phase 1 | migrate deploy |
-| 2.2 | Nest security baseline | Pending | Helmet, CORS, ValidationPipe, exception filter, throttler | App boots with middleware | Phase 1 | Boot + smoke |
-| 2.3 | Register + login | Pending | bcrypt passwords; access JWT; httpOnly refresh cookie | Auth endpoints work | 2.1–2.2 | API tests |
-| 2.4 | Refresh + logout | Pending | Refresh rotation; logout revokes token | Tokens rotate/revoke correctly | 2.3 | API tests |
-| 2.5 | JWT guard + `/users/me` | Pending | Protected current-user endpoint | Unauthorized blocked; me returns profile | 2.3 | API tests |
-| 2.6 | Web auth feature | Pending | Login/register pages; API integration | User can register and log in via UI | 2.3–2.5 | Manual + Vitest if useful |
-| 2.7 | Protected route shell | Pending | Redirect unauthenticated users | Protected routes require auth | 2.6 | Manual |
+| 2.1 | Prisma auth models | Completed | `User`, `Profile`, `RefreshToken` + migration | Migration applied | Phase 1 | migrate deploy |
+| 2.2 | Nest security baseline | Completed | Helmet, CORS, ValidationPipe, exception filter, throttler | App boots with middleware | Phase 1 | Boot + smoke |
+| 2.3 | Register + login | Completed | bcrypt passwords; access JWT; httpOnly refresh cookie | Auth endpoints work | 2.1–2.2 | API tests |
+| 2.4 | Refresh + logout | Completed | Refresh rotation; logout revokes token | Tokens rotate/revoke correctly | 2.3 | API tests |
+| 2.5 | JWT guard + `/users/me` | Completed | Protected current-user endpoint | Unauthorized blocked; me returns profile | 2.3 | API tests |
+| 2.6 | Web auth feature | Completed | Login/register pages; API integration | User can register and log in via UI | 2.3–2.5 | Manual + browser UI check |
+| 2.7 | Protected route shell | Completed | Redirect unauthenticated users | Protected routes require auth | 2.6 | Manual + browser UI check |
 
 ---
 
