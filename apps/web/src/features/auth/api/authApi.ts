@@ -20,9 +20,10 @@ export function login(input: LoginInput) {
   });
 }
 
-export function refresh() {
+export function refresh(options?: { timeoutMs?: number }) {
   return apiRequest<AuthTokensResponse>('/auth/refresh', {
     method: 'POST',
+    timeoutMs: options?.timeoutMs,
   });
 }
 

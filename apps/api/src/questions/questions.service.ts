@@ -87,28 +87,34 @@ export class QuestionsService {
     };
   }
 
-  async seed(): Promise<{ seeded: boolean; count: number }> {
-    const existing = await this.prisma.question.count();
-    if (existing > 0) {
-      return { seeded: false, count: existing };
-    }
-
+  async seed(): Promise<{ seeded: boolean; inserted: number; count: number }> {
     for (const item of QUESTION_SEED) {
       this.assertValidCorrectIndex(item.options, item.correctIndex);
     }
 
-    await this.prisma.question.createMany({
-      data: QUESTION_SEED.map((item) => ({
-        prompt: item.prompt,
-        topic: item.topic,
-        difficulty: item.difficulty,
-        options: item.options,
-        correctIndex: item.correctIndex,
-        explanation: item.explanation,
-      })),
+    const existing = await this.prisma.question.findMany({
+      select: { prompt: true },
     });
+    const existingPrompts = new Set(existing.map((row) => row.prompt));
+    const missing = QUESTION_SEED.filter(
+      (item) => !existingPrompts.has(item.prompt),
+    );
 
-    return { seeded: true, count: QUESTION_SEED.length };
+    if (missing.length > 0) {
+      await this.prisma.question.createMany({
+        data: missing.map((item) => ({
+          prompt: item.prompt,
+          topic: item.topic,
+          difficulty: item.difficulty,
+          options: item.options,
+          correctIndex: item.correctIndex,
+          explanation: item.explanation,
+        })),
+      });
+    }
+
+    const count = await this.prisma.question.count();
+    return { seeded: missing.length > 0, inserted: missing.length, count };
   }
 
   private assertValidCorrectIndex(options: string[], correctIndex: number) {

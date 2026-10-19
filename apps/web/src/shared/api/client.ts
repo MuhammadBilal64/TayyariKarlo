@@ -18,17 +18,19 @@ export class ApiError extends Error {
 type RequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown;
   accessToken?: string | null;
+  /** Defaults to 8000ms when `signal` is not provided. */
+  timeoutMs?: number;
 };
 
 export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { body, accessToken, headers, signal, ...init } = options;
+  const { body, accessToken, headers, signal, timeoutMs, ...init } = options;
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
     credentials: 'include',
-    signal: signal ?? AbortSignal.timeout(8_000),
+    signal: signal ?? AbortSignal.timeout(timeoutMs ?? 8_000),
     headers: {
       ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
