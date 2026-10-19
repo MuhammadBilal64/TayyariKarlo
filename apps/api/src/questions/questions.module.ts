@@ -1,5 +1,12 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
+import { QuestionsController } from './questions.controller';
+import { QuestionsService } from './questions.service';
 
-/** Stub — implemented in Phase 3 */
-@Module({})
+@Module({
+  imports: [AuthModule],
+  controllers: [QuestionsController],
+  providers: [QuestionsService],
+  exports: [QuestionsService],
+})
 export class QuestionsModule {}

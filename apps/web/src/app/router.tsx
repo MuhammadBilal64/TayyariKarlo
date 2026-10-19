@@ -1,4 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { ResultsPage } from '../features/assessments/pages/ResultsPage';
+import { SetupPage } from '../features/assessments/pages/SetupPage';
+import { TakePage } from '../features/assessments/pages/TakePage';
 import { AppShell } from '../features/auth/components/AppShell';
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
 import { LoginPage } from '../features/auth/pages/LoginPage';
@@ -21,6 +24,12 @@ export function AppRouter() {
         }
       >
         <Route index element={<WorkspacePage />} />
+        <Route path="assessments" element={<SetupPage />} />
+        <Route path="assessments/:attemptId" element={<TakePage />} />
+        <Route
+          path="assessments/:attemptId/results"
+          element={<ResultsPage />}
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

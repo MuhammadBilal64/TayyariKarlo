@@ -17,13 +17,14 @@ model SchemaMeta {
 }
 
 model User {
-  id           String         @id @default(cuid())
-  email        String         @unique
-  passwordHash String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  profile      Profile?
-  refreshTokens RefreshToken[]
+  id                String              @id @default(cuid())
+  email             String              @unique
+  passwordHash      String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  profile           Profile?
+  refreshTokens     RefreshToken[]
+  assessmentAttempts AssessmentAttempt[]
 
   @@map("users")
 }
@@ -53,4 +54,55 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+model Question {
+  id              String           @id @default(cuid())
+  prompt          String
+  topic           String
+  difficulty      String
+  options         String[]
+  correctIndex    Int
+  explanation     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  assessmentItems AssessmentItem[]
+
+  @@index([topic, difficulty])
+  @@map("questions")
+}
+
+model AssessmentAttempt {
+  id            String           @id @default(cuid())
+  userId        String
+  topic         String
+  difficulty    String
+  questionCount Int
+  status        String           @default("in_progress")
+  score         Int?
+  percent       Float?
+  startedAt     DateTime         @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items         AssessmentItem[]
+
+  @@index([userId, status])
+  @@map("assessment_attempts")
+}
+
+model AssessmentItem {
+  id            String            @id @default(cuid())
+  attemptId     String
+  questionId    String
+  orderIndex    Int
+  selectedIndex Int?
+  isCorrect     Boolean?
+  attempt       AssessmentAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question      Question          @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@map("assessment_items")
 }
