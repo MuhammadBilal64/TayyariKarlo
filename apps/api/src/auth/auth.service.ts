@@ -167,10 +167,7 @@ export class AuthService {
     });
 
     res.cookie(REFRESH_COOKIE_NAME, rawToken, {
-      httpOnly: true,
-      secure: this.isProd(),
-      sameSite: 'lax',
-      path: '/api/v1/auth',
+      ...this.refreshCookieOptions(),
       maxAge,
     });
   }
@@ -182,12 +179,29 @@ export class AuthService {
   }
 
   private clearRefreshCookie(res: express.Response) {
-    res.clearCookie(REFRESH_COOKIE_NAME, {
+    res.clearCookie(REFRESH_COOKIE_NAME, this.refreshCookieOptions());
+  }
+
+  /** Cross-site (Vercel web → Render API) needs SameSite=None; Secure. */
+  private refreshCookieOptions() {
+    const sameSite = this.cookieSameSite();
+    return {
       httpOnly: true,
-      secure: this.isProd(),
-      sameSite: 'lax',
-      path: '/api/v1/auth',
-    });
+      secure: this.isProd() || sameSite === 'none',
+      sameSite,
+      path: '/api/v1/auth' as const,
+    };
+  }
+
+  private cookieSameSite(): 'lax' | 'strict' | 'none' {
+    const raw = (
+      this.configService.get<string>('COOKIE_SAME_SITE') ??
+      (this.isProd() ? 'none' : 'lax')
+    ).toLowerCase();
+    if (raw === 'none' || raw === 'strict' || raw === 'lax') {
+      return raw;
+    }
+    return 'lax';
   }
 
   private isProd() {

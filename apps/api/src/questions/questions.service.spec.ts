@@ -106,4 +106,25 @@ describe('QuestionsService', () => {
     });
     expect(prisma.question.createMany).not.toHaveBeenCalled();
   });
+
+  it('seed bank has 12 unique questions per topic × difficulty', () => {
+    const counts = new Map<string, number>();
+    const prompts = new Set<string>();
+
+    for (const item of QUESTION_SEED) {
+      expect(prompts.has(item.prompt)).toBe(false);
+      prompts.add(item.prompt);
+      const key = `${item.topic}|${item.difficulty}`;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+      expect(item.options).toHaveLength(4);
+      expect(item.correctIndex).toBeGreaterThanOrEqual(0);
+      expect(item.correctIndex).toBeLessThan(4);
+    }
+
+    expect(QUESTION_SEED).toHaveLength(252);
+    for (const count of counts.values()) {
+      expect(count).toBe(12);
+    }
+    expect(counts.size).toBe(21);
+  });
 });

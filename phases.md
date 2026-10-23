@@ -76,7 +76,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 ## Phase 5 — AI interview
 
 **Branch:** `phase/05-ai-interview`  
-**Status:** Pending
+**Status:** Pending (paused — deploy Phase 1–4 first)
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|

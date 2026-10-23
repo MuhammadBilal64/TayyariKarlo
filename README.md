@@ -27,6 +27,10 @@ packages/shared   Shared Zod schemas and enums
 - [pnpm](https://pnpm.io/) 9.15+ (`corepack enable` or `npm i -g pnpm`)
 - Docker Desktop (for Postgres)
 
+## Deploy (free)
+
+See **[DEPLOY.md](DEPLOY.md)** — Vercel (web) + Render (API) + Neon (Postgres).
+
 ## Local setup
 
 ### 1. Clone and install
@@ -104,6 +108,16 @@ See [instructions.md](instructions.md) and [phases.md](phases.md).
 
 ## Phase status
 
-Phase 1 (project setup) delivers the monorepo scaffold, NestJS + React apps, shared package, Postgres/Prisma, lint/format, CI, and this runbook.
+Phases **1–4** are implemented on `main`: auth, MCQ assessments, progress aggregates, recommendations, and the signed-in dashboard.
 
-Next: Phase 2 — authentication and users.
+Phase **5** (AI interview) and **6** (coding challenges) are paused until after the Phase 1–4 deploy.
+
+### Seed assessment questions
+
+After migrate, load the question bank (12 MCQs per topic × difficulty):
+
+```bash
+pnpm --filter @tayyari/api prisma:seed
+```
+
+Assessments pick a **random subset** from that pool for each start.
