@@ -91,9 +91,11 @@ Run twice for access + refresh secrets.
 |---------|--------|
 | Framework Preset | Vite |
 | Root Directory | `apps/web` |
-| Build Command | `cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @tayyari/web build` |
+| Build Command | `cd ../.. && pnpm --filter @tayyari/shared build && pnpm --filter @tayyari/web build` |
 | Output Directory | `dist` |
 | Install Command | `cd ../.. && pnpm install --frozen-lockfile` |
+
+(`apps/web/vercel.json` sets these too — override the Vercel UI defaults if they still show `vite build` only.)
 
 4. Environment variable:
 
