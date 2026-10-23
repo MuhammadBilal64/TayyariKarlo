@@ -10,9 +10,11 @@ services:
     region: oregon
     rootDir: .
     # Avoid `corepack enable` on Render (EROFS on /usr/bin/pnpm).
+    # --prod=false: Render sets NODE_ENV=production, which would skip
+    # prisma/ts-node (devDependencies) needed for generate/migrate/seed.
     buildCommand: >
       npm install -g pnpm@9.15.4 &&
-      pnpm install --frozen-lockfile &&
+      pnpm install --frozen-lockfile --prod=false &&
       pnpm --filter @tayyari/shared build &&
       pnpm --filter @tayyari/api exec prisma generate &&
       pnpm --filter @tayyari/api build
