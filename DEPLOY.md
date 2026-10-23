@@ -148,4 +148,5 @@ Do not put production secrets in git. Keep using `apps/api/.env` / `apps/web/.en
 | `Command "prisma" not found` | Use `pnpm install --frozen-lockfile --prod=false` (production NODE_ENV skips prisma otherwise) |
 | `Cannot find module .../dist/main` | Nest emits `dist/src/main.js` — start script must be `node dist/src/main` |
 | `Cannot find module 'express'` | `express` must be a **direct** dependency (pnpm does not hoist Nest’s copy) |
+| `No open ports detected` | Nest must `listen(port, '0.0.0.0')` and use Render’s `PORT` env |
 | Weird Node 26 | Set env `NODE_VERSION=22.14.0` or engines `22.x` |

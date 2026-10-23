@@ -31,7 +31,8 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  const port = config.get<number>('PORT') ?? 3000;
-  await app.listen(port);
+  // Render (and most hosts) inject PORT and require binding on 0.0.0.0.
+  const port = Number(config.get<string>('PORT') ?? process.env.PORT ?? 3000);
+  await app.listen(port, '0.0.0.0');
 }
 void bootstrap();
