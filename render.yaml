@@ -1,0 +1,45 @@
+# Blueprint for Render (API). Create the free Postgres/Neon DB separately,
+# then paste DATABASE_URL into this service's env vars.
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: tayyari-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: .
+    buildCommand: >
+      corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter @tayyari/shared build &&
+      pnpm --filter @tayyari/api exec prisma generate &&
+      pnpm --filter @tayyari/api build
+    startCommand: >
+      pnpm --filter @tayyari/api exec prisma migrate deploy &&
+      pnpm --filter @tayyari/api exec prisma db seed &&
+      pnpm --filter @tayyari/api start:prod
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_VERSION
+        value: '22'
+      - key: NODE_ENV
+        value: production
+      - key: COOKIE_SAME_SITE
+        value: none
+      - key: ALLOW_QUESTION_SEED
+        value: 'false'
+      # Set these in the Render dashboard (do not commit secrets):
+      # DATABASE_URL, JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, CORS_ORIGIN
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d

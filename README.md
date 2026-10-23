@@ -27,6 +27,10 @@ packages/shared   Shared Zod schemas and enums
 - [pnpm](https://pnpm.io/) 9.15+ (`corepack enable` or `npm i -g pnpm`)
 - Docker Desktop (for Postgres)
 
+## Deploy (free)
+
+See **[DEPLOY.md](DEPLOY.md)** — Vercel (web) + Render (API) + Neon (Postgres).
+
 ## Local setup
 
 ### 1. Clone and install
