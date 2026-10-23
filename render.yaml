@@ -9,8 +9,9 @@ services:
     plan: free
     region: oregon
     rootDir: .
+    # Avoid `corepack enable` on Render (EROFS on /usr/bin/pnpm).
     buildCommand: >
-      corepack enable &&
+      npm install -g pnpm@9.15.4 &&
       pnpm install --frozen-lockfile &&
       pnpm --filter @tayyari/shared build &&
       pnpm --filter @tayyari/api exec prisma generate &&
@@ -22,7 +23,7 @@ services:
     healthCheckPath: /api/v1/health
     envVars:
       - key: NODE_VERSION
-        value: '22'
+        value: '22.14.0'
       - key: NODE_ENV
         value: production
       - key: COOKIE_SAME_SITE

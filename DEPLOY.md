@@ -44,8 +44,9 @@ Merge to `main` (or deploy from this branch). Vercel/Render will pull from GitHu
 |---------|--------|
 | Root directory | *(leave empty / repo root)* |
 | Runtime | Node |
-| Build command | `corepack enable && pnpm install --frozen-lockfile && pnpm --filter @tayyari/shared build && pnpm --filter @tayyari/api exec prisma generate && pnpm --filter @tayyari/api build` |
+| Build command | `npm install -g pnpm@9.15.4 && pnpm install --frozen-lockfile && pnpm --filter @tayyari/shared build && pnpm --filter @tayyari/api exec prisma generate && pnpm --filter @tayyari/api build` |
 | Start command | `pnpm --filter @tayyari/api exec prisma migrate deploy && pnpm --filter @tayyari/api exec prisma db seed && pnpm --filter @tayyari/api start:prod` |
+| Env `NODE_VERSION` | `22.14.0` (optional but recommended; avoid Node 26) |
 | Instance | **Free** |
 | Health check path | `/api/v1/health` |
 
@@ -143,4 +144,5 @@ Do not put production secrets in git. Keep using `apps/api/.env` / `apps/web/.en
 | CORS errors in browser | `CORS_ORIGIN` must exactly match the Vercel origin (https, no trailing slash) |
 | DB connection failed | Neon URL needs `?sslmode=require`; use the connection string Neon shows |
 | Empty questions | Start command must run `prisma db seed` once; check Render logs |
-| Build fails on pnpm | Ensure `NODE_VERSION=22` (or 20+) and `packageManager` in root `package.json` |
+| Build fails on pnpm / `corepack` EROFS | Do **not** use `corepack enable`. Use `npm install -g pnpm@9.15.4 && …` |
+| Weird Node 26 | Set env `NODE_VERSION=22.14.0` or engines `22.x` |
