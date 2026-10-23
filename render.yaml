@@ -22,6 +22,7 @@ services:
       pnpm --filter @tayyari/api exec prisma migrate deploy &&
       pnpm --filter @tayyari/api exec prisma db seed &&
       pnpm --filter @tayyari/api start:prod
+    # start:prod → node dist/src/main (Nest outDir layout)
     healthCheckPath: /api/v1/health
     envVars:
       - key: NODE_VERSION

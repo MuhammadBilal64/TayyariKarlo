@@ -146,4 +146,5 @@ Do not put production secrets in git. Keep using `apps/api/.env` / `apps/web/.en
 | Empty questions | Start command must run `prisma db seed` once; check Render logs |
 | Build fails on pnpm / `corepack` EROFS | Do **not** use `corepack enable`. Use `npm install -g pnpm@9.15.4 && …` |
 | `Command "prisma" not found` | Use `pnpm install --frozen-lockfile --prod=false` (production NODE_ENV skips prisma otherwise) |
+| `Cannot find module .../dist/main` | Nest emits `dist/src/main.js` — start script must be `node dist/src/main` |
 | Weird Node 26 | Set env `NODE_VERSION=22.14.0` or engines `22.x` |
