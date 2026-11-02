@@ -23,6 +23,11 @@ export const startInterviewSchema = z.object({
 });
 export type StartInterviewInput = z.infer<typeof startInterviewSchema>;
 
+export const answerInterviewSchema = z.object({
+  answer: z.string().trim().min(1).max(8000),
+});
+export type AnswerInterviewInput = z.infer<typeof answerInterviewSchema>;
+
 export const interviewTurnSchema = z.object({
   id: z.string(),
   orderIndex: z.number().int(),

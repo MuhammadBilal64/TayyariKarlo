@@ -64,6 +64,7 @@ Merge to `main` (or deploy from this branch). Vercel/Render will pull from GitHu
 | `COOKIE_SAME_SITE` | `none` |
 | `CORS_ORIGIN` | your Vercel URL (set after step 3, then redeploy) |
 | `ALLOW_QUESTION_SEED` | `false` |
+| `LLM_PROVIDER` | `mock` (free Render has no GPU; interviews use Practice mode) |
 
 Generate secrets locally:
 

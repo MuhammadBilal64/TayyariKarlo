@@ -82,7 +82,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
 | 5.1 | Interview session API | Completed | Role/tech/experience → session (empty turns); list/get | Session persisted; JWT create/get/list | Phase 2 | API tests |
-| 5.2 | LLM Q&A + evaluate | Pending | Nest module calls LLM; stores feedback | Mocked LLM path tested | 5.1 | API tests (mocked) |
+| 5.2 | LLM Q&A + evaluate | Completed | Nest module calls LLM; stores feedback | Mocked LLM path tested | 5.1 | API tests (mocked) |
 | 5.3 | Web interview UI | Pending | Setup + conversational UI + feedback | End-to-end interview UX | 5.2 | Manual |
 
 ---

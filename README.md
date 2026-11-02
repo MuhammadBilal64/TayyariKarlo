@@ -110,7 +110,9 @@ See [instructions.md](instructions.md) and [phases.md](phases.md).
 
 Phases **1–4** are implemented on `main`: auth, MCQ assessments, progress aggregates, recommendations, and the signed-in dashboard.
 
-Phase **5** (AI interview) and **6** (coding challenges) are paused until after the Phase 1–4 deploy.
+Phase **5** (AI interview) is in progress on `phase/05-ai-interview`. Free Render uses `LLM_PROVIDER=mock` (Practice mode). For local model quality: install [Ollama](https://ollama.com), `ollama pull qwen2.5:14b`, set `LLM_PROVIDER=ollama` in `apps/api/.env`.
+
+Phase **6** (coding challenges) is still pending.
 
 ### Seed assessment questions
 
