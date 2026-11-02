@@ -5,3 +5,4 @@ export * from './questions';
 export * from './assessments';
 export * from './progress';
 export * from './recommendations';
+export * from './interviews';
