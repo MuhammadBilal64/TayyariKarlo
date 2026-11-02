@@ -8,6 +8,9 @@ import { LoginPage } from '../features/auth/pages/LoginPage';
 import { RegisterPage } from '../features/auth/pages/RegisterPage';
 import { HomePage } from '../features/home/pages/HomePage';
 import { WorkspacePage } from '../features/home/pages/WorkspacePage';
+import { InterviewResultsPage } from '../features/interview/pages/InterviewResultsPage';
+import { InterviewSessionPage } from '../features/interview/pages/InterviewSessionPage';
+import { InterviewSetupPage } from '../features/interview/pages/InterviewSetupPage';
 
 export function AppRouter() {
   return (
@@ -29,6 +32,12 @@ export function AppRouter() {
         <Route
           path="assessments/:attemptId/results"
           element={<ResultsPage />}
+        />
+        <Route path="interviews" element={<InterviewSetupPage />} />
+        <Route path="interviews/:sessionId" element={<InterviewSessionPage />} />
+        <Route
+          path="interviews/:sessionId/results"
+          element={<InterviewResultsPage />}
         />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
