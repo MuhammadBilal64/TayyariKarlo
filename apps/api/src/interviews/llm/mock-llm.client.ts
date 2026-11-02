@@ -8,7 +8,7 @@ import type {
 export class MockLlmClient implements LlmClient {
   readonly provider = 'mock' as const;
 
-  async generateQuestion(
+  generateQuestion(
     ctx: InterviewLlmContext,
     orderIndex: number,
   ): Promise<string> {
@@ -25,24 +25,29 @@ export class MockLlmClient implements LlmClient {
       `Practice mode: How do you prioritize work when multiple stakeholders disagree?`,
       `Practice mode: What would you want to learn next to grow as a ${ctx.experienceLevel} ${ctx.role}?`,
     ];
-    return prompts[orderIndex % prompts.length]!;
+    const prompt = prompts[orderIndex % prompts.length] ?? prompts[0];
+    if (!prompt) {
+      return Promise.resolve(
+        `Practice mode: Introduce yourself for the ${ctx.role} role.`,
+      );
+    }
+    return Promise.resolve(prompt);
   }
 
-  async evaluateAnswer(
+  evaluateAnswer(
     _ctx: InterviewLlmContext,
     _questionText: string,
     answerText: string,
   ): Promise<AnswerEvaluation> {
     const length = answerText.trim().length;
-    const score =
-      length < 40 ? 45 : length < 120 ? 65 : length < 280 ? 80 : 90;
-    return {
+    const score = length < 40 ? 45 : length < 120 ? 65 : length < 280 ? 80 : 90;
+    return Promise.resolve({
       score,
       feedback: `Practice mode feedback: Your answer was ${length} characters. Aim for a clear structure (situation → action → result) and call out concrete trade-offs. Score ${score}/100.`,
-    };
+    });
   }
 
-  async summarize(ctx: InterviewLlmContext): Promise<InterviewSummary> {
+  summarize(ctx: InterviewLlmContext): Promise<InterviewSummary> {
     const scored = ctx.previousTurns.filter((t) => t.score !== null);
     const overallScore =
       scored.length === 0
@@ -50,9 +55,9 @@ export class MockLlmClient implements LlmClient {
         : Math.round(
             scored.reduce((sum, t) => sum + (t.score ?? 0), 0) / scored.length,
           );
-    return {
+    return Promise.resolve({
       overallScore,
       overallFeedback: `Practice mode summary: Completed ${scored.length} of ${ctx.questionCount} questions for ${ctx.role}. Overall score ${overallScore}/100. This is scripted feedback (LLM_PROVIDER=mock)—run the API locally with Ollama for live model quality.`,
-    };
+    });
   }
 }

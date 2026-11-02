@@ -16,7 +16,11 @@ import type {
   InterviewTurn as PrismaInterviewTurn,
 } from '@prisma/client';
 import { PrismaService } from '../common/prisma/prisma.service';
-import { LLM_CLIENT, type InterviewLlmContext, type LlmClient } from './llm/llm.types';
+import {
+  LLM_CLIENT,
+  type InterviewLlmContext,
+  type LlmClient,
+} from './llm/llm.types';
 
 type SessionWithTurns = PrismaInterviewSession & {
   turns: PrismaInterviewTurn[];
@@ -34,7 +38,9 @@ export class InterviewsService {
     input: StartInterviewInput,
   ): Promise<InterviewSession> {
     const questionCount = input.questionCount ?? 5;
-    const techStack = input.techStack.map((tech) => tech.trim()).filter(Boolean);
+    const techStack = input.techStack
+      .map((tech) => tech.trim())
+      .filter(Boolean);
     const role = input.role.trim();
 
     const draftCtx: InterviewLlmContext = {

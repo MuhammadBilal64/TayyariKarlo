@@ -2,7 +2,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { InterviewsService } from './interviews.service';
-import { LLM_CLIENT, type LlmClient } from './llm/llm.types';
+import { LLM_CLIENT } from './llm/llm.types';
 
 describe('InterviewsService', () => {
   let service: InterviewsService;
@@ -85,7 +85,7 @@ describe('InterviewsService', () => {
       providers: [
         InterviewsService,
         { provide: PrismaService, useValue: prisma },
-        { provide: LLM_CLIENT, useValue: llm as unknown as LlmClient },
+        { provide: LLM_CLIENT, useValue: llm },
       ],
     }).compile();
 
@@ -103,17 +103,25 @@ describe('InterviewsService', () => {
     });
 
     expect(llm.generateQuestion).toHaveBeenCalled();
-    expect(prisma.interviewSession.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          provider: 'mock',
-          questionCount: 2,
-          turns: {
-            create: [{ orderIndex: 0, questionText: 'Practice Q1?' }],
-          },
-        }),
-      }),
-    );
+    expect(prisma.interviewSession.create).toHaveBeenCalledWith({
+      data: {
+        userId: 'user-1',
+        role: 'Backend Engineer',
+        techStack: ['Node.js', 'PostgreSQL'],
+        experienceLevel: 'junior',
+        questionCount: 2,
+        status: 'in_progress',
+        provider: 'mock',
+        turns: {
+          create: [{ orderIndex: 0, questionText: 'Practice Q1?' }],
+        },
+      },
+      include: {
+        turns: {
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    });
     expect(result.turns).toHaveLength(1);
     expect(result.provider).toBe('mock');
   });

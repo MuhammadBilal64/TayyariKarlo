@@ -12,10 +12,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
-import {
-  EXPERIENCE_LEVELS,
-  type ExperienceLevel,
-} from '@tayyari/shared';
+import { EXPERIENCE_LEVELS, type ExperienceLevel } from '@tayyari/shared';
 
 export class StartInterviewDto {
   @IsString()

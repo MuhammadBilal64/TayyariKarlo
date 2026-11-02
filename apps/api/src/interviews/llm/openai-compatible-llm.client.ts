@@ -1,6 +1,4 @@
-import {
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { ServiceUnavailableException } from '@nestjs/common';
 import type {
   AnswerEvaluation,
   InterviewLlmContext,
