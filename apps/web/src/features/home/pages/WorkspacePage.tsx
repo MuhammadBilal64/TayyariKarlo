@@ -257,6 +257,13 @@ export function WorkspacePage() {
         >
           Start assessment
         </Button>
+        <Button
+          variant="ghost"
+          className="min-w-40 px-5 py-3"
+          onClick={() => navigate('/app/interviews')}
+        >
+          Begin interview
+        </Button>
       </div>
     </section>
   );
