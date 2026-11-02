@@ -157,12 +157,16 @@ export function InterviewSetupPage() {
           <span className="mr-2 inline-flex rounded-full border border-line bg-paper-lift px-2 py-0.5 text-[0.68rem] font-semibold tracking-[0.04em] text-ink-soft uppercase">
             Scripted practice
           </span>
-          Five questions. Free hosting uses scripted notes; Ollama locally = live
-          model.
+          Five questions. Free hosting uses scripted notes; Ollama locally =
+          live model.
         </p>
 
         <div className="mt-6 border-t border-line pt-6">
-          <Button type="submit" className="w-full max-w-64" disabled={submitting}>
+          <Button
+            type="submit"
+            className="w-full max-w-64"
+            disabled={submitting}
+          >
             {submitting ? 'Opening the round…' : 'Begin interview'}
           </Button>
         </div>

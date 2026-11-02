@@ -34,7 +34,10 @@ export function AppRouter() {
           element={<ResultsPage />}
         />
         <Route path="interviews" element={<InterviewSetupPage />} />
-        <Route path="interviews/:sessionId" element={<InterviewSessionPage />} />
+        <Route
+          path="interviews/:sessionId"
+          element={<InterviewSessionPage />}
+        />
         <Route
           path="interviews/:sessionId/results"
           element={<InterviewResultsPage />}

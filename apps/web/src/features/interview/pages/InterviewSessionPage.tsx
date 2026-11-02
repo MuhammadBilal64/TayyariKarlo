@@ -143,7 +143,9 @@ export function InterviewSessionPage() {
   if (!session || !openTurn) {
     return (
       <section>
-        <p className="m-0 text-sm text-ink-soft">No open question on this round.</p>
+        <p className="m-0 text-sm text-ink-soft">
+          No open question on this round.
+        </p>
         <Link
           to="/app/interviews"
           className="mt-4 inline-block text-sm font-semibold text-signal"
@@ -241,7 +243,11 @@ export function InterviewSessionPage() {
           </p>
         ) : null}
         <div className="mt-5">
-          <Button type="submit" className="w-full max-w-64" disabled={submitting}>
+          <Button
+            type="submit"
+            className="w-full max-w-64"
+            disabled={submitting}
+          >
             {submitting ? 'Submitting…' : 'Submit response'}
           </Button>
         </div>
