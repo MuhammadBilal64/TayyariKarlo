@@ -76,7 +76,7 @@ Statuses: `Pending` | `In Progress` | `Completed`
 ## Phase 5 — AI interview
 
 **Branch:** `phase/05-ai-interview`  
-**Status:** In Progress  
+**Status:** Completed (ready for PR)  
 **Note:** Free Render uses mock LLM; local Ollama (`qwen2.5:14b`) for real quality. No fine-tuning in this phase.
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
