@@ -5,6 +5,7 @@ import type {
   InterviewSummary,
   LlmClient,
 } from './llm.types';
+import { extractJsonObject, parseEvaluation } from './parse-evaluation';
 
 type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
@@ -16,22 +17,8 @@ type OpenAiCompatibleConfig = {
 };
 
 function clampScore(value: number): number {
-  if (!Number.isFinite(value)) return 60;
+  if (!Number.isFinite(value)) return 0;
   return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-function extractJsonObject(text: string): unknown {
-  const trimmed = text.trim();
-  try {
-    return JSON.parse(trimmed);
-  } catch {
-    const start = trimmed.indexOf('{');
-    const end = trimmed.lastIndexOf('}');
-    if (start >= 0 && end > start) {
-      return JSON.parse(trimmed.slice(start, end + 1));
-    }
-    throw new Error('No JSON object in model response');
-  }
 }
 
 export class OpenAiCompatibleLlmClient implements LlmClient {
@@ -54,7 +41,7 @@ export class OpenAiCompatibleLlmClient implements LlmClient {
       {
         role: 'system',
         content:
-          'You are a technical interviewer. Reply with ONLY the next interview question as plain text. No preamble, no numbering labels, no JSON.',
+          'You are a working technical interviewer. Reply with ONLY the next interview question as plain text. One question. Do not repeat a prior question. No preamble, no numbering, no JSON.',
       },
       {
         role: 'user',
@@ -81,11 +68,16 @@ export class OpenAiCompatibleLlmClient implements LlmClient {
     questionText: string,
     answerText: string,
   ): Promise<AnswerEvaluation> {
-    const content = await this.chat([
+    const messages: ChatMessage[] = [
       {
         role: 'system',
-        content:
-          'You evaluate interview answers. Respond with ONLY JSON: {"score":0-100,"feedback":"2-4 sentences"}.',
+        content: [
+          'You are a strict technical interviewer scoring a spoken answer.',
+          'Respond with ONLY JSON:',
+          '{"score":0-100,"feedback":"2-4 sentences","dimensions":{"correctness":0-100,"depth":0-100,"tradeoffs":0-100,"clarity":0-100},"followUp":null}',
+          'followUp is a short probe question only when the answer is thin, off-topic, or misses a trade-off. Otherwise followUp is null.',
+          'Do not reward length. Judge technical content.',
+        ].join(' '),
       },
       {
         role: 'user',
@@ -96,24 +88,29 @@ export class OpenAiCompatibleLlmClient implements LlmClient {
           `Candidate answer: ${answerText}`,
         ].join('\n'),
       },
-    ]);
+    ];
 
-    try {
-      const parsed = extractJsonObject(content) as {
-        score?: unknown;
-        feedback?: unknown;
-      };
-      const feedback =
-        typeof parsed.feedback === 'string' && parsed.feedback.trim()
-          ? parsed.feedback.trim()
-          : content.trim();
-      return { feedback, score: clampScore(Number(parsed.score)) };
-    } catch {
-      return {
-        score: 60,
-        feedback: contentFallback(answerText),
-      };
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const content = await this.chat(messages);
+      try {
+        return parseEvaluation(content);
+      } catch (error) {
+        lastError = error;
+        messages.push({ role: 'assistant', content });
+        messages.push({
+          role: 'user',
+          content:
+            'That was not valid JSON. Reply again with ONLY the JSON object.',
+        });
+      }
     }
+
+    throw new ServiceUnavailableException(
+      lastError instanceof Error
+        ? `Interview judge returned invalid JSON: ${lastError.message}`
+        : 'Interview judge returned invalid JSON',
+    );
   }
 
   async summarize(ctx: InterviewLlmContext): Promise<InterviewSummary> {
@@ -128,7 +125,7 @@ export class OpenAiCompatibleLlmClient implements LlmClient {
       {
         role: 'system',
         content:
-          'You summarize a mock interview. Respond with ONLY JSON: {"overallScore":0-100,"overallFeedback":"3-5 sentences"}.',
+          'You debrief a technical interview. Respond with ONLY JSON: {"overallScore":0-100,"overallFeedback":"strengths, gaps, and what to study next in 3-5 sentences"}.',
       },
       {
         role: 'user',
@@ -145,27 +142,30 @@ export class OpenAiCompatibleLlmClient implements LlmClient {
         overallScore?: unknown;
         overallFeedback?: unknown;
       };
-      const overallFeedback =
-        typeof parsed.overallFeedback === 'string' &&
-        parsed.overallFeedback.trim()
-          ? parsed.overallFeedback.trim()
-          : content.trim();
+      if (
+        typeof parsed.overallFeedback !== 'string' ||
+        !parsed.overallFeedback.trim() ||
+        typeof parsed.overallScore !== 'number'
+      ) {
+        throw new Error('Incomplete debrief JSON');
+      }
       return {
-        overallFeedback,
-        overallScore: clampScore(Number(parsed.overallScore)),
+        overallFeedback: parsed.overallFeedback.trim(),
+        overallScore: clampScore(parsed.overallScore),
       };
     } catch {
       const scored = ctx.previousTurns.filter((t) => t.score !== null);
-      const overallScore =
-        scored.length === 0
-          ? 60
-          : Math.round(
-              scored.reduce((sum, t) => sum + (t.score ?? 0), 0) /
-                scored.length,
-            );
+      if (scored.length === 0) {
+        throw new ServiceUnavailableException(
+          'Interview debrief was not valid JSON',
+        );
+      }
+      const overallScore = Math.round(
+        scored.reduce((sum, t) => sum + (t.score ?? 0), 0) / scored.length,
+      );
       return {
         overallScore,
-        overallFeedback: `Interview complete for ${ctx.role}. Average turn score ${overallScore}/100. Review each turn’s feedback for concrete next steps.`,
+        overallFeedback: `Round complete for ${ctx.role}. Average of the judged answers is ${overallScore}/100. Review each rubric for what to study next.`,
       };
     }
   }
@@ -216,8 +216,4 @@ export class OpenAiCompatibleLlmClient implements LlmClient {
       clearTimeout(timer);
     }
   }
-}
-
-function contentFallback(answerText: string): string {
-  return `Could not parse structured model feedback. Your answer length was ${answerText.trim().length} characters. Rephrase with situation, approach, and trade-offs.`;
 }

@@ -44,6 +44,13 @@ export class MockLlmClient implements LlmClient {
     return Promise.resolve({
       score,
       feedback: `Practice mode feedback: Your answer was ${length} characters. Aim for a clear structure (situation → action → result) and call out concrete trade-offs. Score ${score}/100.`,
+      dimensions: {
+        correctness: score,
+        depth: score,
+        tradeoffs: score,
+        clarity: score,
+      },
+      followUp: null,
     });
   }
 

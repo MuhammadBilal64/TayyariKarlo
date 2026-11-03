@@ -12,8 +12,8 @@ export function createLlmClient(config: ConfigService): LlmClient {
     return new OpenAiCompatibleLlmClient({
       baseUrl:
         config.get<string>('OLLAMA_BASE_URL') ?? 'http://127.0.0.1:11434/v1',
-      model: config.get<string>('OLLAMA_MODEL') ?? 'qwen2.5:14b',
-      timeoutMs: Number(config.get<string>('LLM_TIMEOUT_MS') ?? 90_000),
+      model: config.get<string>('OLLAMA_MODEL') ?? 'qwen2.5:7b-instruct',
+      timeoutMs: Number(config.get<string>('LLM_TIMEOUT_MS') ?? 120_000),
       apiKey: config.get<string>('OLLAMA_API_KEY') ?? 'ollama',
     });
   }

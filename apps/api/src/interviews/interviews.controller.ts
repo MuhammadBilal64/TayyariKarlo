@@ -30,6 +30,11 @@ export class InterviewsController {
     return this.interviewsService.answer(user.sub, id, dto.answer);
   }
 
+  @Post(':id/continue')
+  continueSession(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
+    return this.interviewsService.continue(user.sub, id);
+  }
+
   @Get(':id')
   getOne(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
     return this.interviewsService.getForUser(user.sub, id);

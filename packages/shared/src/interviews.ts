@@ -28,13 +28,26 @@ export const answerInterviewSchema = z.object({
 });
 export type AnswerInterviewInput = z.infer<typeof answerInterviewSchema>;
 
+export const interviewTurnKindSchema = z.enum(['main', 'follow_up']);
+export type InterviewTurnKind = z.infer<typeof interviewTurnKindSchema>;
+
+export const rubricSchema = z.object({
+  correctness: z.number().int().min(0).max(100),
+  depth: z.number().int().min(0).max(100),
+  tradeoffs: z.number().int().min(0).max(100),
+  clarity: z.number().int().min(0).max(100),
+});
+export type RubricDimensions = z.infer<typeof rubricSchema>;
+
 export const interviewTurnSchema = z.object({
   id: z.string(),
   orderIndex: z.number().int(),
+  kind: interviewTurnKindSchema,
   questionText: z.string(),
   answerText: z.string().nullable(),
   feedback: z.string().nullable(),
   score: z.number().int().nullable(),
+  rubric: rubricSchema.nullable(),
 });
 export type InterviewTurn = z.infer<typeof interviewTurnSchema>;
 
