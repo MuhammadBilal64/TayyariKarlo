@@ -528,4 +528,144 @@ describe('InterviewsService', () => {
     ).rejects.toBeInstanceOf(NotFoundException);
     expect(speech.synthesize).not.toHaveBeenCalled();
   });
+
+  it('asks a follow-up on the last topic before the debrief', async () => {
+    const lastOpen = { ...baseSession, questionCount: 1 };
+    llm.evaluateAnswer.mockResolvedValue({
+      feedback: 'Thin',
+      score: 48,
+      dimensions: {
+        correctness: 50,
+        depth: 40,
+        tradeoffs: 30,
+        clarity: 60,
+      },
+      followUp: 'Which failure mode would you accept?',
+    });
+    prisma.interviewSession.findFirst
+      .mockResolvedValueOnce(lastOpen)
+      .mockResolvedValueOnce({
+        ...lastOpen,
+        turns: [
+          { ...lastOpen.turns[0], answerText: 'Just retry it.', score: 48 },
+          {
+            id: 'turn-2',
+            sessionId: 'session-1',
+            orderIndex: 1,
+            kind: 'follow_up',
+            questionText: 'Which failure mode would you accept?',
+            answerText: null,
+            feedback: null,
+            score: null,
+            rubric: null,
+            createdAt: new Date('2026-11-02T10:01:00.000Z'),
+            updatedAt: new Date('2026-11-02T10:01:00.000Z'),
+          },
+        ],
+      });
+
+    const result = await service.answer(
+      'user-1',
+      'session-1',
+      'Just retry it.',
+    );
+
+    expect(result.status).toBe('in_progress');
+    expect(result.turns[1]?.kind).toBe('follow_up');
+    expect(llm.summarize).not.toHaveBeenCalled();
+  });
+
+  it('does not call the model again when the question is already answered', async () => {
+    const answered = {
+      ...baseSession,
+      turns: [
+        {
+          ...baseSession.turns[0],
+          answerText: 'Already saved.',
+          score: 75,
+        },
+      ],
+    };
+    prisma.interviewSession.findFirst
+      .mockResolvedValueOnce(answered)
+      .mockResolvedValueOnce({
+        ...answered,
+        turns: [
+          answered.turns[0],
+          {
+            id: 'turn-2',
+            sessionId: 'session-1',
+            orderIndex: 1,
+            kind: 'main',
+            questionText: 'Practice Q2?',
+            answerText: null,
+            feedback: null,
+            score: null,
+            rubric: null,
+            createdAt: new Date('2026-11-02T10:01:00.000Z'),
+            updatedAt: new Date('2026-11-02T10:01:00.000Z'),
+          },
+        ],
+      });
+    llm.generateQuestion.mockResolvedValue('Practice Q2?');
+
+    await service.answer('user-1', 'session-1', 'Another copy.');
+
+    expect(llm.evaluateAnswer).not.toHaveBeenCalled();
+    expect(prisma.interviewTurn.create).toHaveBeenCalledWith({
+      data: {
+        sessionId: 'session-1',
+        orderIndex: 1,
+        kind: 'main',
+        questionText: 'Practice Q2?',
+      },
+    });
+  });
+
+  it('retries the next question without scoring the saved answer again', async () => {
+    const answered = {
+      ...baseSession,
+      turns: [
+        {
+          ...baseSession.turns[0],
+          answerText: 'Saved before the next question failed.',
+          score: 75,
+        },
+      ],
+    };
+    prisma.interviewSession.findFirst
+      .mockResolvedValueOnce(baseSession)
+      .mockResolvedValueOnce(answered)
+      .mockResolvedValueOnce(answered)
+      .mockResolvedValueOnce({
+        ...answered,
+        turns: [
+          answered.turns[0],
+          {
+            id: 'turn-2',
+            sessionId: 'session-1',
+            orderIndex: 1,
+            kind: 'main',
+            questionText: 'Practice Q2?',
+            answerText: null,
+            feedback: null,
+            score: null,
+            rubric: null,
+            createdAt: new Date('2026-11-02T10:01:00.000Z'),
+            updatedAt: new Date('2026-11-02T10:01:00.000Z'),
+          },
+        ],
+      });
+    llm.generateQuestion
+      .mockRejectedValueOnce(new Error('model down'))
+      .mockResolvedValue('Practice Q2?');
+
+    await expect(
+      service.answer('user-1', 'session-1', 'A complete answer.'),
+    ).rejects.toThrow('model down');
+    await service.continue('user-1', 'session-1');
+
+    expect(llm.evaluateAnswer).toHaveBeenCalledTimes(1);
+    expect(prisma.interviewTurn.create).toHaveBeenCalledTimes(1);
+  });
 });

@@ -40,31 +40,31 @@ Merge to `main` (or deploy from this branch). Vercel/Render will pull from GitHu
 
 ### Option B — Manual Web Service
 
-| Setting | Value |
-|---------|--------|
-| Root directory | *(leave empty / repo root)* |
-| Runtime | Node |
-| Build command | `npm install -g pnpm@9.15.4 && pnpm install --frozen-lockfile --prod=false && pnpm --filter @tayyari/shared build && pnpm --filter @tayyari/api exec prisma generate && pnpm --filter @tayyari/api build` |
-| Start command | `pnpm --filter @tayyari/api exec prisma migrate deploy && pnpm --filter @tayyari/api exec prisma db seed && pnpm --filter @tayyari/api start:prod` |
-| Env `NODE_VERSION` | `22.14.0` (optional but recommended; avoid Node 26) |
-| Instance | **Free** |
-| Health check path | `/api/v1/health` |
+| Setting            | Value                                                                                                                                                                                                     |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Root directory     | _(leave empty / repo root)_                                                                                                                                                                               |
+| Runtime            | Node                                                                                                                                                                                                      |
+| Build command      | `npm install -g pnpm@9.15.4 && pnpm install --frozen-lockfile --prod=false && pnpm --filter @tayyari/shared build && pnpm --filter @tayyari/api exec prisma generate && pnpm --filter @tayyari/api build` |
+| Start command      | `pnpm --filter @tayyari/api exec prisma migrate deploy && pnpm --filter @tayyari/api exec prisma db seed && pnpm --filter @tayyari/api start:prod`                                                        |
+| Env `NODE_VERSION` | `22.14.0` (optional but recommended; avoid Node 26)                                                                                                                                                       |
+| Instance           | **Free**                                                                                                                                                                                                  |
+| Health check path  | `/api/v1/health`                                                                                                                                                                                          |
 
 ### Env vars on Render
 
-| Key | Value |
-|-----|--------|
-| `NODE_ENV` | `production` |
-| `PORT` | *(leave to Render — do not override)* |
-| `DATABASE_URL` | *(Neon connection string)* |
-| `JWT_ACCESS_SECRET` | long random string (32+ chars) |
-| `JWT_REFRESH_SECRET` | different long random string |
-| `JWT_ACCESS_EXPIRES_IN` | `15m` |
-| `JWT_REFRESH_EXPIRES_IN` | `7d` |
-| `COOKIE_SAME_SITE` | `none` |
-| `CORS_ORIGIN` | your Vercel URL (set after step 3, then redeploy) |
-| `ALLOW_QUESTION_SEED` | `false` |
-| `LLM_PROVIDER` | `mock` (free Render has no GPU; interviews use Practice mode) |
+| Key                      | Value                                                                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`               | `production`                                                                                                                  |
+| `PORT`                   | _(leave to Render — do not override)_                                                                                         |
+| `DATABASE_URL`           | _(Neon connection string)_                                                                                                    |
+| `JWT_ACCESS_SECRET`      | long random string (32+ chars)                                                                                                |
+| `JWT_REFRESH_SECRET`     | different long random string                                                                                                  |
+| `JWT_ACCESS_EXPIRES_IN`  | `15m`                                                                                                                         |
+| `JWT_REFRESH_EXPIRES_IN` | `7d`                                                                                                                          |
+| `COOKIE_SAME_SITE`       | `none`                                                                                                                        |
+| `CORS_ORIGIN`            | your Vercel URL (set after step 3, then redeploy)                                                                             |
+| `ALLOW_QUESTION_SEED`    | `false`                                                                                                                       |
+| `LLM_PROVIDER`           | `mock` (free Render has no GPU; interviews stay typed practice. Spoken rounds need Ollama, Whisper, and Piper on a local API) |
 
 Generate secrets locally:
 
@@ -88,20 +88,20 @@ Run twice for access + refresh secrets.
 2. **Add New Project** → import `TayyariKarlo`.
 3. Settings:
 
-| Setting | Value |
-|---------|--------|
-| Framework Preset | Vite |
-| Root Directory | `apps/web` |
-| Build Command | `cd ../.. && pnpm --filter @tayyari/shared build && pnpm --filter @tayyari/web build` |
-| Output Directory | `dist` |
-| Install Command | `cd ../.. && pnpm install --frozen-lockfile` |
+| Setting          | Value                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------- |
+| Framework Preset | Vite                                                                                  |
+| Root Directory   | `apps/web`                                                                            |
+| Build Command    | `cd ../.. && pnpm --filter @tayyari/shared build && pnpm --filter @tayyari/web build` |
+| Output Directory | `dist`                                                                                |
+| Install Command  | `cd ../.. && pnpm install --frozen-lockfile`                                          |
 
 (`apps/web/vercel.json` sets these too — override the Vercel UI defaults if they still show `vite build` only.)
 
 4. Environment variable:
 
-| Key | Value |
-|-----|--------|
+| Key            | Value                                  |
+| -------------- | -------------------------------------- |
 | `VITE_API_URL` | `https://YOUR-API.onrender.com/api/v1` |
 
 5. Deploy. Copy the web URL, e.g. `https://tayyari-karlo.vercel.app`
@@ -141,15 +141,15 @@ Do not put production secrets in git. Keep using `apps/api/.env` / `apps/web/.en
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| API 502 / slow first load | Render free cold start — wait and retry |
-| CORS errors in browser | `CORS_ORIGIN` must exactly match the Vercel origin (https, no trailing slash) |
-| DB connection failed | Neon URL needs `?sslmode=require`; use the connection string Neon shows |
-| Empty questions | Start command must run `prisma db seed` once; check Render logs |
-| Build fails on pnpm / `corepack` EROFS | Do **not** use `corepack enable`. Use `npm install -g pnpm@9.15.4 && …` |
-| `Command "prisma" not found` | Use `pnpm install --frozen-lockfile --prod=false` (production NODE_ENV skips prisma otherwise) |
-| `Cannot find module .../dist/main` | Nest emits `dist/src/main.js` — start script must be `node dist/src/main` |
-| `Cannot find module 'express'` | `express` must be a **direct** dependency (pnpm does not hoist Nest’s copy) |
-| `No open ports detected` | Nest must `listen(port, '0.0.0.0')` and use Render’s `PORT` env |
-| Weird Node 26 | Set env `NODE_VERSION=22.14.0` or engines `22.x` |
+| Problem                                | Fix                                                                                            |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| API 502 / slow first load              | Render free cold start — wait and retry                                                        |
+| CORS errors in browser                 | `CORS_ORIGIN` must exactly match the Vercel origin (https, no trailing slash)                  |
+| DB connection failed                   | Neon URL needs `?sslmode=require`; use the connection string Neon shows                        |
+| Empty questions                        | Start command must run `prisma db seed` once; check Render logs                                |
+| Build fails on pnpm / `corepack` EROFS | Do **not** use `corepack enable`. Use `npm install -g pnpm@9.15.4 && …`                        |
+| `Command "prisma" not found`           | Use `pnpm install --frozen-lockfile --prod=false` (production NODE_ENV skips prisma otherwise) |
+| `Cannot find module .../dist/main`     | Nest emits `dist/src/main.js` — start script must be `node dist/src/main`                      |
+| `Cannot find module 'express'`         | `express` must be a **direct** dependency (pnpm does not hoist Nest’s copy)                    |
+| `No open ports detected`               | Nest must `listen(port, '0.0.0.0')` and use Render’s `PORT` env                                |
+| Weird Node 26                          | Set env `NODE_VERSION=22.14.0` or engines `22.x`                                               |

@@ -6,12 +6,12 @@ Monorepo with a NestJS API, React web app, and shared Zod contracts.
 
 ## Stack
 
-| Layer | Technology |
-|-------|------------|
-| Web | React, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query (later) |
-| API | NestJS, Prisma, PostgreSQL |
-| Shared | Zod (`@tayyari/shared`) |
-| Tooling | pnpm workspaces, Prettier, ESLint / Oxlint, GitHub Actions |
+| Layer   | Technology                                                                  |
+| ------- | --------------------------------------------------------------------------- |
+| Web     | React, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query (later) |
+| API     | NestJS, Prisma, PostgreSQL                                                  |
+| Shared  | Zod (`@tayyari/shared`)                                                     |
+| Tooling | pnpm workspaces, Prettier, ESLint / Oxlint, GitHub Actions                  |
 
 ## Repository layout
 
@@ -82,21 +82,20 @@ Required before `pnpm typecheck` or running the apps if `packages/shared/dist` i
 pnpm dev
 ```
 
-
-- API: http://localhost:3000/api/v1/health  
-- Web: http://localhost:5173  
+- API: http://localhost:3000/api/v1/health
+- Web: http://localhost:5173
 
 ## Common scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start API + web in watch mode |
-| `pnpm build` | Build shared, API, and web |
-| `pnpm lint` | Lint all packages |
-| `pnpm format` | Format with Prettier |
-| `pnpm format:check` | Check formatting |
-| `pnpm typecheck` | TypeScript checks |
-| `pnpm test` | Unit tests |
+| Command             | Description                   |
+| ------------------- | ----------------------------- |
+| `pnpm dev`          | Start API + web in watch mode |
+| `pnpm build`        | Build shared, API, and web    |
+| `pnpm lint`         | Lint all packages             |
+| `pnpm format`       | Format with Prettier          |
+| `pnpm format:check` | Check formatting              |
+| `pnpm typecheck`    | TypeScript checks             |
+| `pnpm test`         | Unit tests                    |
 
 ## Development workflow
 
@@ -110,7 +109,15 @@ See [instructions.md](instructions.md) and [phases.md](phases.md).
 
 Phases **1–4** are implemented on `main`: auth, MCQ assessments, progress aggregates, recommendations, and the signed-in dashboard.
 
-Phase **5** (AI interview) is in progress on `phase/05-ai-interview`. Free Render uses `LLM_PROVIDER=mock` (Practice mode). For local model quality: install [Ollama](https://ollama.com), `ollama pull qwen2.5:14b`, set `LLM_PROVIDER=ollama` in `apps/api/.env`.
+Phase **5** interviews are on `main`. Hosted Render stays typed practice (`LLM_PROVIDER=mock`) and the session says that voice needs the local model.
+
+A spoken round runs only when the API is on your machine:
+
+1. Install [Ollama](https://ollama.com) and `ollama pull qwen2.5:7b-instruct`. Use `qwen2.5:14b` if you have about 16 GB free.
+2. Install whisper.cpp `small` and Piper `en_US-lessac-medium`.
+3. In `apps/api/.env`, set `LLM_PROVIDER=ollama` and the `WHISPER_*` / `PIPER_*` paths. Windows examples are in `apps/api/.env.example`.
+
+The browser records 16 kHz WAV. You can edit the transcript before it is scored. Scores stay hidden until the round ends. Missing speech binaries do not switch the judge to the scripted scorer; type the answer instead.
 
 Phase **6** (coding challenges) is still pending.
 
