@@ -21,6 +21,8 @@ import {
   type InterviewLlmContext,
   type LlmClient,
 } from './llm/llm.types';
+import { SpeechService } from './speech/speech.service';
+import { assertWav } from './speech/wav';
 
 type SessionWithTurns = PrismaInterviewSession & {
   turns: PrismaInterviewTurn[];
@@ -31,6 +33,7 @@ export class InterviewsService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(LLM_CLIENT) private readonly llm: LlmClient,
+    private readonly speech: SpeechService,
   ) {}
 
   async create(
@@ -171,6 +174,34 @@ export class InterviewsService {
     }
 
     return this.advance(await this.findSessionForUser(userId, sessionId));
+  }
+
+  async answerAudio(
+    userId: string,
+    sessionId: string,
+    audio: Buffer,
+  ): Promise<InterviewSession> {
+    assertWav(audio);
+    const transcript = (await this.speech.transcribe(audio)).trim();
+    if (!transcript) {
+      throw new BadRequestException(
+        'No speech was heard. Record again or type your answer.',
+      );
+    }
+    return this.answer(userId, sessionId, transcript);
+  }
+
+  async turnAudio(
+    userId: string,
+    sessionId: string,
+    turnId: string,
+  ): Promise<Buffer> {
+    const session = await this.findSessionForUser(userId, sessionId);
+    const turn = session.turns.find((item) => item.id === turnId);
+    if (!turn) {
+      throw new NotFoundException('Interview turn not found');
+    }
+    return this.speech.synthesize(turn.questionText);
   }
 
   async continue(userId: string, sessionId: string): Promise<InterviewSession> {

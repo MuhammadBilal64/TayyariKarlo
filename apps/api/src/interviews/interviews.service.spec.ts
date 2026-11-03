@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { InterviewsService } from './interviews.service';
 import { LLM_CLIENT } from './llm/llm.types';
+import { SpeechService } from './speech/speech.service';
 
 describe('InterviewsService', () => {
   let service: InterviewsService;
@@ -23,6 +24,10 @@ describe('InterviewsService', () => {
     generateQuestion: jest.Mock;
     evaluateAnswer: jest.Mock;
     summarize: jest.Mock;
+  };
+  let speech: {
+    transcribe: jest.Mock;
+    synthesize: jest.Mock;
   };
 
   const baseSession = {
@@ -70,6 +75,10 @@ describe('InterviewsService', () => {
         create: jest.fn(),
       },
     };
+    speech = {
+      transcribe: jest.fn().mockResolvedValue('Spoken answer about Node.'),
+      synthesize: jest.fn().mockResolvedValue(Buffer.from('RIFFwav')),
+    };
     llm = {
       provider: 'mock',
       generateQuestion: jest.fn().mockResolvedValue('Practice Q1?'),
@@ -95,6 +104,7 @@ describe('InterviewsService', () => {
         InterviewsService,
         { provide: PrismaService, useValue: prisma },
         { provide: LLM_CLIENT, useValue: llm },
+        { provide: SpeechService, useValue: speech },
       ],
     }).compile();
 
@@ -478,5 +488,21 @@ describe('InterviewsService', () => {
     ).rejects.toThrow('invalid JSON');
 
     expect(prisma.interviewTurn.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('rejects audio that is not a wav', async () => {
+    await expect(
+      service.answerAudio('user-1', 'session-1', Buffer.from('webm')),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(speech.transcribe).not.toHaveBeenCalled();
+  });
+
+  it('does not synthesize another user turn', async () => {
+    prisma.interviewSession.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.turnAudio('user-2', 'session-1', 'turn-1'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(speech.synthesize).not.toHaveBeenCalled();
   });
 });
