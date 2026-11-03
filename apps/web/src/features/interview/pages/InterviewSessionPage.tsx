@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { InlineStatus } from '../../../shared/ui/InlineStatus';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { answerInterview, getInterview } from '../api/interviewsApi';
 
@@ -117,11 +118,7 @@ export function InterviewSessionPage() {
   }
 
   if (loading) {
-    return (
-      <p className="m-0 text-sm text-ink-soft" role="status">
-        Loading interview…
-      </p>
-    );
+    return <InlineStatus message="Loading interview…" />;
   }
 
   if (error && !session) {
@@ -162,12 +159,26 @@ export function InterviewSessionPage() {
 
   return (
     <section>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <Link
+          to="/app"
+          className="text-sm font-semibold text-signal no-underline hover:underline"
+        >
+          ← Workspace
+        </Link>
+        <Link
+          to="/app/interviews"
+          className="text-sm text-mute no-underline hover:text-ink hover:underline"
+        >
+          Exit round
+        </Link>
+      </div>
       <div className="mb-2.5 flex items-center justify-between gap-3">
         <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
           Round {roundNumber} of {session.questionCount} · {session.role}
         </p>
         {isMock ? (
-          <span className="rounded-full border border-line bg-paper-lift px-2 py-0.5 text-[0.68rem] font-semibold tracking-[0.04em] text-ink-soft uppercase">
+          <span className="rounded-[6px] border border-line bg-paper-lift px-2 py-0.5 text-[0.68rem] font-semibold tracking-[0.04em] text-ink-soft uppercase">
             Scripted practice
           </span>
         ) : null}
@@ -177,37 +188,47 @@ export function InterviewSessionPage() {
         aria-hidden="true"
       >
         <span
-          className="block h-full bg-signal transition-[width]"
+          className="ui-progress block h-full bg-signal"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
 
-      {priorTurns.map((turn) => (
-        <article
-          key={turn.id}
-          className="border-t border-line py-4 first:border-t"
-        >
-          <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
-            Question
-          </p>
-          <h2 className="font-display mt-2 m-0 text-[clamp(1.25rem,2.8vw,1.45rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
-            {turn.questionText}
-          </h2>
-          <p className="mt-3 m-0 text-[0.95rem] leading-relaxed text-ink-soft">
-            {turn.answerText}
-          </p>
-          {turn.feedback ? (
-            <div className="mt-3.5 border-l-[3px] border-signal bg-signal-soft px-3.5 py-3.5 text-[0.88rem] leading-relaxed text-ink">
-              {turn.feedback}
-              {turn.score !== null ? (
-                <p className="mt-2 m-0 text-[0.8rem] font-semibold text-signal-hover">
-                  {turn.score} / 100
+      {priorTurns.length > 0 ? (
+        <details className="mb-5 border-y border-line py-3">
+          <summary className="cursor-pointer text-sm font-semibold text-ink-soft">
+            Earlier answers ({priorTurns.length})
+            {priorTurns.at(-1)?.score !== null &&
+            priorTurns.at(-1)?.score !== undefined
+              ? ` · last ${priorTurns.at(-1)!.score}/100`
+              : ''}
+          </summary>
+          <div className="mt-3 grid gap-4">
+            {priorTurns.map((turn) => (
+              <article key={turn.id}>
+                <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
+                  Question {turn.orderIndex + 1}
                 </p>
-              ) : null}
-            </div>
-          ) : null}
-        </article>
-      ))}
+                <h2 className="font-display mt-2 m-0 text-[clamp(1.15rem,2.5vw,1.35rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
+                  {turn.questionText}
+                </h2>
+                <p className="mt-2.5 m-0 text-[0.92rem] leading-relaxed text-ink-soft">
+                  {turn.answerText}
+                </p>
+                {turn.feedback ? (
+                  <div className="mt-3 border-l-[3px] border-signal bg-signal-soft px-3.5 py-3 text-[0.85rem] leading-relaxed text-ink">
+                    {turn.feedback}
+                    {turn.score !== null ? (
+                      <p className="mt-2 m-0 text-[0.8rem] font-semibold text-signal-hover">
+                        {turn.score} / 100
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </details>
+      ) : null}
 
       <article className="border-y border-line py-4">
         <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
@@ -234,7 +255,7 @@ export function InterviewSessionPage() {
             rows={6}
             disabled={submitting}
             placeholder="Approach → trade-offs → a concrete example…"
-            className="w-full resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] placeholder:text-mute/70 focus:border-focus focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] disabled:opacity-70"
+            className="w-full cursor-text resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] disabled:cursor-not-allowed disabled:opacity-70"
           />
         </label>
         {submitting ? (

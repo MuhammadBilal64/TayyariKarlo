@@ -8,7 +8,7 @@ import {
   type Topic,
 } from '@tayyari/shared';
 import { useEffect, useState, type FormEvent } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -123,6 +123,12 @@ function SetupPageForm({
 
   return (
     <section>
+      <Link
+        to="/app"
+        className="mb-5 inline-block cursor-pointer text-sm font-semibold text-signal"
+      >
+        ← Workspace
+      </Link>
       <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
         Assessment
       </p>
@@ -148,10 +154,10 @@ function SetupPageForm({
           {TOPICS.map((value) => (
             <li key={value}>
               <label
-                className={`flex cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3.5 transition-[border-color,background] ${
+                className={`ui-chip flex cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3.5 ${
                   topic === value
-                    ? 'border-signal bg-signal-soft'
-                    : 'border-line bg-paper-lift hover:border-signal/40'
+                    ? 'border-signal bg-signal-soft shadow-[0_8px_18px_rgb(15_110_92/0.1)]'
+                    : 'border-line bg-paper-lift hover:border-signal/40 hover:bg-white'
                 }`}
               >
                 <input
@@ -178,9 +184,9 @@ function SetupPageForm({
           {DIFFICULTIES.map((value) => (
             <label
               key={value}
-              className={`cursor-pointer rounded-[10px] border px-2 py-3 text-center text-[0.9rem] font-medium transition-[border-color,background,color] ${
+              className={`ui-chip cursor-pointer rounded-[10px] border px-2 py-3 text-center text-[0.9rem] font-medium ${
                 difficulty === value
-                  ? 'border-signal bg-signal-soft font-semibold text-signal-hover'
+                  ? 'border-signal bg-signal-soft font-semibold text-signal-hover shadow-[0_8px_18px_rgb(15_110_92/0.1)]'
                   : 'border-line bg-white text-ink hover:border-signal/40'
               }`}
             >
@@ -207,7 +213,7 @@ function SetupPageForm({
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
             aria-label="Question count"
-            className="w-[5.5rem] rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none focus:border-focus focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)]"
+            className="w-[5.5rem] cursor-text rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/30 focus:border-focus focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)]"
           />
           <p className="m-0 text-[0.85rem] text-mute">
             {available === null

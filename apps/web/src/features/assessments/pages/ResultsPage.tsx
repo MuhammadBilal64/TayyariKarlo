@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { InlineStatus } from '../../../shared/ui/InlineStatus';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { getAssessmentResult } from '../api/assessmentsApi';
 import { difficultyLabel, optionLetter, topicLabel } from '../lib/labels';
@@ -54,11 +55,7 @@ export function ResultsPage() {
   }, [accessToken, attemptId]);
 
   if (loading) {
-    return (
-      <p className="m-0 text-sm text-ink-soft" role="status">
-        Loading results…
-      </p>
-    );
+    return <InlineStatus message="Loading results…" />;
   }
 
   if (error || !result) {
@@ -134,7 +131,7 @@ export function ResultsPage() {
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-line">
               <i
-                className="block h-full bg-signal not-italic"
+                className="ui-progress block h-full bg-signal not-italic"
                 style={{ width: `${row.percent}%` }}
               />
             </div>
@@ -156,7 +153,7 @@ export function ResultsPage() {
           return (
             <li
               key={item.questionId}
-              className={`grid gap-1.5 border-l-[3px] bg-paper-lift px-4 py-3.5 ${
+              className={`grid gap-1.5 border-l-[3px] bg-paper-lift px-4 py-3.5 transition-[background-color,transform] duration-200 hover:translate-x-0.5 hover:bg-white ${
                 item.isCorrect ? 'border-l-signal' : 'border-l-danger'
               }`}
             >
@@ -179,6 +176,13 @@ export function ResultsPage() {
           onClick={() => navigate('/app/assessments')}
         >
           Try another set
+        </Button>
+        <Button
+          variant="ghost"
+          className="min-w-40 px-5 py-3"
+          onClick={() => navigate('/app/interviews')}
+        >
+          Begin interview
         </Button>
         <Button
           variant="ghost"
