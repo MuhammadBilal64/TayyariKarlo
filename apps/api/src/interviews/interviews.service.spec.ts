@@ -490,6 +490,29 @@ describe('InterviewsService', () => {
     expect(prisma.interviewTurn.updateMany).not.toHaveBeenCalled();
   });
 
+  it('transcribes without scoring', async () => {
+    prisma.interviewSession.findFirst.mockResolvedValue(baseSession);
+    const wav = Buffer.alloc(44 + 32);
+    wav.write('RIFF', 0);
+    wav.writeUInt32LE(36 + 32, 4);
+    wav.write('WAVE', 8);
+    wav.write('fmt ', 12);
+    wav.writeUInt32LE(16, 16);
+    wav.writeUInt16LE(1, 20);
+    wav.writeUInt16LE(1, 22);
+    wav.writeUInt32LE(16000, 24);
+    wav.writeUInt32LE(32000, 28);
+    wav.writeUInt16LE(2, 32);
+    wav.writeUInt16LE(16, 34);
+    wav.write('data', 36);
+    wav.writeUInt32LE(32, 40);
+
+    const result = await service.transcribeAnswer('user-1', 'session-1', wav);
+
+    expect(result.transcript).toBe('Spoken answer about Node.');
+    expect(llm.evaluateAnswer).not.toHaveBeenCalled();
+  });
+
   it('rejects audio that is not a wav', async () => {
     await expect(
       service.answerAudio('user-1', 'session-1', Buffer.from('webm')),

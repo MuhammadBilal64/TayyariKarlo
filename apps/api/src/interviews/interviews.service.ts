@@ -176,6 +176,26 @@ export class InterviewsService {
     return this.advance(await this.findSessionForUser(userId, sessionId));
   }
 
+  async transcribeAnswer(
+    userId: string,
+    sessionId: string,
+    audio: Buffer,
+  ): Promise<{ transcript: string }> {
+    const session = await this.findSessionForUser(userId, sessionId);
+    this.assertInProgress(session);
+    if (!session.turns.some((turn) => turn.answerText === null)) {
+      throw new BadRequestException('No open interview question to answer');
+    }
+    assertWav(audio);
+    const transcript = (await this.speech.transcribe(audio)).trim();
+    if (!transcript) {
+      throw new BadRequestException(
+        'No speech was heard. Record again or type your answer.',
+      );
+    }
+    return { transcript };
+  }
+
   async answerAudio(
     userId: string,
     sessionId: string,

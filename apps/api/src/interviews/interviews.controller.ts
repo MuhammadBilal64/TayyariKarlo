@@ -46,6 +46,17 @@ export class InterviewsController {
     return this.interviewsService.continue(user.sub, id);
   }
 
+  @Post(':id/transcribe')
+  transcribe(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Req() req: Request,
+  ) {
+    return readAudioBody(req).then((audio) =>
+      this.interviewsService.transcribeAnswer(user.sub, id, audio),
+    );
+  }
+
   @Post(':id/answer-audio')
   answerAudio(
     @CurrentUser() user: JwtPayload,

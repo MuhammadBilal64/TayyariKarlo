@@ -5,7 +5,12 @@ import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { InlineStatus } from '../../../shared/ui/InlineStatus';
 import { useAuth } from '../../auth/hooks/useAuth';
-import { answerInterview, getInterview } from '../api/interviewsApi';
+import { VoiceRoom } from '../components/VoiceRoom';
+import {
+  answerInterview,
+  continueInterview,
+  getInterview,
+} from '../api/interviewsApi';
 
 export function InterviewSessionPage() {
   const { sessionId = '' } = useParams();
@@ -63,20 +68,22 @@ export function InterviewSessionPage() {
     [session],
   );
 
-  const answeredCount = useMemo(
-    () => session?.turns.filter((turn) => turn.answerText !== null).length ?? 0,
-    [session],
-  );
-
-  const progressPercent = session
-    ? Math.min(
+  const topic = useMemo(() => {
+    if (!session || !openTurn) return { label: '', percent: 0 };
+    const mainsAnswered = session.turns.filter(
+      (turn) => turn.kind !== 'follow_up' && turn.answerText !== null,
+    ).length;
+    const current =
+      openTurn.kind === 'follow_up' ? mainsAnswered : mainsAnswered + 1;
+    const bounded = Math.min(Math.max(current, 1), session.questionCount);
+    return {
+      label: `Topic ${bounded} of ${session.questionCount}`,
+      percent: Math.min(
         100,
-        Math.round(
-          ((answeredCount + (openTurn ? 0.35 : 0)) / session.questionCount) *
-            100,
-        ),
-      )
-    : 0;
+        Math.round(((bounded - 0.65) / session.questionCount) * 100),
+      ),
+    };
+  }, [openTurn, session]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,20 +107,48 @@ export function InterviewSessionPage() {
         { answer: trimmed },
         accessToken,
       );
-      setAnswer('');
-      if (next.status === 'completed') {
-        navigate(`/app/interviews/${sessionId}/results`, { replace: true });
-        return;
-      }
-      setSession(next);
+      applySession(next);
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : 'Unable to submit that response',
-      );
+      const recovered = openTurn
+        ? await recoverAfterAnswer(openTurn.id)
+        : false;
+      if (!recovered) {
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : 'Unable to submit that response',
+        );
+      }
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  function applySession(next: InterviewSession) {
+    setAnswer('');
+    if (next.status === 'completed') {
+      navigate(`/app/interviews/${sessionId}/results`, { replace: true });
+      return;
+    }
+    setSession(next);
+  }
+
+  async function recoverAfterAnswer(previousOpenId: string) {
+    if (!accessToken || !sessionId) return false;
+    try {
+      const fresh = await getInterview(sessionId, accessToken);
+      const open = fresh.turns.find((turn) => turn.answerText === null);
+      if (fresh.status === 'completed' || !open || open.id !== previousOpenId) {
+        const resumed =
+          fresh.status === 'completed' || open
+            ? fresh
+            : await continueInterview(sessionId, accessToken);
+        applySession(resumed);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
   }
 
@@ -154,8 +189,8 @@ export function InterviewSessionPage() {
   }
 
   const priorTurns = session.turns.filter((turn) => turn.answerText !== null);
-  const roundNumber = openTurn.orderIndex + 1;
   const isMock = session.provider === 'mock' || session.provider === 'none';
+  const spoken = session.provider === 'ollama';
 
   return (
     <section>
@@ -175,7 +210,7 @@ export function InterviewSessionPage() {
       </div>
       <div className="mb-2.5 flex items-center justify-between gap-3">
         <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
-          Round {roundNumber} of {session.questionCount} · {session.role}
+          {topic.label} · {session.role}
         </p>
         {isMock ? (
           <span className="rounded-[6px] border border-line bg-paper-lift px-2 py-0.5 text-[0.68rem] font-semibold tracking-[0.04em] text-ink-soft uppercase">
@@ -189,7 +224,7 @@ export function InterviewSessionPage() {
       >
         <span
           className="ui-progress block h-full bg-signal"
-          style={{ width: `${progressPercent}%` }}
+          style={{ width: `${topic.percent}%` }}
         />
       </div>
 
@@ -197,16 +232,12 @@ export function InterviewSessionPage() {
         <details className="mb-5 border-y border-line py-3">
           <summary className="cursor-pointer text-sm font-semibold text-ink-soft">
             Earlier answers ({priorTurns.length})
-            {priorTurns.at(-1)?.score !== null &&
-            priorTurns.at(-1)?.score !== undefined
-              ? ` · last ${priorTurns.at(-1)!.score}/100`
-              : ''}
           </summary>
           <div className="mt-3 grid gap-4">
             {priorTurns.map((turn) => (
               <article key={turn.id}>
                 <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
-                  Question {turn.orderIndex + 1}
+                  {turn.kind === 'follow_up' ? 'Follow-up' : 'Topic'}
                 </p>
                 <h2 className="font-display mt-2 m-0 text-[clamp(1.15rem,2.5vw,1.35rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
                   {turn.questionText}
@@ -217,11 +248,6 @@ export function InterviewSessionPage() {
                 {turn.feedback ? (
                   <div className="mt-3 border-l-[3px] border-signal bg-signal-soft px-3.5 py-3 text-[0.85rem] leading-relaxed text-ink">
                     {turn.feedback}
-                    {turn.score !== null ? (
-                      <p className="mt-2 m-0 text-[0.8rem] font-semibold text-signal-hover">
-                        {turn.score} / 100
-                      </p>
-                    ) : null}
                   </div>
                 ) : null}
               </article>
@@ -230,49 +256,70 @@ export function InterviewSessionPage() {
         </details>
       ) : null}
 
-      <article className="border-y border-line py-4">
-        <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
-          Question
-        </p>
-        <h2 className="font-display mt-2 m-0 text-[clamp(1.35rem,3vw,1.55rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
-          {openTurn.questionText}
-        </h2>
-      </article>
+      {spoken && accessToken ? (
+        <VoiceRoom
+          session={session}
+          openTurn={openTurn}
+          accessToken={accessToken}
+          onSession={setSession}
+          onCompleted={() =>
+            navigate(`/app/interviews/${sessionId}/results`, { replace: true })
+          }
+        />
+      ) : null}
 
-      <form className="mt-6" onSubmit={onSubmit}>
-        {error ? (
-          <p className="mb-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-            {error}
+      {spoken ? null : (
+        <article className="border-y border-line py-4">
+          <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
+            Question
           </p>
-        ) : null}
-        <label className="block">
-          <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-            Your response
-          </span>
-          <textarea
-            value={answer}
-            onChange={(event) => setAnswer(event.target.value)}
-            rows={6}
-            disabled={submitting}
-            placeholder="Approach → trade-offs → a concrete example…"
-            className="w-full cursor-text resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] disabled:cursor-not-allowed disabled:opacity-70"
-          />
-        </label>
-        {submitting ? (
-          <p className="mt-3 m-0 text-sm text-mute italic" role="status">
-            Scoring your response…
-          </p>
-        ) : null}
-        <div className="mt-5">
-          <Button
-            type="submit"
-            className="w-full max-w-64"
-            disabled={submitting}
-          >
-            {submitting ? 'Submitting…' : 'Submit response'}
-          </Button>
-        </div>
-      </form>
+          <h2 className="font-display mt-2 m-0 text-[clamp(1.35rem,3vw,1.55rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
+            {openTurn.questionText}
+          </h2>
+        </article>
+      )}
+
+      {spoken ? null : (
+        <form className="mt-6" onSubmit={onSubmit}>
+          {error ? (
+            <p className="mb-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
+              {error}
+            </p>
+          ) : null}
+          <label className="block">
+            <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
+              Your response
+            </span>
+            <textarea
+              value={answer}
+              onChange={(event) => setAnswer(event.target.value)}
+              rows={6}
+              disabled={submitting}
+              placeholder="Approach → trade-offs → a concrete example…"
+              className="w-full cursor-text resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] disabled:cursor-not-allowed disabled:opacity-70"
+            />
+          </label>
+          {submitting ? (
+            <p className="mt-3 m-0 text-sm text-mute italic" role="status">
+              Scoring your response…
+            </p>
+          ) : null}
+          <div className="mt-5">
+            <Button
+              type="submit"
+              className="w-full max-w-64"
+              disabled={submitting}
+            >
+              {submitting ? 'Submitting…' : 'Submit response'}
+            </Button>
+          </div>
+          {isMock ? (
+            <p className="mt-4 mb-0 text-[0.85rem] leading-relaxed text-mute">
+              Voice needs the local model. This round is typed practice.
+            </p>
+          ) : null}
+        </form>
+      )}
     </section>
   );
 }

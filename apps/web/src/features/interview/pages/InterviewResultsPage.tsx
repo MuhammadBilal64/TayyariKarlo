@@ -126,10 +126,16 @@ export function InterviewResultsPage() {
         Question by question
       </h2>
       <div className="mt-3 border-t border-line">
-        {reviewed.map((turn) => (
+        {reviewed.map((turn, index) => (
           <article key={turn.id} className="border-b border-line py-5">
             <p className="m-0 text-[0.75rem] font-semibold tracking-[0.1em] text-mute uppercase">
-              Question {turn.orderIndex + 1}
+              {turn.kind === 'follow_up'
+                ? 'Follow-up'
+                : `Topic ${
+                    reviewed
+                      .slice(0, index + 1)
+                      .filter((item) => item.kind !== 'follow_up').length
+                  }`}
             </p>
             <h3 className="font-display mt-2 m-0 text-[1.15rem] leading-snug font-normal text-ink">
               {turn.questionText}
@@ -144,6 +150,7 @@ export function InterviewResultsPage() {
                 {turn.feedback}
               </p>
             ) : null}
+            {turn.rubric ? <RubricBars rubric={turn.rubric} /> : null}
             {turn.score !== null ? (
               <p className="mt-2 m-0 text-[0.82rem] font-semibold text-signal-hover">
                 {turn.score} / 100
@@ -153,5 +160,37 @@ export function InterviewResultsPage() {
         ))}
       </div>
     </section>
+  );
+}
+
+const RUBRIC_LABELS = [
+  ['correctness', 'Correctness'],
+  ['depth', 'Depth'],
+  ['tradeoffs', 'Trade-offs'],
+  ['clarity', 'Clarity'],
+] as const;
+
+function RubricBars({
+  rubric,
+}: {
+  rubric: NonNullable<InterviewSession['turns'][number]['rubric']>;
+}) {
+  return (
+    <ul className="mt-3 grid gap-2">
+      {RUBRIC_LABELS.map(([key, label]) => (
+        <li key={key}>
+          <div className="mb-1 flex justify-between text-[0.75rem] text-ink-soft">
+            <span>{label}</span>
+            <span>{rubric[key]}</span>
+          </div>
+          <div className="h-[3px] overflow-hidden rounded-full bg-line">
+            <span
+              className="block h-full bg-signal"
+              style={{ width: `${rubric[key]}%` }}
+            />
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }

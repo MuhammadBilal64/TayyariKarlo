@@ -20,9 +20,15 @@ type RequestOptions = Omit<RequestInit, 'body'> & {
   accessToken?: string | null;
   /** Defaults to 60s when `signal` is not provided (Render free cold starts). */
   timeoutMs?: number;
+  contentType?: string;
+  responseType?: 'json' | 'blob';
   /** Internal: avoid infinite 401 refresh loops. */
   _authRetried?: boolean;
 };
+
+function isBinaryBody(body: unknown): body is Blob | ArrayBuffer {
+  return body instanceof Blob || body instanceof ArrayBuffer;
+}
 
 /** Free Render can take 30–60s to wake; keep auth/API usable after idle. */
 const DEFAULT_TIMEOUT_MS = 60_000;
@@ -57,19 +63,27 @@ export async function apiRequest<T>(
     headers,
     signal,
     timeoutMs,
+    contentType,
+    responseType,
     _authRetried,
     ...init
   } = options;
+  const binary = isBinaryBody(body);
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
     credentials: 'include',
     signal: signal ?? AbortSignal.timeout(timeoutMs ?? DEFAULT_TIMEOUT_MS),
     headers: {
-      ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...(body !== undefined && !binary
+        ? { 'Content-Type': 'application/json' }
+        : {}),
+      ...(binary
+        ? { 'Content-Type': contentType ?? 'application/octet-stream' }
+        : {}),
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...headers,
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: body === undefined ? undefined : binary ? body : JSON.stringify(body),
   });
 
   if (
@@ -90,6 +104,18 @@ export async function apiRequest<T>(
 
   if (response.status === 204) {
     return undefined as T;
+  }
+
+  if (responseType === 'blob') {
+    if (!response.ok) {
+      const data: unknown = await response.json().catch(() => null);
+      const payload = data as { message?: string | string[] } | null;
+      throw new ApiError(
+        response.status,
+        payload?.message ?? `Request failed with status ${response.status}`,
+      );
+    }
+    return (await response.blob()) as T;
   }
 
   const data: unknown = await response.json().catch(() => null);

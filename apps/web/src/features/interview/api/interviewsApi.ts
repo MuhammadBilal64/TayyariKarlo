@@ -6,7 +6,8 @@ import type {
 } from '@tayyari/shared';
 import { apiRequest } from '../../../shared/api/client';
 
-const LLM_TIMEOUT_MS = 90_000;
+const LLM_TIMEOUT_MS = 120_000;
+const VOICE_TIMEOUT_MS = 180_000;
 
 export function createInterview(
   input: StartInterviewInput,
@@ -31,6 +32,44 @@ export function getInterview(sessionId: string, accessToken: string) {
   return apiRequest<InterviewSession>(`/interviews/${sessionId}`, {
     method: 'GET',
     accessToken,
+  });
+}
+
+export function continueInterview(sessionId: string, accessToken: string) {
+  return apiRequest<InterviewSession>(`/interviews/${sessionId}/continue`, {
+    method: 'POST',
+    accessToken,
+    timeoutMs: VOICE_TIMEOUT_MS,
+  });
+}
+
+export function transcribeInterview(
+  sessionId: string,
+  audio: Blob,
+  accessToken: string,
+) {
+  return apiRequest<{ transcript: string }>(
+    `/interviews/${sessionId}/transcribe`,
+    {
+      method: 'POST',
+      body: audio,
+      contentType: 'audio/wav',
+      accessToken,
+      timeoutMs: VOICE_TIMEOUT_MS,
+    },
+  );
+}
+
+export function getTurnAudio(
+  sessionId: string,
+  turnId: string,
+  accessToken: string,
+) {
+  return apiRequest<Blob>(`/interviews/${sessionId}/turns/${turnId}/audio`, {
+    method: 'GET',
+    accessToken,
+    responseType: 'blob',
+    timeoutMs: VOICE_TIMEOUT_MS,
   });
 }
 
