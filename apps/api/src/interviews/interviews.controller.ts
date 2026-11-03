@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   StreamableFile,
   UseGuards,
@@ -73,8 +74,14 @@ export class InterviewsController {
     @CurrentUser() user: JwtPayload,
     @Param('id') id: string,
     @Param('turnId') turnId: string,
+    @Query('part') part?: string,
   ) {
-    const wav = await this.interviewsService.turnAudio(user.sub, id, turnId);
+    const wav = await this.interviewsService.turnAudio(
+      user.sub,
+      id,
+      turnId,
+      part === 'feedback' ? 'feedback' : 'question',
+    );
     return new StreamableFile(wav, {
       type: 'audio/wav',
       disposition: 'inline',

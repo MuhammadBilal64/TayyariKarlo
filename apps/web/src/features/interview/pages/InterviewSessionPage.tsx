@@ -1,5 +1,5 @@
 import type { InterviewSession } from '@tayyari/shared';
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
@@ -21,6 +21,12 @@ export function InterviewSessionPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(120);
+  const answerRef = useRef('');
+  const submitTextRef = useRef<(text: string) => Promise<void>>(
+    async () => undefined,
+  );
+  answerRef.current = answer;
 
   useEffect(() => {
     let cancelled = false;
@@ -85,6 +91,24 @@ export function InterviewSessionPage() {
     };
   }, [openTurn, session]);
 
+  useEffect(() => {
+    if (!openTurn || session?.provider === 'ollama') return;
+    setSecondsLeft(120);
+    const timer = window.setInterval(() => {
+      setSecondsLeft((current) => (current <= 1 ? 0 : current - 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [openTurn?.id, session?.provider]);
+
+  useEffect(() => {
+    if (secondsLeft !== 0 || !openTurn || session?.provider === 'ollama') {
+      return;
+    }
+    const text = answerRef.current.trim();
+    if (!text) return;
+    void submitTextRef.current(text);
+  }, [openTurn, secondsLeft, session?.provider]);
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -99,7 +123,12 @@ export function InterviewSessionPage() {
       setError('Write a response before submitting');
       return;
     }
+    await submitText(trimmed);
+  }
 
+  async function submitText(trimmed: string) {
+    if (!accessToken || !sessionId || submitting) return;
+    setError(null);
     setSubmitting(true);
     try {
       const next = await answerInterview(
@@ -123,6 +152,7 @@ export function InterviewSessionPage() {
       setSubmitting(false);
     }
   }
+  submitTextRef.current = submitText;
 
   function applySession(next: InterviewSession) {
     setAnswer('');
@@ -270,9 +300,17 @@ export function InterviewSessionPage() {
 
       {spoken ? null : (
         <article className="border-y border-line py-4">
-          <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
-            Question
-          </p>
+          <div className="flex items-start justify-between gap-4">
+            <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
+              Question
+            </p>
+            <p
+              className={`font-display m-0 text-[1.8rem] leading-none tracking-[-0.04em] ${secondsLeft <= 15 ? 'text-danger' : 'text-ink'}`}
+              aria-live="polite"
+            >
+              {formatClock(secondsLeft)}
+            </p>
+          </div>
           <h2 className="font-display mt-2 m-0 text-[clamp(1.35rem,3vw,1.55rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
             {openTurn.questionText}
           </h2>
@@ -301,7 +339,7 @@ export function InterviewSessionPage() {
           </label>
           {submitting ? (
             <p className="mt-3 m-0 text-sm text-mute italic" role="status">
-              Scoring your response…
+              Interpreting your answer…
             </p>
           ) : null}
           <div className="mt-5">
@@ -315,11 +353,19 @@ export function InterviewSessionPage() {
           </div>
           {isMock ? (
             <p className="mt-4 mb-0 text-[0.85rem] leading-relaxed text-mute">
-              Voice needs the local model. This round is typed practice.
+              Voice needs the local model. This round is typed practice, with
+              the same two minutes and a scripted judge.
             </p>
           ) : null}
         </form>
       )}
     </section>
   );
+}
+
+function formatClock(seconds: number): string {
+  const safe = Math.max(0, seconds);
+  const minutes = Math.floor(safe / 60);
+  const remain = safe % 60;
+  return `${minutes}:${remain.toString().padStart(2, '0')}`;
 }

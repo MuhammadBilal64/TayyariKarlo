@@ -89,8 +89,9 @@ export function InterviewSetupPage() {
         State the role
       </h1>
       <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-soft">
-        One seat. Your stack. Five questions—written feedback after each answer.
-        No timer. No answer key until you submit.
+        One seat. Your stack. Five questions, two minutes each. The interviewer
+        listens, interprets the answer, and tells you how it landed before the
+        next question.
       </p>
 
       <form className="mt-8" onSubmit={onSubmit}>

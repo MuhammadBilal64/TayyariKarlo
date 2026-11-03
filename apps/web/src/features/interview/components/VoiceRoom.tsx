@@ -11,14 +11,10 @@ import {
 } from '../api/interviewsApi';
 import { useWavRecorder } from '../audio/useWavRecorder';
 
-type PresenceState = 'idle' | 'speaking' | 'listening' | 'thinking';
+const ANSWER_SECONDS = 120;
 
-const STATE_LABEL: Record<PresenceState, string> = {
-  idle: 'Ready',
-  speaking: 'Speaking',
-  listening: 'Listening',
-  thinking: 'Thinking',
-};
+type Phase = 'asking' | 'answering' | 'thinking' | 'revise' | 'reviewing';
+type Playback = 'question' | 'feedback';
 
 type VoiceRoomProps = {
   session: InterviewSession;
@@ -37,43 +33,76 @@ export function VoiceRoom({
 }: VoiceRoomProps) {
   const audio = useRef<HTMLAudioElement | null>(null);
   const objectUrl = useRef<string | null>(null);
-  const [presence, setPresence] = useState<PresenceState>('idle');
+  const playback = useRef<Playback>('question');
+  const phaseRef = useRef<Phase>('asking');
+  const finishing = useRef(false);
+  const transcriptRef = useRef('');
+  const [phase, setPhase] = useState<Phase>('asking');
+  const [secondsLeft, setSecondsLeft] = useState(ANSWER_SECONDS);
   const [transcript, setTranscript] = useState('');
-  const [typing, setTyping] = useState(false);
+  const [review, setReview] = useState<InterviewTurn | null>(null);
+  const [pending, setPending] = useState<InterviewSession | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
   const recorder = useWavRecorder();
-  const transcribeRef = useRef<(blob: Blob | null) => Promise<void>>(
+  const finishRef = useRef<(blob: Blob | null) => Promise<void>>(
     async () => undefined,
   );
+
+  function movePhase(next: Phase) {
+    phaseRef.current = next;
+    setPhase(next);
+  }
 
   useEffect(() => {
     const element = new Audio();
     audio.current = element;
-    element.onended = () => setPresence('idle');
-    element.onplay = () => setPresence('speaking');
+    element.onended = () => {
+      if (playback.current === 'question' && phaseRef.current === 'asking') {
+        void beginAnswer();
+      }
+    };
     return () => {
       element.pause();
       element.src = '';
     };
+    // beginAnswer is stable via refs for the playback that is current.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     recorder.bindAutoStop((blob) => {
-      void transcribeRef.current(blob);
+      void finishRef.current(blob);
     });
   }, [recorder, recorder.bindAutoStop]);
 
   useEffect(() => {
+    if (phase !== 'answering') return;
+    const timer = window.setInterval(() => {
+      setSecondsLeft((current) => {
+        if (current <= 1) {
+          window.clearInterval(timer);
+          void finishRef.current(null);
+          return 0;
+        }
+        return current - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [phase]);
+
+  useEffect(() => {
     let cancelled = false;
     setTranscript('');
-    setTyping(false);
+    transcriptRef.current = '';
+    setReview(null);
+    setPending(null);
     setError(null);
+    finishing.current = false;
+    movePhase('asking');
+    setSecondsLeft(ANSWER_SECONDS);
     void (async () => {
-      if (cancelled) return;
-      await playQuestion();
+      if (!cancelled) await play('question', openTurn.id);
     })();
-
     return () => {
       cancelled = true;
       if (objectUrl.current) {
@@ -81,143 +110,191 @@ export function VoiceRoom({
         objectUrl.current = null;
       }
     };
-    // The spoken line reloads only when the open turn changes.
+    // A new question starts its own two minutes after it is spoken.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openTurn.id]);
 
-  async function playQuestion() {
+  async function play(part: Playback, turnId: string) {
     const element = audio.current;
     if (!element) return;
-    setPresence('speaking');
+    playback.current = part;
     try {
-      const blob = await getTurnAudio(session.id, openTurn.id, accessToken);
+      const blob = await getTurnAudio(session.id, turnId, accessToken, part);
       if (objectUrl.current) URL.revokeObjectURL(objectUrl.current);
       const url = URL.createObjectURL(blob);
       objectUrl.current = url;
       element.src = url;
       await element.play();
     } catch {
-      setPresence('idle');
-    }
-  }
-
-  async function transcribeBlob(blob: Blob | null) {
-    setPresence('thinking');
-    setBusy(true);
-    setError(null);
-    try {
-      if (!blob) {
-        setError('No speech was heard. Record again or type your answer.');
-        setPresence('idle');
-        return;
+      if (part === 'question' && phaseRef.current === 'asking') {
+        await beginAnswer();
       }
-      const heard = await transcribeInterview(session.id, blob, accessToken);
-      setTranscript(heard.transcript);
-      setPresence('idle');
-    } catch (err) {
-      setError(messageFrom(err, 'Unable to transcribe that recording'));
-      setPresence('idle');
-    } finally {
-      setBusy(false);
     }
   }
-  transcribeRef.current = transcribeBlob;
 
-  async function onRecord() {
-    audio.current?.pause();
-    setPresence('listening');
+  async function beginAnswer() {
+    if (phaseRef.current !== 'asking') return;
+    movePhase('answering');
+    setSecondsLeft(ANSWER_SECONDS);
     setError(null);
     const result = await recorder.start();
-    if (result !== 'ok') setPresence('idle');
+    if (result !== 'ok') {
+      setError(
+        'Microphone access was denied. Type your answer. The two minutes still run.',
+      );
+    }
   }
 
-  async function onStop() {
-    await transcribeBlob(await recorder.stop());
-  }
-
-  async function onSend() {
-    const trimmed = transcript.trim();
-    if (!trimmed) {
-      setError('Edit the transcript, or record again, before sending.');
+  async function finishAnswer(autoBlob: Blob | null) {
+    if (finishing.current || phaseRef.current === 'reviewing') return;
+    if (phaseRef.current !== 'answering' && phaseRef.current !== 'thinking') {
       return;
     }
-    setBusy(true);
+    finishing.current = true;
+    movePhase('thinking');
     setError(null);
-    setPresence('thinking');
+    try {
+      const blob =
+        autoBlob ?? (recorder.recording ? await recorder.stop() : null);
+      let text = transcriptRef.current.trim();
+      if (!text && blob) {
+        const heard = await transcribeInterview(session.id, blob, accessToken);
+        text = heard.transcript.trim();
+        setTranscript(text);
+        transcriptRef.current = text;
+      }
+      if (!text) {
+        finishing.current = false;
+        movePhase('revise');
+        setError(
+          'No speech was heard. Type what you meant and send it. This question is still open.',
+        );
+        return;
+      }
+      await submit(text);
+    } catch (err) {
+      finishing.current = false;
+      movePhase('revise');
+      setError(messageFrom(err, 'Unable to interpret that answer'));
+    }
+  }
+  finishRef.current = finishAnswer;
+
+  async function submit(text: string) {
+    movePhase('thinking');
+    finishing.current = true;
     try {
       const next = await answerInterview(
         session.id,
-        { answer: trimmed },
+        { answer: text },
         accessToken,
       );
-      accept(next);
+      holdReview(next);
     } catch (err) {
       const recovered = await recover(openTurn.id);
       if (!recovered) {
-        setError(messageFrom(err, 'Unable to submit that answer'));
-        setPresence('idle');
+        finishing.current = false;
+        movePhase('revise');
+        setError(messageFrom(err, 'Unable to interpret that answer'));
       }
-    } finally {
-      setBusy(false);
     }
   }
 
-  function accept(next: InterviewSession) {
-    setTranscript('');
-    if (next.status === 'completed') {
-      onCompleted();
-      return;
+  function holdReview(next: InterviewSession) {
+    const judged =
+      next.turns.find((turn) => turn.id === openTurn.id) ??
+      [...next.turns].reverse().find((turn) => turn.answerText) ??
+      null;
+    setReview(judged);
+    setPending(next);
+    movePhase('reviewing');
+    if (judged?.feedback) {
+      void play('feedback', judged.id);
     }
-    onSession(next);
-    setPresence('idle');
   }
 
   async function recover(previousOpenId: string): Promise<boolean> {
     try {
       const fresh = await getInterview(session.id, accessToken);
       const open = fresh.turns.find((turn) => turn.answerText === null);
-      if (fresh.status === 'completed') {
-        onCompleted();
+      if (fresh.status === 'completed' || !open || open.id !== previousOpenId) {
+        const resumed =
+          fresh.status === 'completed' || open
+            ? fresh
+            : await continueInterview(session.id, accessToken);
+        holdReview(resumed);
         return true;
       }
-      if (open && open.id === previousOpenId) return false;
-      const resumed = open
-        ? fresh
-        : await continueInterview(session.id, accessToken);
-      accept(resumed);
-      return true;
+      return false;
     } catch {
       return false;
     }
   }
 
-  const stateLabel = recorder.recording ? 'Listening' : STATE_LABEL[presence];
-  const shownState: PresenceState = recorder.recording ? 'listening' : presence;
+  function continueRound() {
+    if (!pending) return;
+    if (pending.status === 'completed') {
+      onCompleted();
+      return;
+    }
+    onSession(pending);
+  }
+
+  const presence =
+    phase === 'thinking'
+      ? 'thinking'
+      : phase === 'answering' && recorder.recording
+        ? 'listening'
+        : phase === 'asking'
+          ? 'speaking'
+          : 'idle';
+  const label =
+    phase === 'answering'
+      ? 'Listening'
+      : phase === 'thinking'
+        ? 'Interpreting'
+        : phase === 'reviewing'
+          ? 'Feedback'
+          : 'Speaking';
+  const urgent = phase === 'answering' && secondsLeft <= 15;
 
   return (
     <div className="ui-enter">
-      <div className="stage grid justify-items-center text-center">
+      <div className="grid justify-items-center text-center">
         <div
           className="presence relative h-[9.5rem] w-[9.5rem]"
-          data-state={shownState}
+          data-state={presence}
           aria-hidden="true"
         >
           <span className="presence-ring" />
           <span className="presence-disc" />
         </div>
         <p className="mt-4 mb-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
-          {stateLabel}
+          {label}
         </p>
+        {phase === 'answering' ||
+        (phase === 'thinking' && secondsLeft === 0) ? (
+          <p
+            className={`font-display mt-2 mb-0 text-[3.2rem] leading-none tracking-[-0.04em] ${urgent ? 'text-danger' : 'text-ink'}`}
+            aria-live="polite"
+          >
+            {formatClock(secondsLeft)}
+          </p>
+        ) : null}
         <h2 className="font-display mt-3 mb-0 max-w-xl text-[clamp(1.7rem,4vw,2.35rem)] leading-[1.15] font-normal tracking-[-0.03em] text-ink">
-          {openTurn.questionText}
+          {phase === 'reviewing' && review
+            ? review.questionText
+            : openTurn.questionText}
         </h2>
-        <button
-          type="button"
-          className="mt-3 border-0 bg-transparent text-[0.85rem] font-semibold text-signal"
-          onClick={() => void playQuestion()}
-        >
-          Replay
-        </button>
+        {phase === 'asking' ? (
+          <button
+            type="button"
+            className="mt-3 border-0 bg-transparent text-[0.85rem] font-semibold text-signal"
+            onClick={() => void play('question', openTurn.id)}
+          >
+            Replay question
+          </button>
+        ) : null}
       </div>
 
       <div className="mt-8 border-t border-line pt-5 text-left">
@@ -226,62 +303,149 @@ export function VoiceRoom({
             {error ?? recorder.micError}
           </p>
         ) : null}
-        <label className="block">
-          <span className="mb-1.5 block text-[0.8rem] font-semibold text-ink-soft">
-            What I heard — edit before sending
-          </span>
-          <textarea
-            value={transcript}
-            onChange={(event) => setTranscript(event.target.value)}
-            rows={5}
-            disabled={busy || recorder.recording}
-            placeholder={
-              typing
-                ? 'Type the answer you want judged…'
-                : 'Record, then correct the transcript before it is scored.'
-            }
-            className="w-full cursor-text resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] disabled:cursor-not-allowed disabled:opacity-70"
+
+        {phase === 'reviewing' && review ? (
+          <Review
+            turn={review}
+            last={pending?.status === 'completed'}
+            onContinue={continueRound}
+            onReplay={() => review.id && void play('feedback', review.id)}
           />
-        </label>
-        <div className="mt-3 flex flex-wrap gap-2.5">
-          <Button
-            className="min-w-40"
-            disabled={busy || recorder.recording || !transcript.trim()}
-            onClick={() => void onSend()}
-          >
-            {busy && presence === 'thinking' ? 'Sending…' : 'Send this answer'}
-          </Button>
-          {recorder.recording ? (
-            <Button
-              variant="ghost"
-              disabled={busy}
-              onClick={() => void onStop()}
-            >
-              Stop and transcribe
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              disabled={busy}
-              onClick={() => void onRecord()}
-            >
-              {transcript ? 'Record again' : 'Record'}
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            disabled={busy || recorder.recording}
-            onClick={() => setTyping(true)}
-          >
-            Type instead
-          </Button>
-        </div>
-        <p className="mt-3 mb-0 text-[0.8rem] text-mute">
-          Scores stay hidden until the round ends. One follow-up at most.
-        </p>
+        ) : (
+          <>
+            <label className="block">
+              <span className="mb-1.5 block text-[0.8rem] font-semibold text-ink-soft">
+                {phase === 'answering'
+                  ? 'Two minutes. Speak your answer, or type it.'
+                  : phase === 'thinking'
+                    ? 'Interpreting what you said…'
+                    : 'The two minutes start when the question finishes.'}
+              </span>
+              <textarea
+                value={transcript}
+                onChange={(event) => {
+                  transcriptRef.current = event.target.value;
+                  setTranscript(event.target.value);
+                }}
+                rows={5}
+                disabled={phase === 'thinking' || phase === 'asking'}
+                placeholder="Your words show up here after you speak. You can correct them before the clock ends."
+                className="w-full cursor-text resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] disabled:cursor-not-allowed disabled:opacity-70"
+              />
+            </label>
+            <div className="mt-3 flex flex-wrap gap-2.5">
+              {phase === 'asking' ? (
+                <Button onClick={() => void beginAnswer()}>
+                  Start my two minutes
+                </Button>
+              ) : null}
+              {phase === 'answering' ? (
+                <Button
+                  disabled={!transcript.trim() && !recorder.recording}
+                  onClick={() => void finishAnswer(null)}
+                >
+                  Done speaking
+                </Button>
+              ) : null}
+              {phase === 'revise' ? (
+                <Button
+                  disabled={!transcript.trim()}
+                  onClick={() => void submit(transcript.trim())}
+                >
+                  Send this answer
+                </Button>
+              ) : null}
+              {phase === 'thinking' ? (
+                <Button disabled>Interpreting…</Button>
+              ) : null}
+            </div>
+            <p className="mt-3 mb-0 text-[0.8rem] text-mute">
+              Five questions. The interviewer rates this answer, explains it,
+              then asks the next one.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
+}
+
+function Review({
+  turn,
+  last,
+  onContinue,
+  onReplay,
+}: {
+  turn: InterviewTurn;
+  last: boolean;
+  onContinue: () => void;
+  onReplay: () => void;
+}) {
+  return (
+    <div>
+      <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
+        How that answer landed
+      </p>
+      {turn.score !== null ? (
+        <p className="font-display mt-2 mb-0 text-[3rem] leading-none tracking-[-0.04em] text-ink">
+          {turn.score}
+          <span className="text-[0.45em] text-mute">/100</span>
+        </p>
+      ) : null}
+      {turn.feedback ? (
+        <p className="mt-3 mb-0 max-w-xl text-[0.98rem] leading-relaxed text-ink">
+          {turn.feedback}
+        </p>
+      ) : null}
+      {turn.rubric ? (
+        <ul className="mt-4 grid max-w-md gap-2">
+          {(
+            [
+              ['correctness', 'Correctness'],
+              ['depth', 'Depth'],
+              ['tradeoffs', 'Trade-offs'],
+              ['clarity', 'Clarity'],
+            ] as const
+          ).map(([key, name]) => (
+            <li key={key}>
+              <div className="mb-1 flex justify-between text-[0.75rem] text-ink-soft">
+                <span>{name}</span>
+                <span>{turn.rubric?.[key]}</span>
+              </div>
+              <div className="h-[3px] overflow-hidden rounded-full bg-line">
+                <span
+                  className="block h-full bg-signal"
+                  style={{ width: `${turn.rubric?.[key] ?? 0}%` }}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {turn.answerText ? (
+        <p className="mt-4 mb-0 text-[0.88rem] leading-relaxed text-ink-soft">
+          {turn.answerText}
+        </p>
+      ) : null}
+      <div className="mt-5 flex flex-wrap gap-2.5">
+        <Button onClick={onContinue}>
+          {last ? 'See the full round' : 'Next question'}
+        </Button>
+        {turn.feedback ? (
+          <Button variant="ghost" onClick={onReplay}>
+            Replay feedback
+          </Button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function formatClock(seconds: number): string {
+  const safe = Math.max(0, seconds);
+  const minutes = Math.floor(safe / 60);
+  const remain = safe % 60;
+  return `${minutes}:${remain.toString().padStart(2, '0')}`;
 }
 
 function messageFrom(error: unknown, fallback: string): string {

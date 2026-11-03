@@ -64,13 +64,18 @@ export function getTurnAudio(
   sessionId: string,
   turnId: string,
   accessToken: string,
+  part: 'question' | 'feedback' = 'question',
 ) {
-  return apiRequest<Blob>(`/interviews/${sessionId}/turns/${turnId}/audio`, {
-    method: 'GET',
-    accessToken,
-    responseType: 'blob',
-    timeoutMs: VOICE_TIMEOUT_MS,
-  });
+  const query = part === 'feedback' ? '?part=feedback' : '';
+  return apiRequest<Blob>(
+    `/interviews/${sessionId}/turns/${turnId}/audio${query}`,
+    {
+      method: 'GET',
+      accessToken,
+      responseType: 'blob',
+      timeoutMs: VOICE_TIMEOUT_MS,
+    },
+  );
 }
 
 export function answerInterview(

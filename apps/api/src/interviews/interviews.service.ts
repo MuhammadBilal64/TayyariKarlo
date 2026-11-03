@@ -140,7 +140,7 @@ export class InterviewsService {
       trimmed,
     );
 
-    const saved = await this.prisma.interviewTurn.updateMany({
+    await this.prisma.interviewTurn.updateMany({
       where: { id: openTurn.id, answerText: null },
       data: {
         answerText: trimmed,
@@ -149,29 +149,6 @@ export class InterviewsService {
         rubric: evaluation.dimensions,
       },
     });
-
-    if (saved.count === 0) {
-      return this.advance(await this.findSessionForUser(userId, sessionId));
-    }
-
-    const followUp =
-      openTurn.kind !== 'follow_up' &&
-      evaluation.score < 75 &&
-      evaluation.followUp
-        ? evaluation.followUp
-        : null;
-
-    if (followUp) {
-      await this.createTurn(
-        sessionId,
-        openTurn.orderIndex + 1,
-        'follow_up',
-        followUp,
-      );
-      return this.toSessionResponse(
-        await this.findSessionForUser(userId, sessionId),
-      );
-    }
 
     return this.advance(await this.findSessionForUser(userId, sessionId));
   }
@@ -215,13 +192,18 @@ export class InterviewsService {
     userId: string,
     sessionId: string,
     turnId: string,
+    part: 'question' | 'feedback' = 'question',
   ): Promise<Buffer> {
     const session = await this.findSessionForUser(userId, sessionId);
     const turn = session.turns.find((item) => item.id === turnId);
     if (!turn) {
       throw new NotFoundException('Interview turn not found');
     }
-    return this.speech.synthesize(turn.questionText);
+    const text = part === 'feedback' ? turn.feedback : turn.questionText;
+    if (!text?.trim()) {
+      throw new NotFoundException('Nothing to speak for this turn');
+    }
+    return this.speech.synthesize(text);
   }
 
   async continue(userId: string, sessionId: string): Promise<InterviewSession> {
@@ -353,25 +335,20 @@ export class InterviewsService {
       overallScore: session.overallScore,
       startedAt: session.startedAt.toISOString(),
       completedAt: session.completedAt?.toISOString() ?? null,
-      turns: session.turns.map((turn) =>
-        this.toTurnResponse(turn, session.status === 'in_progress'),
-      ),
+      turns: session.turns.map((turn) => this.toTurnResponse(turn)),
     };
   }
 
-  private toTurnResponse(
-    turn: PrismaInterviewTurn,
-    hideScores: boolean,
-  ): InterviewTurn {
+  private toTurnResponse(turn: PrismaInterviewTurn): InterviewTurn {
     return {
       id: turn.id,
       orderIndex: turn.orderIndex,
       kind: turn.kind === 'follow_up' ? 'follow_up' : 'main',
       questionText: turn.questionText,
       answerText: turn.answerText,
-      feedback: hideScores ? null : turn.feedback,
-      score: hideScores ? null : turn.score,
-      rubric: hideScores ? null : this.asRubric(turn.rubric),
+      feedback: turn.feedback,
+      score: turn.score,
+      rubric: this.asRubric(turn.rubric),
     };
   }
 

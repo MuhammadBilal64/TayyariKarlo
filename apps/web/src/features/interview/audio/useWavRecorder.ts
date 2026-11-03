@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { encodeWav } from './encodeWav';
 
-const MAX_MS = 3 * 60 * 1000;
+const MAX_MS = 2 * 60 * 1000;
 
 export function useWavRecorder() {
   const [recording, setRecording] = useState(false);

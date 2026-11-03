@@ -217,8 +217,8 @@ describe('InterviewsService', () => {
     });
     expect(result.turns).toHaveLength(2);
     expect(result.status).toBe('in_progress');
-    expect(result.turns[0]?.score).toBeNull();
-    expect(result.turns[0]?.feedback).toBeNull();
+    expect(result.turns[0]?.score).toBe(75);
+    expect(result.turns[0]?.feedback).toBe('Practice feedback');
   });
 
   it('completes the session after the last answer', async () => {
@@ -282,7 +282,7 @@ describe('InterviewsService', () => {
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 
-  it('asks one follow-up on a weak main answer and does not finish the round', async () => {
+  it('rates a weak answer and still moves to the next question', async () => {
     llm.evaluateAnswer.mockResolvedValue({
       feedback: 'Thin on trade-offs',
       score: 52,
@@ -305,12 +305,23 @@ describe('InterviewsService', () => {
             feedback: 'Thin on trade-offs',
             score: 52,
           },
+        ],
+      })
+      .mockResolvedValueOnce({
+        ...baseSession,
+        turns: [
+          {
+            ...baseSession.turns[0],
+            answerText: 'I would just use a cache.',
+            feedback: 'Thin on trade-offs',
+            score: 52,
+          },
           {
             id: 'turn-2',
             sessionId: 'session-1',
             orderIndex: 1,
-            kind: 'follow_up',
-            questionText: 'Which consistency trade-off would you accept here?',
+            kind: 'main',
+            questionText: 'Practice Q2?',
             answerText: null,
             feedback: null,
             score: null,
@@ -320,6 +331,7 @@ describe('InterviewsService', () => {
           },
         ],
       });
+    llm.generateQuestion.mockResolvedValue('Practice Q2?');
 
     const result = await service.answer(
       'user-1',
@@ -331,14 +343,14 @@ describe('InterviewsService', () => {
       data: {
         sessionId: 'session-1',
         orderIndex: 1,
-        kind: 'follow_up',
-        questionText: 'Which consistency trade-off would you accept here?',
+        kind: 'main',
+        questionText: 'Practice Q2?',
       },
     });
-    expect(llm.generateQuestion).not.toHaveBeenCalled();
     expect(llm.summarize).not.toHaveBeenCalled();
-    expect(result.turns[1]?.kind).toBe('follow_up');
-    expect(result.turns[0]?.score).toBeNull();
+    expect(result.turns[0]?.score).toBe(52);
+    expect(result.turns[0]?.feedback).toBe('Thin on trade-offs');
+    expect(result.turns[1]?.kind).toBe('main');
   });
 
   it('does not ask a second follow-up', async () => {
@@ -529,8 +541,19 @@ describe('InterviewsService', () => {
     expect(speech.synthesize).not.toHaveBeenCalled();
   });
 
-  it('asks a follow-up on the last topic before the debrief', async () => {
+  it('finishes the fifth answer instead of adding another question', async () => {
     const lastOpen = { ...baseSession, questionCount: 1 };
+    const afterAnswer = {
+      ...lastOpen,
+      turns: [
+        {
+          ...lastOpen.turns[0],
+          answerText: 'Just retry it.',
+          feedback: 'Thin',
+          score: 48,
+        },
+      ],
+    };
     llm.evaluateAnswer.mockResolvedValue({
       feedback: 'Thin',
       score: 48,
@@ -544,25 +567,14 @@ describe('InterviewsService', () => {
     });
     prisma.interviewSession.findFirst
       .mockResolvedValueOnce(lastOpen)
-      .mockResolvedValueOnce({
-        ...lastOpen,
-        turns: [
-          { ...lastOpen.turns[0], answerText: 'Just retry it.', score: 48 },
-          {
-            id: 'turn-2',
-            sessionId: 'session-1',
-            orderIndex: 1,
-            kind: 'follow_up',
-            questionText: 'Which failure mode would you accept?',
-            answerText: null,
-            feedback: null,
-            score: null,
-            rubric: null,
-            createdAt: new Date('2026-11-02T10:01:00.000Z'),
-            updatedAt: new Date('2026-11-02T10:01:00.000Z'),
-          },
-        ],
-      });
+      .mockResolvedValueOnce(afterAnswer);
+    prisma.interviewSession.update.mockResolvedValue({
+      ...afterAnswer,
+      status: 'completed',
+      completedAt: new Date('2026-11-02T10:05:00.000Z'),
+      overallFeedback: 'Practice summary',
+      overallScore: 48,
+    });
 
     const result = await service.answer(
       'user-1',
@@ -570,9 +582,11 @@ describe('InterviewsService', () => {
       'Just retry it.',
     );
 
-    expect(result.status).toBe('in_progress');
-    expect(result.turns[1]?.kind).toBe('follow_up');
-    expect(llm.summarize).not.toHaveBeenCalled();
+    expect(llm.summarize).toHaveBeenCalled();
+    expect(prisma.interviewTurn.create).not.toHaveBeenCalled();
+    expect(result.status).toBe('completed');
+    expect(result.turns[0]?.score).toBe(48);
+    expect(result.turns[0]?.feedback).toBe('Thin');
   });
 
   it('does not call the model again when the question is already answered', async () => {

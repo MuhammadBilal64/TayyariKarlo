@@ -117,7 +117,7 @@ A spoken round runs only when the API is on your machine:
 2. Install whisper.cpp `small` and Piper `en_US-lessac-medium`.
 3. In `apps/api/.env`, set `LLM_PROVIDER=ollama` and the `WHISPER_*` / `PIPER_*` paths. Windows examples are in `apps/api/.env.example`.
 
-The browser records 16 kHz WAV. You can edit the transcript before it is scored. Scores stay hidden until the round ends. Missing speech binaries do not switch the judge to the scripted scorer; type the answer instead.
+The browser records 16 kHz WAV. Each question allows two minutes. The model interprets that answer, shows the score and explanation, and then asks the next of the five. Missing speech binaries do not switch the judge to the scripted scorer; type the answer instead.
 
 Phase **6** (coding challenges) is still pending.
 
