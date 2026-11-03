@@ -1,0 +1,10 @@
+---
+description: Always fix failing CI and never leave Cursor as a co-author.
+alwaysApply: true
+---
+
+# CI and commits
+
+- When a pull request has a failing CI check, fix it before stopping. Do not leave lint, typecheck, test, or build failures for the user.
+- Never add `Co-authored-by: Cursor`. If a commit hook or wrapper inserts that trailer, rewrite the commit so it is removed before push.
+- Do not claim work is done while GitHub checks on the open PR are still failing.

@@ -2962,13 +2962,15 @@ function esc(s) {
 }
 
 function emitItem(item) {
-  const opts = item.options.map((o) => `'${esc(o)}'`).join(', ');
+  const opts = item.options.map((o) => `      '${esc(o)}',`).join('\n');
   const expl = item.explanation ? `,\n    '${esc(item.explanation)}'` : '';
   return `  q(
     '${item.topic}',
     '${item.difficulty}',
     '${esc(item.prompt)}',
-    [${opts}],
+    [
+${opts}
+    ],
     ${item.correctIndex}${expl},
   )`;
 }
