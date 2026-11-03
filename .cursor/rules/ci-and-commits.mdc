@@ -1,10 +1,12 @@
 ---
-description: Always fix failing CI and never leave Cursor as a co-author.
+description: Branch, task commits, CI fixes, and no Cursor co-author.
 alwaysApply: true
 ---
 
 # CI and commits
 
+- Start each piece of work on a new branch from current `origin/main`. Do not keep coding on a merged or deleted branch.
+- One task, one commit. Do not batch unrelated tasks into a single commit.
+- Never add `Co-authored-by: Cursor`. If a wrapper inserts that trailer, rewrite the commit so it is removed before push.
 - When a pull request has a failing CI check, fix it before stopping. Do not leave lint, typecheck, test, or build failures for the user.
-- Never add `Co-authored-by: Cursor`. If a commit hook or wrapper inserts that trailer, rewrite the commit so it is removed before push.
 - Do not claim work is done while GitHub checks on the open PR are still failing.
