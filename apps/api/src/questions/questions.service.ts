@@ -87,18 +87,41 @@ export class QuestionsService {
     };
   }
 
-  async seed(): Promise<{ seeded: boolean; inserted: number; count: number }> {
+  async seed(): Promise<{
+    seeded: boolean;
+    inserted: number;
+    updated: number;
+    count: number;
+  }> {
     for (const item of QUESTION_SEED) {
       this.assertValidCorrectIndex(item.options, item.correctIndex);
     }
 
     const existing = await this.prisma.question.findMany({
-      select: { prompt: true },
+      select: {
+        id: true,
+        prompt: true,
+        options: true,
+        correctIndex: true,
+        explanation: true,
+        topic: true,
+        difficulty: true,
+      },
     });
-    const existingPrompts = new Set(existing.map((row) => row.prompt));
-    const missing = QUESTION_SEED.filter(
-      (item) => !existingPrompts.has(item.prompt),
-    );
+    const byPrompt = new Map(existing.map((row) => [row.prompt, row]));
+
+    const missing = QUESTION_SEED.filter((item) => !byPrompt.has(item.prompt));
+    const stale = QUESTION_SEED.filter((item) => {
+      const row = byPrompt.get(item.prompt);
+      if (!row) return false;
+      return (
+        row.correctIndex !== item.correctIndex ||
+        row.topic !== item.topic ||
+        row.difficulty !== item.difficulty ||
+        row.explanation !== (item.explanation ?? null) ||
+        JSON.stringify(row.options) !== JSON.stringify(item.options)
+      );
+    });
 
     if (missing.length > 0) {
       await this.prisma.question.createMany({
@@ -113,8 +136,28 @@ export class QuestionsService {
       });
     }
 
+    for (const item of stale) {
+      const row = byPrompt.get(item.prompt);
+      if (!row) continue;
+      await this.prisma.question.update({
+        where: { id: row.id },
+        data: {
+          topic: item.topic,
+          difficulty: item.difficulty,
+          options: item.options,
+          correctIndex: item.correctIndex,
+          explanation: item.explanation ?? null,
+        },
+      });
+    }
+
     const count = await this.prisma.question.count();
-    return { seeded: missing.length > 0, inserted: missing.length, count };
+    return {
+      seeded: missing.length > 0 || stale.length > 0,
+      inserted: missing.length,
+      updated: stale.length,
+      count,
+    };
   }
 
   private assertValidCorrectIndex(options: string[], correctIndex: number) {

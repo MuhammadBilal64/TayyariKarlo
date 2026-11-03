@@ -9,13 +9,13 @@ export function Field({ label, hint, id, className, ...props }: FieldProps) {
   const inputId = id ?? props.name;
 
   return (
-    <label className="mb-3.5 block">
+    <label className="mb-3.5 block cursor-default">
       <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
         {label}
       </span>
       <input
         id={inputId}
-        className={`w-full rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] placeholder:text-mute/70 focus:border-focus focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] ${className ?? ''}`}
+        className={`w-full cursor-text rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow,background-color] duration-200 ease-out placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] ${className ?? ''}`}
         {...props}
       />
       {hint ? (

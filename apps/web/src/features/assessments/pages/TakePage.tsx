@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { InlineStatus } from '../../../shared/ui/InlineStatus';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { getAssessment, submitAssessment } from '../api/assessmentsApi';
 import {
@@ -84,11 +85,7 @@ export function TakePage() {
   }, [answers, attempt, attemptId]);
 
   if (loading) {
-    return (
-      <p className="m-0 text-sm text-ink-soft" role="status">
-        Loading assessment…
-      </p>
-    );
+    return <InlineStatus message="Loading assessment…" />;
   }
 
   if (error && !attempt) {
@@ -187,7 +184,7 @@ export function TakePage() {
         aria-hidden="true"
       >
         <i
-          className="block h-full bg-signal not-italic"
+          className="ui-progress block h-full bg-signal not-italic"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -202,16 +199,16 @@ export function TakePage() {
         </p>
       ) : null}
 
-      <ul className="mt-6 grid list-none gap-2 p-0">
+      <ul className="mt-6 grid list-none gap-2.5 p-0">
         {question.options.map((option, optionIndex) => {
           const checked = selected === optionIndex;
           return (
             <li key={`${question.id}-${optionIndex}`}>
               <label
-                className={`flex cursor-pointer items-start gap-3.5 rounded-[10px] border px-4 py-4 transition-[border-color,background,transform] active:translate-y-px ${
+                className={`flex cursor-pointer items-start gap-3.5 rounded-[10px] border px-4 py-4 transition-[border-color,background-color,transform,box-shadow] duration-200 ease-out active:translate-y-px ${
                   checked
-                    ? 'border-signal bg-signal-soft'
-                    : 'border-line bg-white hover:border-signal/40'
+                    ? 'border-signal bg-signal-soft shadow-[0_8px_20px_rgb(15_110_92/0.12)]'
+                    : 'border-line bg-white hover:-translate-y-px hover:border-signal/45 hover:shadow-[0_10px_24px_rgb(18_21_28/0.07)]'
                 }`}
               >
                 <input
@@ -222,7 +219,7 @@ export function TakePage() {
                   onChange={() => selectOption(optionIndex)}
                 />
                 <span
-                  className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[0.75rem] font-semibold ${
+                  className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[0.75rem] font-semibold transition-[background-color,border-color,color] duration-200 ${
                     checked
                       ? 'border-signal bg-signal text-white'
                       : 'border-line bg-paper-lift text-ink-soft'
@@ -252,7 +249,7 @@ export function TakePage() {
         {isLast ? (
           <Button
             className="min-w-34 px-5 py-3"
-            disabled={submitting}
+            disabled={selected === undefined || submitting}
             onClick={() => {
               void onSubmit(attempt);
             }}
@@ -270,7 +267,7 @@ export function TakePage() {
         )}
         <Link
           to="/app"
-          className="ml-auto self-center text-sm text-mute hover:text-ink"
+          className="ml-auto self-center text-sm font-medium text-mute no-underline hover:text-ink hover:underline"
         >
           Exit
         </Link>

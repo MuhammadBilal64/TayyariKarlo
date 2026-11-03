@@ -143,7 +143,7 @@ export class AssessmentsService {
       }
 
       const selectedIndex = answerByQuestionId.get(item.questionId)!;
-      if (selectedIndex >= item.question.options.length) {
+      if (selectedIndex < 0 || selectedIndex >= item.question.options.length) {
         throw new BadRequestException(
           `selectedIndex out of range for question ${item.questionId}`,
         );

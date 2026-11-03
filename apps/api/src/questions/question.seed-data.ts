@@ -28,7 +28,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'easy',
     'Which structure gives O(1) average lookup by key?',
     ['Hash map', 'Linked list', 'Binary heap', 'Array list'],
-    2,
+    0,
   ),
   q(
     'data_structures_algorithms',
@@ -42,7 +42,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'easy',
     'Which operation is typically amortized O(1) on a dynamic array?',
     ['Sort in place', 'Insert at front', 'Append at end', 'Search by value'],
-    0,
+    2,
   ),
   q(
     'data_structures_algorithms',
@@ -61,7 +61,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'A CPU register',
       'A hash code only',
     ],
-    2,
+    0,
   ),
   q(
     'data_structures_algorithms',
@@ -80,7 +80,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Is constant with respect to n',
       'Is quadratic',
     ],
-    0,
+    2,
   ),
   q(
     'data_structures_algorithms',
@@ -94,7 +94,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'easy',
     'A set typically does not allow:',
     ['Duplicate values', 'Membership tests', 'Insertion', 'Iteration'],
-    2,
+    0,
   ),
   q(
     'data_structures_algorithms',
@@ -118,7 +118,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Both front and back',
       'Only the middle',
     ],
-    0,
+    2,
   ),
   q(
     'data_structures_algorithms',
@@ -132,7 +132,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'medium',
     'What is the worst-case time of quicksort with a bad pivot?',
     ['O(n log n)', 'O(n²)', 'O(log n)', 'O(n)'],
-    3,
+    1,
   ),
   q(
     'data_structures_algorithms',
@@ -146,7 +146,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'medium',
     'Which structure is ideal for finding the k smallest elements online?',
     ['Deque only', 'Queue', 'Max-heap of size k', 'Stack'],
-    0,
+    2,
   ),
   q(
     'data_structures_algorithms',
@@ -165,7 +165,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'medium',
     'What is the time complexity of merge sort?',
     ['O(n log n)', 'O(n²)', 'O(log n)', 'O(n)'],
-    2,
+    0,
   ),
   q(
     'data_structures_algorithms',
@@ -189,7 +189,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Directed acyclic graphs (DAGs)',
       'Only binary trees',
     ],
-    0,
+    2,
   ),
   q(
     'data_structures_algorithms',
@@ -203,7 +203,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'medium',
     'An adjacency list graph representation is preferred when the graph is:',
     ['Sparse', 'Only a single node', 'Never weighted', 'Always complete'],
-    2,
+    0,
   ),
   q(
     'data_structures_algorithms',
@@ -227,7 +227,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Floyd’s tortoise and hare',
       'Heap sort',
     ],
-    0,
+    2,
   ),
   q(
     'data_structures_algorithms',
@@ -246,7 +246,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'hard',
     'The time complexity of building a heap from n elements (heapify) is:',
     ['O(n)', 'O(n²)', 'O(log n)', 'O(n log n)'],
-    2,
+    0,
   ),
   q(
     'data_structures_algorithms',
@@ -270,7 +270,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Prefix search on strings',
       'Sorting integers only',
     ],
-    0,
+    2,
   ),
   q(
     'data_structures_algorithms',
@@ -294,7 +294,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'O(log n) amortized only',
       'O(n) worst each time forever',
     ],
-    2,
+    0,
   ),
   q(
     'data_structures_algorithms',
@@ -318,7 +318,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Range queries and updates efficiently',
       'Only hashing',
     ],
-    0,
+    2,
   ),
   q(
     'data_structures_algorithms',
@@ -337,7 +337,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'hard',
     'In a red-black tree, rebalancing keeps height:',
     ['O(log n)', 'O(1)', 'O(n log n)', 'Linear in n always'],
-    2,
+    0,
   ),
   q(
     'data_structures_algorithms',
@@ -361,7 +361,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Path copying / structural sharing',
       'Only locking the DB',
     ],
-    0,
+    2,
   ),
   q(
     'database_systems',
@@ -380,7 +380,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'easy',
     'A PRIMARY KEY uniquely identifies:',
     ['Rows in a table', 'Indexes only', 'Transactions', 'Columns only'],
-    2,
+    0,
   ),
   q(
     'database_systems',
@@ -394,7 +394,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'easy',
     'Which clause filters rows after FROM?',
     ['LIMIT only', 'ORDER BY', 'WHERE', 'GROUP BY only'],
-    0,
+    2,
   ),
   q(
     'database_systems',
@@ -413,7 +413,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'easy',
     'Which statement inserts a new row?',
     ['INSERT', 'ALTER', 'DROP', 'UPDATE'],
-    2,
+    0,
   ),
   q(
     'database_systems',
@@ -437,7 +437,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Remove duplicate result rows',
       'Create indexes',
     ],
-    0,
+    2,
   ),
   q(
     'database_systems',
@@ -456,7 +456,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'easy',
     'Which type stores true/false values?',
     ['BOOLEAN', 'BLOB only', 'JSON only', 'VARCHAR'],
-    2,
+    0,
   ),
   q(
     'database_systems',
@@ -480,7 +480,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'A stored query / virtual table',
       'A backup file',
     ],
-    0,
+    2,
   ),
   q(
     'database_systems',
@@ -504,7 +504,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Schemas never change',
       'Backups are encrypted',
     ],
-    2,
+    0,
   ),
   q(
     'database_systems',
@@ -528,7 +528,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Makes its changes durable (per durability)',
       'Deletes the database',
     ],
-    0,
+    2,
   ),
   q(
     'database_systems',
@@ -552,7 +552,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only VACUUM',
       'Only INSERT',
     ],
-    2,
+    0,
   ),
   q(
     'database_systems',
@@ -576,7 +576,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Always lock every row forever',
       'No transactions exist',
     ],
-    0,
+    2,
   ),
   q(
     'database_systems',
@@ -600,7 +600,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'All joins',
       'All indexes',
     ],
-    2,
+    0,
   ),
   q(
     'database_systems',
@@ -624,7 +624,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Store HTML',
       'Compile TypeScript',
     ],
-    3,
+    1,
   ),
   q(
     'database_systems',
@@ -648,7 +648,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Ignore primary keys',
       'Block all writers always',
     ],
-    2,
+    0,
   ),
   q(
     'database_systems',
@@ -672,7 +672,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Read models from write models',
       'SQL and NoSQL brands only',
     ],
-    0,
+    2,
   ),
   q(
     'database_systems',
@@ -696,7 +696,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Drawing UI',
       'Adding/removing cache/DB nodes with less remapping',
     ],
-    1,
+    3,
   ),
   q(
     'database_systems',
@@ -720,7 +720,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Coordinate a distributed atomic commit',
       'Compress images',
     ],
-    0,
+    2,
   ),
   q(
     'database_systems',
@@ -744,7 +744,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'No consistency concerns ever',
       'Stronger than primary writes',
     ],
-    2,
+    0,
   ),
   q(
     'database_systems',
@@ -768,7 +768,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Heap fetches for covered queries',
       'All transactions',
     ],
-    0,
+    2,
   ),
   q(
     'operating_systems',
@@ -792,7 +792,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only ROM',
       'Permanent storage like HDD',
     ],
-    2,
+    0,
   ),
   q(
     'operating_systems',
@@ -816,7 +816,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Saves/restores CPU state to run another task',
       'Compiles C++',
     ],
-    0,
+    2,
   ),
   q(
     'operating_systems',
@@ -840,7 +840,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only registers',
       'Only processes',
     ],
-    2,
+    0,
   ),
   q(
     'operating_systems',
@@ -864,7 +864,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'A large abstract address space backed by RAM/disk',
       'Only GPU memory',
     ],
-    0,
+    2,
   ),
   q(
     'operating_systems',
@@ -888,7 +888,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only SSDs',
       'Infinite RAM',
     ],
-    2,
+    0,
   ),
   q(
     'operating_systems',
@@ -907,7 +907,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'easy',
     'Paging divides memory into:',
     ['Only heaps', 'Files', 'Fixed-size pages/frames', 'Only stacks'],
-    0,
+    2,
   ),
   q(
     'operating_systems',
@@ -931,7 +931,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Render HTML',
       'Compress files',
     ],
-    2,
+    0,
   ),
   q(
     'operating_systems',
@@ -955,7 +955,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Delay/avoid copying pages until a write',
       'Disable MMU',
     ],
-    0,
+    2,
   ),
   q(
     'operating_systems',
@@ -979,7 +979,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only inodes forever',
       'HTTP cookies',
     ],
-    2,
+    0,
   ),
   q(
     'operating_systems',
@@ -1003,7 +1003,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Concurrency mapped to OS scheduling vs lighter user scheduling',
       'Only disk format',
     ],
-    0,
+    2,
   ),
   q(
     'operating_systems',
@@ -1027,7 +1027,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Replace the MMU',
       'Only use the CPU for every byte',
     ],
-    2,
+    0,
   ),
   q(
     'operating_systems',
@@ -1051,7 +1051,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Slow the disk',
       'Disable scheduling',
     ],
-    3,
+    1,
   ),
   q(
     'operating_systems',
@@ -1075,7 +1075,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Replace TCP',
       'Style terminals',
     ],
-    2,
+    0,
   ),
   q(
     'operating_systems',
@@ -1099,7 +1099,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Local node memory is faster than remote',
       'Disks have no latency',
     ],
-    0,
+    2,
   ),
   q(
     'operating_systems',
@@ -1123,7 +1123,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Mint JWTs',
       'Sort arrays',
     ],
-    2,
+    0,
   ),
   q(
     'operating_systems',
@@ -1147,7 +1147,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'System calls a process may make',
       'Only GPU clocks',
     ],
-    0,
+    2,
   ),
   q(
     'operating_systems',
@@ -1171,7 +1171,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'CSS reflow',
       'DNS loops',
     ],
-    2,
+    0,
   ),
   q(
     'operating_systems',
@@ -1195,7 +1195,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Extend kernel functionality dynamically (with risk)',
       'Replace libc always',
     ],
-    0,
+    2,
   ),
   q(
     'computer_networks',
@@ -1214,7 +1214,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Files to inodes',
       'MAC to IP only',
     ],
-    2,
+    0,
   ),
   q(
     'computer_networks',
@@ -1238,7 +1238,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Low overhead / latency matters more than reliability',
       'You need ordered retransmit always',
     ],
-    0,
+    2,
   ),
   q(
     'computer_networks',
@@ -1262,7 +1262,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'A mutex',
       'A CSS class',
     ],
-    2,
+    0,
   ),
   q(
     'computer_networks',
@@ -1276,7 +1276,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'easy',
     'ping typically uses:',
     ['SSH', 'FTP', 'ICMP', 'SMTP'],
-    0,
+    2,
   ),
   q(
     'computer_networks',
@@ -1295,7 +1295,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'JSON keys',
       'HTTP status codes',
     ],
-    2,
+    0,
   ),
   q(
     'computer_networks',
@@ -1319,7 +1319,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Persist client state for a site (e.g. session)',
       'Route BGP',
     ],
-    0,
+    2,
   ),
   q(
     'computer_networks',
@@ -1338,7 +1338,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only DNS',
       'Physical cabling only',
     ],
-    2,
+    0,
   ),
   q(
     'computer_networks',
@@ -1362,7 +1362,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Typically one connection with streams',
       'Only UDP forever',
     ],
-    0,
+    2,
   ),
   q(
     'computer_networks',
@@ -1386,7 +1386,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only kernel traps',
       'DNSSEC keys',
     ],
-    2,
+    0,
   ),
   q(
     'computer_networks',
@@ -1410,7 +1410,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Browsers to control cross-origin HTTP access from scripts',
       'Only nginx always',
     ],
-    0,
+    2,
   ),
   q(
     'computer_networks',
@@ -1434,7 +1434,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only cron',
       'CSS classes',
     ],
-    2,
+    0,
   ),
   q(
     'computer_networks',
@@ -1453,7 +1453,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'medium',
     'BGP is primarily used for:',
     ['USB', 'Styling HTML', 'Inter-domain internet routing', 'Local ARP only'],
-    0,
+    2,
   ),
   q(
     'computer_networks',
@@ -1472,7 +1472,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Removing TLS',
       'Larger MTU only',
     ],
-    2,
+    0,
   ),
   q(
     'computer_networks',
@@ -1496,7 +1496,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Both client and server with certificates',
       'Only DNS',
     ],
-    0,
+    2,
   ),
   q(
     'computer_networks',
@@ -1520,7 +1520,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'DNSSEC',
       'TLS versions',
     ],
-    2,
+    0,
   ),
   q(
     'computer_networks',
@@ -1539,7 +1539,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'SYN cookies / syn backlog tuning / firewalls',
       'Disabling HTTPS',
     ],
-    0,
+    2,
   ),
   q(
     'computer_networks',
@@ -1558,7 +1558,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'hard',
     'Samesite cookies help mitigate:',
     ['Some CSRF vectors', 'Disk failure', 'Page faults', 'BGP hijacks'],
-    2,
+    0,
   ),
   q(
     'computer_networks',
@@ -1577,7 +1577,7 @@ export const QUESTION_SEED: SeedItem[] = [
     'hard',
     'HTTP/3 is commonly associated with:',
     ['Telnet', 'SMTP pipelining', 'QUIC transport', 'FTP passive mode'],
-    0,
+    2,
   ),
   q(
     'object_oriented_programming',
@@ -1601,7 +1601,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'TCP port',
       'Running process',
     ],
-    2,
+    0,
   ),
   q(
     'object_oriented_programming',
@@ -1625,7 +1625,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only use one concrete class ever',
       'Disable overrides',
     ],
-    3,
+    1,
   ),
   q(
     'object_oriented_programming',
@@ -1649,7 +1649,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Open sockets only',
       'Destroy objects only',
     ],
-    2,
+    0,
   ),
   q(
     'object_oriented_programming',
@@ -1673,7 +1673,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Visible inside the declaring class (typically)',
       'Visible to all packages always',
     ],
-    0,
+    2,
   ),
   q(
     'object_oriented_programming',
@@ -1697,7 +1697,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only static methods',
       'Every low-level detail always',
     ],
-    2,
+    0,
   ),
   q(
     'object_oriented_programming',
@@ -1716,7 +1716,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'The class/type rather than a specific instance',
       'Only the heap',
     ],
-    0,
+    2,
   ),
   q(
     'object_oriented_programming',
@@ -1740,7 +1740,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Always mutable',
       'Unusable where base is used',
     ],
-    2,
+    0,
   ),
   q(
     'object_oriented_programming',
@@ -1764,7 +1764,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Provide partial implementation + force subclasses to fill gaps',
       'Never have methods',
     ],
-    0,
+    2,
   ),
   q(
     'object_oriented_programming',
@@ -1788,7 +1788,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Always writes disk',
       'Mutates globals freely',
     ],
-    2,
+    0,
   ),
   q(
     'object_oriented_programming',
@@ -1812,7 +1812,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Too much encapsulation',
       'Too many private methods',
     ],
-    3,
+    1,
   ),
   q(
     'object_oriented_programming',
@@ -1836,7 +1836,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only paging',
       'One-to-many dependency notifications',
     ],
-    1,
+    3,
   ),
   q(
     'object_oriented_programming',
@@ -1860,7 +1860,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Reusable behavior composition',
       'Only constructors',
     ],
-    0,
+    2,
   ),
   q(
     'object_oriented_programming',
@@ -1884,7 +1884,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only disk blocks',
       'DNS TTLs',
     ],
-    2,
+    0,
   ),
   q(
     'object_oriented_programming',
@@ -1908,7 +1908,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only CSS selectors',
       'Only IP routing',
     ],
-    3,
+    1,
   ),
   q(
     'object_oriented_programming',
@@ -1932,7 +1932,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only reflection for DI',
       'Cloning an existing instance',
     ],
-    1,
+    3,
   ),
   q(
     'object_oriented_programming',
@@ -1956,7 +1956,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Commanding objects to do work rather than pulling state',
       'Making everything public',
     ],
-    0,
+    2,
   ),
   q(
     'object_oriented_programming',
@@ -1980,7 +1980,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'All objects',
       'All tests',
     ],
-    2,
+    0,
   ),
   q(
     'object_oriented_programming',
@@ -2004,7 +2004,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Restricting hierarchies for exhaustive handling',
       'Removing type checks',
     ],
-    0,
+    2,
   ),
   q(
     'software_engineering',
@@ -2028,7 +2028,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only network cables',
       'The whole production cluster',
     ],
-    2,
+    0,
   ),
   q(
     'software_engineering',
@@ -2052,7 +2052,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Breaking changes',
       'Docs typos only',
     ],
-    0,
+    2,
   ),
   q(
     'software_engineering',
@@ -2076,7 +2076,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'No planning ever',
       'Big bang yearly releases only',
     ],
-    2,
+    0,
   ),
   q(
     'software_engineering',
@@ -2100,7 +2100,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Understand and run the project',
       'Disable tests',
     ],
-    0,
+    2,
   ),
   q(
     'software_engineering',
@@ -2124,7 +2124,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only opening issues',
       'Deleting git history always',
     ],
-    2,
+    0,
   ),
   q(
     'software_engineering',
@@ -2148,7 +2148,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Agreed quality gates (tests/review/docs as applicable)',
       'Only deploying Friday night',
     ],
-    0,
+    2,
   ),
   q(
     'software_engineering',
@@ -2172,7 +2172,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only tags',
       'Long-lived feature branches for months',
     ],
-    2,
+    0,
   ),
   q(
     'software_engineering',
@@ -2196,7 +2196,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Logs, metrics, and traces',
       'Only unit tests',
     ],
-    0,
+    2,
   ),
   q(
     'software_engineering',
@@ -2220,7 +2220,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only CSS changes',
       'Clients must keep working across changes',
     ],
-    1,
+    3,
   ),
   q(
     'software_engineering',
@@ -2244,7 +2244,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'A reliability/performance target you commit to',
       'A git hook only',
     ],
-    0,
+    2,
   ),
   q(
     'software_engineering',
@@ -2268,7 +2268,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only Kubernetes',
       'CSS modules',
     ],
-    2,
+    0,
   ),
   q(
     'software_engineering',
@@ -2292,7 +2292,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Compatibility between service provider and consumer expectations',
       'Only disk speed',
     ],
-    0,
+    2,
   ),
   q(
     'software_engineering',
@@ -2316,7 +2316,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only on-call schedules',
       'CSS themes',
     ],
-    2,
+    0,
   ),
   q(
     'software_engineering',
@@ -2340,7 +2340,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Deployment frequency / lead time / change fail rate / MTTR',
       'Only story points',
     ],
-    0,
+    2,
   ),
   q(
     'software_engineering',
@@ -2364,7 +2364,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Ignore teams',
       'Org structure influences software structure (Conway)',
     ],
-    1,
+    3,
   ),
   q(
     'software_engineering',
@@ -2388,7 +2388,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Reliability targets vs pace of change',
       'Only hiring',
     ],
-    0,
+    2,
   ),
   q(
     'software_engineering',
@@ -2412,7 +2412,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only commit emojis',
       'Vanity metrics only',
     ],
-    2,
+    0,
   ),
   q(
     'software_engineering',
@@ -2436,7 +2436,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Pinning deps, verifying artifacts, least privilege CI',
       'Committing secrets',
     ],
-    0,
+    2,
   ),
   q(
     'system_design',
@@ -2460,7 +2460,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Disable networking',
       'Slow every request',
     ],
-    2,
+    0,
   ),
   q(
     'system_design',
@@ -2484,7 +2484,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Serving content closer to users',
       'Only auth',
     ],
-    0,
+    2,
   ),
   q(
     'system_design',
@@ -2508,7 +2508,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Lines of code',
       'Storage size',
     ],
-    2,
+    0,
   ),
   q(
     'system_design',
@@ -2532,7 +2532,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Any instance can handle a request (session externalized)',
       'They never use databases',
     ],
-    0,
+    2,
   ),
   q(
     'system_design',
@@ -2556,7 +2556,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Disk encryption',
       'Healthy pagination',
     ],
-    2,
+    0,
   ),
   q(
     'system_design',
@@ -2580,7 +2580,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Auth, routing, rate limits in front of services',
       'Only SQL joins',
     ],
-    0,
+    2,
   ),
   q(
     'system_design',
@@ -2604,7 +2604,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Caching HTML only',
       'One giant replica only',
     ],
-    2,
+    0,
   ),
   q(
     'system_design',
@@ -2628,7 +2628,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'One node should coordinate a role at a time',
       'DNS is down',
     ],
-    0,
+    2,
   ),
   q(
     'system_design',
@@ -2652,7 +2652,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'All retries forever without limit ideas',
       'Healthy traffic forever',
     ],
-    2,
+    0,
   ),
   q(
     'system_design',
@@ -2676,7 +2676,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Cheap probabilistic membership tests',
       'Sorting integers',
     ],
-    0,
+    2,
   ),
   q(
     'system_design',
@@ -2700,7 +2700,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'They remove need for TLS',
       'They improve every design',
     ],
-    2,
+    0,
   ),
   q(
     'system_design',
@@ -2724,7 +2724,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'One primary region serves; another stands by for failover',
       'No replication',
     ],
-    0,
+    2,
   ),
   q(
     'system_design',
@@ -2748,7 +2748,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'SQL and NoSQL branding',
       'CPU and RAM',
     ],
-    2,
+    0,
   ),
   q(
     'system_design',
@@ -2772,7 +2772,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Latency/availability vs stronger consistency guarantees',
       'Only disk format',
     ],
-    0,
+    2,
   ),
   q(
     'system_design',
@@ -2796,7 +2796,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Impossible to approximate',
       'Trivial with UDP',
     ],
-    2,
+    0,
   ),
   q(
     'system_design',
@@ -2820,7 +2820,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Peer-to-peer periodic exchange',
       'Only FTP',
     ],
-    0,
+    2,
   ),
   q(
     'system_design',
@@ -2844,7 +2844,7 @@ export const QUESTION_SEED: SeedItem[] = [
       'Only CDNs',
       'CSS grid',
     ],
-    2,
+    0,
   ),
   q(
     'system_design',
@@ -2868,6 +2868,6 @@ export const QUESTION_SEED: SeedItem[] = [
       'Partitioning resources so one failure doesn’t sink all',
       'Removing timeouts',
     ],
-    0,
+    2,
   ),
 ];

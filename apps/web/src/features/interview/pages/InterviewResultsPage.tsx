@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { InlineStatus } from '../../../shared/ui/InlineStatus';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { getInterview } from '../api/interviewsApi';
 
@@ -56,11 +57,7 @@ export function InterviewResultsPage() {
   }, [accessToken, navigate, sessionId]);
 
   if (loading) {
-    return (
-      <p className="m-0 text-sm text-ink-soft" role="status">
-        Loading results…
-      </p>
-    );
+    return <InlineStatus message="Loading results…" />;
   }
 
   if (error || !session) {
@@ -94,9 +91,9 @@ export function InterviewResultsPage() {
         Your score
       </h1>
       {isMock ? (
-        <span className="mt-3 inline-flex rounded-full border border-line bg-paper-lift px-2 py-0.5 text-[0.68rem] font-semibold tracking-[0.04em] text-ink-soft uppercase">
-          Scripted practice
-        </span>
+        <p className="mt-3 m-0 text-[0.85rem] text-mute">
+          Scripted practice scores — useful for flow, not a live model grade.
+        </p>
       ) : null}
 
       <div className="mt-5 border-b border-line pb-6">

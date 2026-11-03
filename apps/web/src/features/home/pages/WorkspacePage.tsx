@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { InlineStatus } from '../../../shared/ui/InlineStatus';
 import { difficultyLabel, topicLabel } from '../../assessments/lib/labels';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { getProgressSummary } from '../../progress/api/progressApi';
@@ -40,7 +41,7 @@ function TrendMarks({ trends }: { trends: ProgressSummary['trends'] }) {
         {trends.map((point) => (
           <span
             key={point.attemptId}
-            className="block w-[0.45rem] rounded-t-[2px] bg-signal/85"
+            className="ui-progress block w-[0.45rem] rounded-t-[2px] bg-signal/85"
             style={{
               height: `${Math.max(12, (point.percent / max) * 100)}%`,
             }}
@@ -118,11 +119,7 @@ export function WorkspacePage() {
   }, [accessToken]);
 
   if (loading) {
-    return (
-      <p className="m-0 text-sm text-ink-soft" role="status">
-        Loading progress…
-      </p>
-    );
+    return <InlineStatus message="Loading progress…" />;
   }
 
   if (error || !progress) {
@@ -133,7 +130,7 @@ export function WorkspacePage() {
         </p>
         <Link
           to="/app/assessments"
-          className="mt-4 inline-block text-sm font-semibold text-signal"
+          className="mt-4 inline-block cursor-pointer text-sm font-semibold text-signal"
         >
           Start an assessment
         </Link>
@@ -179,29 +176,28 @@ export function WorkspacePage() {
       {recommendations.length > 0 ? (
         <ol className="m-0 grid list-none gap-0 border-t border-line p-0">
           {recommendations.map((rec, index) => (
-            <li
-              key={rec.topic}
-              className="grid grid-cols-[1.5rem_1fr] items-start gap-x-3.5 gap-y-3 border-b border-line py-4 sm:grid-cols-[1.5rem_1fr_auto]"
-            >
-              <span className="font-display text-[1.25rem] leading-tight text-signal">
-                {index + 1}
-              </span>
-              <div>
-                <p className="m-0 text-[0.98rem] font-semibold text-ink">
-                  {topicLabel(rec.topic)}
-                </p>
-                <p className="mt-1.5 m-0 text-[0.88rem] leading-snug text-ink-soft">
-                  {rec.reason}
-                </p>
-                <p className="mt-1.5 m-0 text-[0.75rem] font-semibold tracking-[0.08em] text-mute uppercase">
-                  Suggested · {difficultyLabel(rec.suggestedDifficulty)}
-                </p>
-              </div>
+            <li key={rec.topic} className="border-b border-line">
               <Link
                 to={practiceHref(rec)}
-                className="col-start-2 inline-flex items-center justify-center rounded-[10px] bg-signal px-3.5 py-2 text-[0.85rem] font-semibold whitespace-nowrap text-white no-underline transition-colors hover:bg-signal-hover hover:no-underline sm:col-start-auto sm:self-center"
+                className="ui-row grid cursor-pointer grid-cols-[1.5rem_1fr] items-start gap-x-3.5 gap-y-3 py-4 no-underline hover:no-underline sm:grid-cols-[1.5rem_1fr_auto]"
               >
-                Practice
+                <span className="font-display text-[1.25rem] leading-tight text-signal">
+                  {index + 1}
+                </span>
+                <div>
+                  <p className="m-0 text-[0.98rem] font-semibold text-ink">
+                    {topicLabel(rec.topic)}
+                  </p>
+                  <p className="mt-1.5 m-0 text-[0.88rem] leading-snug text-ink-soft">
+                    {rec.reason}
+                  </p>
+                  <p className="mt-1.5 m-0 text-[0.75rem] font-semibold tracking-[0.08em] text-mute uppercase">
+                    Suggested · {difficultyLabel(rec.suggestedDifficulty)}
+                  </p>
+                </div>
+                <span className="col-start-2 inline-flex cursor-pointer items-center justify-center rounded-[10px] bg-signal px-3.5 py-2 text-[0.85rem] font-semibold whitespace-nowrap text-white transition-[background-color,transform] duration-200 hover:bg-signal-hover sm:col-start-auto sm:self-center">
+                  Practice
+                </span>
               </Link>
             </li>
           ))}
@@ -219,27 +215,27 @@ export function WorkspacePage() {
       {hasAttempts ? (
         <ul className="m-0 list-none border-t border-line p-0">
           {progress.recentAttempts.map((attempt) => (
-            <li
-              key={attempt.id}
-              className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 border-b border-line py-3.5"
-            >
-              <div>
-                <p className="m-0 text-[0.95rem] font-medium text-ink">
-                  {topicLabel(attempt.topic)}
-                </p>
-                <p className="mt-1 m-0 text-[0.82rem] text-mute">
-                  {difficultyLabel(attempt.difficulty)} ·{' '}
-                  {attempt.questionCount}{' '}
-                  {attempt.questionCount === 1 ? 'question' : 'questions'} ·{' '}
-                  {formatAttemptDate(attempt.completedAt)}
-                </p>
-              </div>
+            <li key={attempt.id} className="border-b border-line">
               <Link
                 to={`/app/assessments/${attempt.id}/results`}
-                className="font-display text-[1.45rem] leading-none text-ink no-underline hover:no-underline"
+                className="ui-row grid cursor-pointer grid-cols-[1fr_auto] gap-x-4 gap-y-1 py-3.5 no-underline hover:no-underline"
+                aria-label={`View results: ${Math.round(attempt.percent)} percent`}
               >
-                {Math.round(attempt.percent)}
-                <em className="text-[0.85em] italic text-signal">%</em>
+                <div>
+                  <p className="m-0 text-[0.95rem] font-medium text-ink">
+                    {topicLabel(attempt.topic)}
+                  </p>
+                  <p className="mt-1 m-0 text-[0.82rem] text-mute">
+                    {difficultyLabel(attempt.difficulty)} ·{' '}
+                    {attempt.questionCount}{' '}
+                    {attempt.questionCount === 1 ? 'question' : 'questions'} ·{' '}
+                    {formatAttemptDate(attempt.completedAt)}
+                  </p>
+                </div>
+                <span className="font-display self-center text-[1.45rem] leading-none text-ink">
+                  {Math.round(attempt.percent)}
+                  <em className="text-[0.85em] italic text-signal">%</em>
+                </span>
               </Link>
             </li>
           ))}

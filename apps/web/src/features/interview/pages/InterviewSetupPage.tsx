@@ -78,7 +78,7 @@ export function InterviewSetupPage() {
     <section>
       <Link
         to="/app"
-        className="mb-5 inline-block text-sm font-semibold text-signal"
+        className="mb-5 inline-block cursor-pointer text-sm font-semibold text-signal"
       >
         ← Workspace
       </Link>
@@ -121,7 +121,7 @@ export function InterviewSetupPage() {
             placeholder="Node.js, PostgreSQL, NestJS"
             rows={3}
             required
-            className="w-full resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] placeholder:text-mute/70 focus:border-focus focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)]"
+            className="w-full cursor-text resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)]"
           />
           <span className="mt-1.5 block text-xs text-mute">
             Comma-separated. Only what you want tested.
@@ -135,9 +135,9 @@ export function InterviewSetupPage() {
           {EXPERIENCE_LEVELS.map((level) => (
             <label
               key={level}
-              className={`cursor-pointer rounded-[10px] border px-2 py-3 text-center text-[0.85rem] font-medium transition-[border-color,background,color] ${
+              className={`ui-chip cursor-pointer rounded-[10px] border px-2 py-3 text-center text-[0.85rem] font-medium ${
                 experienceLevel === level
-                  ? 'border-signal bg-signal-soft font-semibold text-signal-hover'
+                  ? 'border-signal bg-signal-soft font-semibold text-signal-hover shadow-[0_8px_18px_rgb(15_110_92/0.1)]'
                   : 'border-line bg-white text-ink hover:border-signal/40'
               }`}
             >
@@ -153,12 +153,9 @@ export function InterviewSetupPage() {
           ))}
         </div>
 
-        <p className="mt-5 m-0 text-[0.85rem] text-mute">
-          <span className="mr-2 inline-flex rounded-full border border-line bg-paper-lift px-2 py-0.5 text-[0.68rem] font-semibold tracking-[0.04em] text-ink-soft uppercase">
-            Scripted practice
-          </span>
-          Five questions. Free hosting uses scripted notes; Ollama locally =
-          live model.
+        <p className="mt-5 m-0 text-[0.85rem] leading-relaxed text-mute">
+          Five questions. Free hosting uses scripted notes; Ollama locally runs
+          a live model.
         </p>
 
         <div className="mt-6 border-t border-line pt-6">

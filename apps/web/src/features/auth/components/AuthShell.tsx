@@ -33,7 +33,7 @@ export function AuthShell({
         />
         <Link
           to="/"
-          className="font-display text-[1.65rem] tracking-[-0.02em] text-ink no-underline hover:no-underline"
+          className="font-display cursor-pointer text-[1.65rem] tracking-[-0.02em] text-ink no-underline transition-opacity duration-200 hover:opacity-75 hover:no-underline"
         >
           TayyariKarlo
         </Link>
@@ -56,7 +56,7 @@ export function AuthShell({
       </aside>
 
       <main className="flex items-start justify-center border-t border-line bg-paper-lift px-6 py-10 shadow-[var(--shadow-panel)] sm:px-10 lg:items-center lg:border-t-0 lg:border-l lg:py-12">
-        <div className="w-full max-w-96">
+        <div className="ui-enter w-full max-w-96">
           <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
             {formEyebrow}
           </p>

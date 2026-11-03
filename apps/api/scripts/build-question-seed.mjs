@@ -23,7 +23,7 @@ function q(topic, difficulty, prompt, options, correctIndex, explanation) {
   return { topic, difficulty, prompt, options, correctIndex, explanation };
 }
 
-/** Rotate options so correct answers are not always index 1. */
+/** Rotate options left so correct answers are not always index 1. */
 function balance(item, salt) {
   const shift = salt % 4;
   if (shift === 0) return item;
@@ -31,7 +31,8 @@ function balance(item, salt) {
   for (let i = 0; i < shift; i += 1) {
     options.push(options.shift());
   }
-  const correctIndex = (item.correctIndex + shift) % 4;
+  // Left rotate moves the correct option to a lower index.
+  const correctIndex = (item.correctIndex - shift + 4) % 4;
   return { ...item, options, correctIndex };
 }
 
@@ -2961,13 +2962,15 @@ function esc(s) {
 }
 
 function emitItem(item) {
-  const opts = item.options.map((o) => `'${esc(o)}'`).join(', ');
+  const opts = item.options.map((o) => `      '${esc(o)}',`).join('\n');
   const expl = item.explanation ? `,\n    '${esc(item.explanation)}'` : '';
   return `  q(
     '${item.topic}',
     '${item.difficulty}',
     '${esc(item.prompt)}',
-    [${opts}],
+    [
+${opts}
+    ],
     ${item.correctIndex}${expl},
   )`;
 }
