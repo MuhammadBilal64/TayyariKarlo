@@ -121,7 +121,10 @@ describe('QuestionsService', () => {
   });
 
   it('updates stale correct answers when seed changes', async () => {
-    const [first] = QUESTION_SEED;
+    const first = QUESTION_SEED[0];
+    if (!first) {
+      throw new Error('Question seed is empty');
+    }
     prisma.question.findMany.mockResolvedValue(
       QUESTION_SEED.map((item, index) => ({
         id: `q${index}`,
@@ -146,11 +149,11 @@ describe('QuestionsService', () => {
     expect(prisma.question.update).toHaveBeenCalledWith({
       where: { id: 'q0' },
       data: {
-        topic: first!.topic,
-        difficulty: first!.difficulty,
-        options: first!.options,
-        correctIndex: first!.correctIndex,
-        explanation: first!.explanation ?? null,
+        topic: first.topic,
+        difficulty: first.difficulty,
+        options: first.options,
+        correctIndex: first.correctIndex,
+        explanation: first.explanation ?? null,
       },
     });
   });
