@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TayyariKarlo — Voice room (mockup)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../auth/tokens.css" />
+    <style>
+      body {
+        background-color: var(--paper);
+        background-image:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, rgb(210 207 198 / 0.45) 1px, transparent 1px);
+        background-size:
+          100% 28px,
+          28px 100%;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.25rem;
+        border-bottom: 1px solid var(--line);
+        background: color-mix(in srgb, var(--paper-lift) 86%, transparent);
+      }
+      .brand {
+        font-family: var(--font-display);
+        font-size: 1.45rem;
+        color: var(--ink);
+        text-decoration: none;
+      }
+      main {
+        width: min(40rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 2.5rem 0 4rem;
+      }
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0 0 1.75rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink-soft);
+      }
+      .stage {
+        display: grid;
+        justify-items: center;
+        text-align: center;
+      }
+      .presence {
+        position: relative;
+        width: 9.5rem;
+        height: 9.5rem;
+      }
+      .ring,
+      .disc {
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+      }
+      .ring {
+        border: 1px solid var(--signal);
+        transform: scale(1);
+        opacity: 0.55;
+        transition:
+          transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.4s ease;
+      }
+      .disc {
+        inset: 1.35rem;
+        background: radial-gradient(circle at 40% 35%, #2a3142, #12151c 70%);
+        box-shadow: 0 18px 40px rgb(18 21 28 / 0.18);
+        transition:
+          opacity 0.4s ease,
+          filter 0.4s ease;
+      }
+      .presence[data-state='speaking'] .ring {
+        transform: scale(1.12);
+        opacity: 1;
+        animation: speak 1.6s ease-in-out infinite;
+      }
+      .presence[data-state='listening'] .ring {
+        transform: scale(0.9);
+        opacity: 0.9;
+      }
+      .presence[data-state='thinking'] .disc {
+        opacity: 0.55;
+        filter: saturate(0.6);
+      }
+      @keyframes speak {
+        50% {
+          transform: scale(1.2);
+        }
+      }
+      .state-label {
+        margin: 1rem 0 0;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--signal);
+      }
+      h1 {
+        margin: 0.8rem 0 0;
+        max-width: 28rem;
+        font-family: var(--font-display);
+        font-size: clamp(1.7rem, 4vw, 2.35rem);
+        font-weight: 400;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+      }
+      .replay {
+        margin-top: 0.9rem;
+        border: 0;
+        background: none;
+        color: var(--signal);
+        font: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .states {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.4rem;
+        margin-top: 1.25rem;
+      }
+      .states button {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--paper-lift);
+        padding: 0.35rem 0.7rem;
+        font: inherit;
+        font-size: 0.75rem;
+        cursor: pointer;
+      }
+      .states button[aria-pressed='true'] {
+        border-color: var(--signal);
+        background: var(--signal-soft);
+        color: var(--signal-hover);
+      }
+      .sheet {
+        margin-top: 2rem;
+        border-top: 1px solid var(--line);
+        padding-top: 1.25rem;
+        text-align: left;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink-soft);
+      }
+      textarea {
+        width: 100%;
+        min-height: 7rem;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        padding: 0.85rem 0.95rem;
+        font: inherit;
+        font-size: 0.95rem;
+        resize: vertical;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-top: 0.9rem;
+      }
+      .primary,
+      .ghost {
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font: inherit;
+        font-size: 0.92rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .primary {
+        border: 0;
+        background: var(--signal);
+        color: #fff;
+      }
+      .ghost {
+        border: 1px solid var(--line);
+        background: transparent;
+      }
+      .note {
+        margin: 0.8rem 0 0;
+        font-size: 0.8rem;
+        color: var(--mute);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#">TayyariKarlo</a>
+      <span class="note" style="margin: 0">Voice room mockup</span>
+    </header>
+    <main>
+      <p class="meta">
+        <span>Topic 2 of 5 · Backend Engineer</span>
+        <span>Local model</span>
+      </p>
+      <section class="stage">
+        <div class="presence" id="presence" data-state="speaking">
+          <span class="ring"></span>
+          <span class="disc"></span>
+        </div>
+        <p class="state-label" id="stateLabel">Speaking</p>
+        <h1 id="line">
+          Walk me through how you would design a simple order API, including
+          the errors you would return.
+        </h1>
+        <button class="replay" type="button">Replay question</button>
+        <div class="states" role="group" aria-label="Presence state">
+          <button type="button" data-state="idle">Idle</button>
+          <button type="button" data-state="speaking" aria-pressed="true">
+            Speaking
+          </button>
+          <button type="button" data-state="listening">Listening</button>
+          <button type="button" data-state="thinking">Thinking</button>
+        </div>
+      </section>
+      <section class="sheet">
+        <label for="transcript">What I heard — edit before sending</label>
+        <textarea id="transcript">
+I would put orders under /orders, validate the body, and return 400, 401, 404, and 409 with a stable error shape.</textarea
+        >
+        <div class="actions">
+          <button class="primary" type="button">Send this answer</button>
+          <button class="ghost" type="button">Record again</button>
+          <button class="ghost" type="button">Type instead</button>
+        </div>
+        <p class="note">
+          Scores stay hidden until the round ends. One follow-up at most.
+        </p>
+      </section>
+    </main>
+    <script>
+      const presence = document.getElementById('presence');
+      const label = document.getElementById('stateLabel');
+      const line = document.getElementById('line');
+      const lines = {
+        idle: 'Waiting.',
+        speaking:
+          'Walk me through how you would design a simple order API, including the errors you would return.',
+        listening: 'Listening. Speak, then stop when you are done.',
+        thinking: 'Considering what you said.',
+      };
+      document.querySelectorAll('.states button').forEach((button) => {
+        button.addEventListener('click', () => {
+          const state = button.dataset.state;
+          presence.dataset.state = state;
+          label.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+          line.textContent = lines[state];
+          document.querySelectorAll('.states button').forEach((item) => {
+            item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
