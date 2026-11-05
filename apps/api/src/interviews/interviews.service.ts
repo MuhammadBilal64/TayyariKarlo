@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import type {
   ExperienceLevel,
@@ -21,6 +22,8 @@ import {
   type InterviewLlmContext,
   type LlmClient,
 } from './llm/llm.types';
+import { SpeechService } from './speech/speech.service';
+import { assertWav } from './speech/wav';
 
 type SessionWithTurns = PrismaInterviewSession & {
   turns: PrismaInterviewTurn[];
@@ -31,6 +34,7 @@ export class InterviewsService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(LLM_CLIENT) private readonly llm: LlmClient,
+    private readonly speech: SpeechService,
   ) {}
 
   async create(
@@ -42,6 +46,8 @@ export class InterviewsService {
       .map((tech) => tech.trim())
       .filter(Boolean);
     const role = input.role.trim();
+
+    await this.assertInterviewStore();
 
     const draftCtx: InterviewLlmContext = {
       role,
@@ -65,6 +71,7 @@ export class InterviewsService {
           create: [
             {
               orderIndex: 0,
+              kind: 'main',
               questionText,
             },
           ],
@@ -123,71 +130,163 @@ export class InterviewsService {
     }
 
     const session = await this.findSessionForUser(userId, sessionId);
-
-    if (session.status === 'completed') {
-      throw new BadRequestException('Interview session already completed');
-    }
+    this.assertInProgress(session);
 
     const openTurn = session.turns.find((turn) => turn.answerText === null);
     if (!openTurn) {
-      throw new BadRequestException('No open interview question to answer');
+      return this.advance(session);
     }
 
-    const ctx = this.toLlmContext(session);
     const evaluation = await this.llm.evaluateAnswer(
-      ctx,
+      this.toLlmContext(session),
       openTurn.questionText,
       trimmed,
     );
 
-    await this.prisma.interviewTurn.update({
-      where: { id: openTurn.id },
+    await this.prisma.interviewTurn.updateMany({
+      where: { id: openTurn.id, answerText: null },
       data: {
         answerText: trimmed,
         feedback: evaluation.feedback,
         score: evaluation.score,
+        rubric: evaluation.dimensions,
       },
     });
 
-    const answeredCount = session.turns.filter(
-      (turn) => turn.id === openTurn.id || turn.answerText !== null,
-    ).length;
+    return this.advance(await this.findSessionForUser(userId, sessionId));
+  }
 
-    if (answeredCount >= session.questionCount) {
-      const refreshed = await this.findSessionForUser(userId, sessionId);
-      const summary = await this.llm.summarize(this.toLlmContext(refreshed));
-      const completed = await this.prisma.interviewSession.update({
-        where: { id: sessionId },
-        data: {
-          status: 'completed',
-          completedAt: new Date(),
-          overallFeedback: summary.overallFeedback,
-          overallScore: summary.overallScore,
-        },
-        include: {
-          turns: { orderBy: { orderIndex: 'asc' } },
-        },
-      });
-      return this.toSessionResponse(completed);
+  async transcribeAnswer(
+    userId: string,
+    sessionId: string,
+    audio: Buffer,
+  ): Promise<{ transcript: string }> {
+    const session = await this.findSessionForUser(userId, sessionId);
+    this.assertInProgress(session);
+    if (!session.turns.some((turn) => turn.answerText === null)) {
+      throw new BadRequestException('No open interview question to answer');
+    }
+    assertWav(audio);
+    const transcript = (await this.speech.transcribe(audio)).trim();
+    if (!transcript) {
+      throw new BadRequestException(
+        'No speech was heard. Record again or type your answer.',
+      );
+    }
+    return { transcript };
+  }
+
+  async answerAudio(
+    userId: string,
+    sessionId: string,
+    audio: Buffer,
+  ): Promise<InterviewSession> {
+    assertWav(audio);
+    const transcript = (await this.speech.transcribe(audio)).trim();
+    if (!transcript) {
+      throw new BadRequestException(
+        'No speech was heard. Record again or type your answer.',
+      );
+    }
+    return this.answer(userId, sessionId, transcript);
+  }
+
+  async turnAudio(
+    userId: string,
+    sessionId: string,
+    turnId: string,
+    part: 'question' | 'feedback' = 'question',
+  ): Promise<Buffer> {
+    const session = await this.findSessionForUser(userId, sessionId);
+    const turn = session.turns.find((item) => item.id === turnId);
+    if (!turn) {
+      throw new NotFoundException('Interview turn not found');
+    }
+    const text = part === 'feedback' ? turn.feedback : turn.questionText;
+    if (!text?.trim()) {
+      throw new NotFoundException('Nothing to speak for this turn');
+    }
+    return this.speech.synthesize(text);
+  }
+
+  async continue(userId: string, sessionId: string): Promise<InterviewSession> {
+    const session = await this.findSessionForUser(userId, sessionId);
+    if (session.status === 'completed') {
+      return this.toSessionResponse(session);
+    }
+    return this.advance(session);
+  }
+
+  private assertInProgress(session: SessionWithTurns): void {
+    if (session.status === 'completed') {
+      throw new BadRequestException('Interview session already completed');
+    }
+  }
+
+  private async advance(session: SessionWithTurns): Promise<InterviewSession> {
+    if (session.turns.some((turn) => turn.answerText === null)) {
+      return this.toSessionResponse(session);
     }
 
-    const nextIndex = openTurn.orderIndex + 1;
-    const nextCtxSession = await this.findSessionForUser(userId, sessionId);
-    const nextQuestion = await this.llm.generateQuestion(
-      this.toLlmContext(nextCtxSession),
+    const mainsAnswered = session.turns.filter(
+      (turn) => turn.kind !== 'follow_up' && turn.answerText !== null,
+    ).length;
+
+    if (mainsAnswered >= session.questionCount) {
+      return this.complete(session);
+    }
+
+    const nextIndex =
+      session.turns.reduce((max, turn) => Math.max(max, turn.orderIndex), -1) +
+      1;
+    const questionText = await this.llm.generateQuestion(
+      this.toLlmContext(session),
       nextIndex,
     );
+    await this.createTurn(session.id, nextIndex, 'main', questionText);
+    return this.toSessionResponse(
+      await this.findSessionForUser(session.userId, session.id),
+    );
+  }
 
-    await this.prisma.interviewTurn.create({
+  private async complete(session: SessionWithTurns): Promise<InterviewSession> {
+    const summary = await this.llm.summarize(this.toLlmContext(session));
+    const completed = await this.prisma.interviewSession.update({
+      where: { id: session.id },
       data: {
-        sessionId,
-        orderIndex: nextIndex,
-        questionText: nextQuestion,
+        status: 'completed',
+        completedAt: new Date(),
+        overallFeedback: summary.overallFeedback,
+        overallScore: summary.overallScore,
+      },
+      include: {
+        turns: { orderBy: { orderIndex: 'asc' } },
       },
     });
+    return this.toSessionResponse(completed);
+  }
 
-    const withNext = await this.findSessionForUser(userId, sessionId);
-    return this.toSessionResponse(withNext);
+  private async createTurn(
+    sessionId: string,
+    orderIndex: number,
+    kind: 'main' | 'follow_up',
+    questionText: string,
+  ): Promise<void> {
+    try {
+      await this.prisma.interviewTurn.create({
+        data: { sessionId, orderIndex, kind, questionText },
+      });
+    } catch (caught: unknown) {
+      if (
+        typeof caught === 'object' &&
+        caught !== null &&
+        'code' in caught &&
+        caught.code === 'P2002'
+      ) {
+        return;
+      }
+      throw caught;
+    }
   }
 
   private toLlmContext(session: SessionWithTurns): InterviewLlmContext {
@@ -243,14 +342,57 @@ export class InterviewsService {
     };
   }
 
+  private async assertInterviewStore(): Promise<void> {
+    try {
+      await this.prisma.interviewSession.findFirst({
+        select: { id: true },
+      });
+    } catch (caught: unknown) {
+      if (
+        typeof caught === 'object' &&
+        caught !== null &&
+        'code' in caught &&
+        caught.code === 'P2021'
+      ) {
+        throw new ServiceUnavailableException(
+          'The interview database is not ready. Apply the pending migrations, then start the round again.',
+        );
+      }
+      throw caught;
+    }
+  }
+
   private toTurnResponse(turn: PrismaInterviewTurn): InterviewTurn {
     return {
       id: turn.id,
       orderIndex: turn.orderIndex,
+      kind: turn.kind === 'follow_up' ? 'follow_up' : 'main',
       questionText: turn.questionText,
       answerText: turn.answerText,
       feedback: turn.feedback,
       score: turn.score,
+      rubric: this.asRubric(turn.rubric),
     };
+  }
+
+  private asRubric(
+    value: PrismaInterviewTurn['rubric'],
+  ): InterviewTurn['rubric'] {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      return null;
+    const record = value as Record<string, unknown>;
+    const keys = ['correctness', 'depth', 'tradeoffs', 'clarity'] as const;
+    const rubric = {
+      correctness: 0,
+      depth: 0,
+      tradeoffs: 0,
+      clarity: 0,
+    };
+    for (const key of keys) {
+      const score = record[key];
+      if (typeof score !== 'number' || !Number.isFinite(score)) return null;
+      rubric[key] = Math.max(0, Math.min(100, Math.round(score)));
+    }
+    return rubric;
   }
 }

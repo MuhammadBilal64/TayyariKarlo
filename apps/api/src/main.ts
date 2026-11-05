@@ -1,10 +1,11 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { QuestionsService } from './questions/questions.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,6 +31,24 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  if ((config.get<string>('NODE_ENV') ?? 'development') !== 'production') {
+    try {
+      const bank = await app.get(QuestionsService).seed();
+      if (bank.seeded) {
+        Logger.log(
+          `Question bank synced (${bank.inserted} added, ${bank.updated} corrected)`,
+          'bootstrap',
+        );
+      }
+    } catch (caught: unknown) {
+      Logger.error(
+        'Question bank was not synced',
+        caught instanceof Error ? caught.stack : undefined,
+        'bootstrap',
+      );
+    }
+  }
 
   // Render (and most hosts) inject PORT and require binding on 0.0.0.0.
   const port = Number(config.get<string>('PORT') ?? process.env.PORT ?? 3000);

@@ -1,8 +1,13 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { InterviewsService } from './interviews.service';
 import { LLM_CLIENT } from './llm/llm.types';
+import { SpeechService } from './speech/speech.service';
 
 describe('InterviewsService', () => {
   let service: InterviewsService;
@@ -14,7 +19,7 @@ describe('InterviewsService', () => {
       update: jest.Mock;
     };
     interviewTurn: {
-      update: jest.Mock;
+      updateMany: jest.Mock;
       create: jest.Mock;
     };
   };
@@ -23,6 +28,10 @@ describe('InterviewsService', () => {
     generateQuestion: jest.Mock;
     evaluateAnswer: jest.Mock;
     summarize: jest.Mock;
+  };
+  let speech: {
+    transcribe: jest.Mock;
+    synthesize: jest.Mock;
   };
 
   const baseSession = {
@@ -45,7 +54,9 @@ describe('InterviewsService', () => {
         id: 'turn-1',
         sessionId: 'session-1',
         orderIndex: 0,
+        kind: 'main',
         questionText: 'Practice Q1?',
+        rubric: null,
         answerText: null,
         feedback: null,
         score: null,
@@ -64,9 +75,13 @@ describe('InterviewsService', () => {
         update: jest.fn(),
       },
       interviewTurn: {
-        update: jest.fn(),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
         create: jest.fn(),
       },
+    };
+    speech = {
+      transcribe: jest.fn().mockResolvedValue('Spoken answer about Node.'),
+      synthesize: jest.fn().mockResolvedValue(Buffer.from('RIFFwav')),
     };
     llm = {
       provider: 'mock',
@@ -74,6 +89,13 @@ describe('InterviewsService', () => {
       evaluateAnswer: jest.fn().mockResolvedValue({
         feedback: 'Practice feedback',
         score: 75,
+        dimensions: {
+          correctness: 75,
+          depth: 75,
+          tradeoffs: 70,
+          clarity: 80,
+        },
+        followUp: null,
       }),
       summarize: jest.fn().mockResolvedValue({
         overallFeedback: 'Practice summary',
@@ -86,6 +108,7 @@ describe('InterviewsService', () => {
         InterviewsService,
         { provide: PrismaService, useValue: prisma },
         { provide: LLM_CLIENT, useValue: llm },
+        { provide: SpeechService, useValue: speech },
       ],
     }).compile();
 
@@ -113,7 +136,9 @@ describe('InterviewsService', () => {
         status: 'in_progress',
         provider: 'mock',
         turns: {
-          create: [{ orderIndex: 0, questionText: 'Practice Q1?' }],
+          create: [
+            { orderIndex: 0, kind: 'main', questionText: 'Practice Q1?' },
+          ],
         },
       },
       include: {
@@ -124,6 +149,20 @@ describe('InterviewsService', () => {
     });
     expect(result.turns).toHaveLength(1);
     expect(result.provider).toBe('mock');
+  });
+
+  it('does not call the model when the interview tables are missing', async () => {
+    prisma.interviewSession.findFirst.mockRejectedValue({ code: 'P2021' });
+
+    await expect(
+      service.create('user-1', {
+        role: 'Backend Engineer',
+        techStack: ['Node.js'],
+        experienceLevel: 'junior',
+      }),
+    ).rejects.toBeInstanceOf(ServiceUnavailableException);
+
+    expect(llm.generateQuestion).not.toHaveBeenCalled();
   });
 
   it('lists sessions for the current user', async () => {
@@ -165,7 +204,9 @@ describe('InterviewsService', () => {
             id: 'turn-2',
             sessionId: 'session-1',
             orderIndex: 1,
+            kind: 'main',
             questionText: 'Practice Q2?',
+            rubric: null,
             answerText: null,
             feedback: null,
             score: null,
@@ -183,16 +224,19 @@ describe('InterviewsService', () => {
     );
 
     expect(llm.evaluateAnswer).toHaveBeenCalled();
-    expect(prisma.interviewTurn.update).toHaveBeenCalled();
+    expect(prisma.interviewTurn.updateMany).toHaveBeenCalled();
     expect(prisma.interviewTurn.create).toHaveBeenCalledWith({
       data: {
         sessionId: 'session-1',
         orderIndex: 1,
+        kind: 'main',
         questionText: 'Practice Q2?',
       },
     });
     expect(result.turns).toHaveLength(2);
     expect(result.status).toBe('in_progress');
+    expect(result.turns[0]?.score).toBe(75);
+    expect(result.turns[0]?.feedback).toBe('Practice feedback');
   });
 
   it('completes the session after the last answer', async () => {
@@ -254,5 +298,406 @@ describe('InterviewsService', () => {
     await expect(
       service.getForUser('user-1', 'missing'),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('rates a weak answer and still moves to the next question', async () => {
+    llm.evaluateAnswer.mockResolvedValue({
+      feedback: 'Thin on trade-offs',
+      score: 52,
+      dimensions: {
+        correctness: 60,
+        depth: 40,
+        tradeoffs: 30,
+        clarity: 70,
+      },
+      followUp: 'Which consistency trade-off would you accept here?',
+    });
+    prisma.interviewSession.findFirst
+      .mockResolvedValueOnce(baseSession)
+      .mockResolvedValueOnce({
+        ...baseSession,
+        turns: [
+          {
+            ...baseSession.turns[0],
+            answerText: 'I would just use a cache.',
+            feedback: 'Thin on trade-offs',
+            score: 52,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        ...baseSession,
+        turns: [
+          {
+            ...baseSession.turns[0],
+            answerText: 'I would just use a cache.',
+            feedback: 'Thin on trade-offs',
+            score: 52,
+          },
+          {
+            id: 'turn-2',
+            sessionId: 'session-1',
+            orderIndex: 1,
+            kind: 'main',
+            questionText: 'Practice Q2?',
+            answerText: null,
+            feedback: null,
+            score: null,
+            rubric: null,
+            createdAt: new Date('2026-11-02T10:01:00.000Z'),
+            updatedAt: new Date('2026-11-02T10:01:00.000Z'),
+          },
+        ],
+      });
+    llm.generateQuestion.mockResolvedValue('Practice Q2?');
+
+    const result = await service.answer(
+      'user-1',
+      'session-1',
+      'I would just use a cache.',
+    );
+
+    expect(prisma.interviewTurn.create).toHaveBeenCalledWith({
+      data: {
+        sessionId: 'session-1',
+        orderIndex: 1,
+        kind: 'main',
+        questionText: 'Practice Q2?',
+      },
+    });
+    expect(llm.summarize).not.toHaveBeenCalled();
+    expect(result.turns[0]?.score).toBe(52);
+    expect(result.turns[0]?.feedback).toBe('Thin on trade-offs');
+    expect(result.turns[1]?.kind).toBe('main');
+  });
+
+  it('does not ask a second follow-up', async () => {
+    const followUpOpen = {
+      ...baseSession,
+      turns: [
+        {
+          ...baseSession.turns[0],
+          answerText: 'I would just use a cache.',
+          score: 52,
+        },
+        {
+          id: 'turn-2',
+          sessionId: 'session-1',
+          orderIndex: 1,
+          kind: 'follow_up',
+          questionText: 'Which consistency trade-off would you accept here?',
+          answerText: null,
+          feedback: null,
+          score: null,
+          rubric: null,
+          createdAt: new Date('2026-11-02T10:01:00.000Z'),
+          updatedAt: new Date('2026-11-02T10:01:00.000Z'),
+        },
+      ],
+    };
+    llm.evaluateAnswer.mockResolvedValue({
+      feedback: 'Still thin',
+      score: 40,
+      dimensions: {
+        correctness: 40,
+        depth: 40,
+        tradeoffs: 40,
+        clarity: 40,
+      },
+      followUp: 'Say more about staleness.',
+    });
+    prisma.interviewSession.findFirst
+      .mockResolvedValueOnce(followUpOpen)
+      .mockResolvedValueOnce({
+        ...followUpOpen,
+        turns: [
+          followUpOpen.turns[0],
+          {
+            ...followUpOpen.turns[1],
+            answerText: 'I would accept a few seconds of staleness.',
+            score: 40,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        ...followUpOpen,
+        turns: [
+          followUpOpen.turns[0],
+          {
+            ...followUpOpen.turns[1],
+            answerText: 'I would accept a few seconds of staleness.',
+            score: 40,
+          },
+          {
+            id: 'turn-3',
+            sessionId: 'session-1',
+            orderIndex: 2,
+            kind: 'main',
+            questionText: 'Practice Q2?',
+            answerText: null,
+            feedback: null,
+            score: null,
+            rubric: null,
+            createdAt: new Date('2026-11-02T10:02:00.000Z'),
+            updatedAt: new Date('2026-11-02T10:02:00.000Z'),
+          },
+        ],
+      });
+    llm.generateQuestion.mockResolvedValue('Practice Q2?');
+
+    const result = await service.answer(
+      'user-1',
+      'session-1',
+      'I would accept a few seconds of staleness.',
+    );
+
+    expect(prisma.interviewTurn.create).toHaveBeenCalledWith({
+      data: {
+        sessionId: 'session-1',
+        orderIndex: 2,
+        kind: 'main',
+        questionText: 'Practice Q2?',
+      },
+    });
+    expect(
+      result.turns.filter((turn) => turn.kind === 'follow_up'),
+    ).toHaveLength(1);
+  });
+
+  it('does not re-score when the turn was already saved', async () => {
+    prisma.interviewTurn.updateMany.mockResolvedValue({ count: 0 });
+    prisma.interviewSession.findFirst
+      .mockResolvedValueOnce(baseSession)
+      .mockResolvedValueOnce({
+        ...baseSession,
+        turns: [
+          {
+            ...baseSession.turns[0],
+            answerText: 'Already saved.',
+            score: 75,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        ...baseSession,
+        turns: [
+          {
+            ...baseSession.turns[0],
+            answerText: 'Already saved.',
+            score: 75,
+          },
+          {
+            id: 'turn-2',
+            sessionId: 'session-1',
+            orderIndex: 1,
+            kind: 'main',
+            questionText: 'Practice Q2?',
+            answerText: null,
+            feedback: null,
+            score: null,
+            rubric: null,
+            createdAt: new Date('2026-11-02T10:01:00.000Z'),
+            updatedAt: new Date('2026-11-02T10:01:00.000Z'),
+          },
+        ],
+      });
+    llm.generateQuestion.mockResolvedValue('Practice Q2?');
+
+    await service.answer('user-1', 'session-1', 'A second copy of the answer.');
+
+    expect(llm.evaluateAnswer).toHaveBeenCalledTimes(1);
+    expect(prisma.interviewTurn.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves the turn open when the judge returns invalid JSON', async () => {
+    prisma.interviewSession.findFirst.mockResolvedValue(baseSession);
+    llm.evaluateAnswer.mockRejectedValue(new Error('invalid JSON'));
+
+    await expect(
+      service.answer('user-1', 'session-1', 'A real answer.'),
+    ).rejects.toThrow('invalid JSON');
+
+    expect(prisma.interviewTurn.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('transcribes without scoring', async () => {
+    prisma.interviewSession.findFirst.mockResolvedValue(baseSession);
+    const wav = Buffer.alloc(44 + 32);
+    wav.write('RIFF', 0);
+    wav.writeUInt32LE(36 + 32, 4);
+    wav.write('WAVE', 8);
+    wav.write('fmt ', 12);
+    wav.writeUInt32LE(16, 16);
+    wav.writeUInt16LE(1, 20);
+    wav.writeUInt16LE(1, 22);
+    wav.writeUInt32LE(16000, 24);
+    wav.writeUInt32LE(32000, 28);
+    wav.writeUInt16LE(2, 32);
+    wav.writeUInt16LE(16, 34);
+    wav.write('data', 36);
+    wav.writeUInt32LE(32, 40);
+
+    const result = await service.transcribeAnswer('user-1', 'session-1', wav);
+
+    expect(result.transcript).toBe('Spoken answer about Node.');
+    expect(llm.evaluateAnswer).not.toHaveBeenCalled();
+  });
+
+  it('rejects audio that is not a wav', async () => {
+    await expect(
+      service.answerAudio('user-1', 'session-1', Buffer.from('webm')),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(speech.transcribe).not.toHaveBeenCalled();
+  });
+
+  it('does not synthesize another user turn', async () => {
+    prisma.interviewSession.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.turnAudio('user-2', 'session-1', 'turn-1'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(speech.synthesize).not.toHaveBeenCalled();
+  });
+
+  it('finishes the fifth answer instead of adding another question', async () => {
+    const lastOpen = { ...baseSession, questionCount: 1 };
+    const afterAnswer = {
+      ...lastOpen,
+      turns: [
+        {
+          ...lastOpen.turns[0],
+          answerText: 'Just retry it.',
+          feedback: 'Thin',
+          score: 48,
+        },
+      ],
+    };
+    llm.evaluateAnswer.mockResolvedValue({
+      feedback: 'Thin',
+      score: 48,
+      dimensions: {
+        correctness: 50,
+        depth: 40,
+        tradeoffs: 30,
+        clarity: 60,
+      },
+      followUp: 'Which failure mode would you accept?',
+    });
+    prisma.interviewSession.findFirst
+      .mockResolvedValueOnce(lastOpen)
+      .mockResolvedValueOnce(afterAnswer);
+    prisma.interviewSession.update.mockResolvedValue({
+      ...afterAnswer,
+      status: 'completed',
+      completedAt: new Date('2026-11-02T10:05:00.000Z'),
+      overallFeedback: 'Practice summary',
+      overallScore: 48,
+    });
+
+    const result = await service.answer(
+      'user-1',
+      'session-1',
+      'Just retry it.',
+    );
+
+    expect(llm.summarize).toHaveBeenCalled();
+    expect(prisma.interviewTurn.create).not.toHaveBeenCalled();
+    expect(result.status).toBe('completed');
+    expect(result.turns[0]?.score).toBe(48);
+    expect(result.turns[0]?.feedback).toBe('Thin');
+  });
+
+  it('does not call the model again when the question is already answered', async () => {
+    const answered = {
+      ...baseSession,
+      turns: [
+        {
+          ...baseSession.turns[0],
+          answerText: 'Already saved.',
+          score: 75,
+        },
+      ],
+    };
+    prisma.interviewSession.findFirst
+      .mockResolvedValueOnce(answered)
+      .mockResolvedValueOnce({
+        ...answered,
+        turns: [
+          answered.turns[0],
+          {
+            id: 'turn-2',
+            sessionId: 'session-1',
+            orderIndex: 1,
+            kind: 'main',
+            questionText: 'Practice Q2?',
+            answerText: null,
+            feedback: null,
+            score: null,
+            rubric: null,
+            createdAt: new Date('2026-11-02T10:01:00.000Z'),
+            updatedAt: new Date('2026-11-02T10:01:00.000Z'),
+          },
+        ],
+      });
+    llm.generateQuestion.mockResolvedValue('Practice Q2?');
+
+    await service.answer('user-1', 'session-1', 'Another copy.');
+
+    expect(llm.evaluateAnswer).not.toHaveBeenCalled();
+    expect(prisma.interviewTurn.create).toHaveBeenCalledWith({
+      data: {
+        sessionId: 'session-1',
+        orderIndex: 1,
+        kind: 'main',
+        questionText: 'Practice Q2?',
+      },
+    });
+  });
+
+  it('retries the next question without scoring the saved answer again', async () => {
+    const answered = {
+      ...baseSession,
+      turns: [
+        {
+          ...baseSession.turns[0],
+          answerText: 'Saved before the next question failed.',
+          score: 75,
+        },
+      ],
+    };
+    prisma.interviewSession.findFirst
+      .mockResolvedValueOnce(baseSession)
+      .mockResolvedValueOnce(answered)
+      .mockResolvedValueOnce(answered)
+      .mockResolvedValueOnce({
+        ...answered,
+        turns: [
+          answered.turns[0],
+          {
+            id: 'turn-2',
+            sessionId: 'session-1',
+            orderIndex: 1,
+            kind: 'main',
+            questionText: 'Practice Q2?',
+            answerText: null,
+            feedback: null,
+            score: null,
+            rubric: null,
+            createdAt: new Date('2026-11-02T10:01:00.000Z'),
+            updatedAt: new Date('2026-11-02T10:01:00.000Z'),
+          },
+        ],
+      });
+    llm.generateQuestion
+      .mockRejectedValueOnce(new Error('model down'))
+      .mockResolvedValue('Practice Q2?');
+
+    await expect(
+      service.answer('user-1', 'session-1', 'A complete answer.'),
+    ).rejects.toThrow('model down');
+    await service.continue('user-1', 'session-1');
+
+    expect(llm.evaluateAnswer).toHaveBeenCalledTimes(1);
+    expect(prisma.interviewTurn.create).toHaveBeenCalledTimes(1);
   });
 });

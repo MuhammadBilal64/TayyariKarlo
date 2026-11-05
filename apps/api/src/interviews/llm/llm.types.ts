@@ -14,9 +14,18 @@ export type InterviewLlmContext = {
   }>;
 };
 
+export type RubricDimensions = {
+  correctness: number;
+  depth: number;
+  tradeoffs: number;
+  clarity: number;
+};
+
 export type AnswerEvaluation = {
   feedback: string;
   score: number;
+  dimensions: RubricDimensions;
+  followUp: string | null;
 };
 
 export type InterviewSummary = {

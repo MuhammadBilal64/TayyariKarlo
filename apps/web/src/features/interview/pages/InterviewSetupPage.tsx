@@ -89,8 +89,9 @@ export function InterviewSetupPage() {
         State the role
       </h1>
       <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-soft">
-        One seat. Your stack. Five questions—written feedback after each answer.
-        No timer. No answer key until you submit.
+        One seat. Your stack. Five questions, two minutes each. The interviewer
+        listens, interprets the answer, and tells you how it landed before the
+        next question.
       </p>
 
       <form className="mt-8" onSubmit={onSubmit}>
@@ -154,8 +155,8 @@ export function InterviewSetupPage() {
         </div>
 
         <p className="mt-5 m-0 text-[0.85rem] leading-relaxed text-mute">
-          Five questions. Free hosting uses scripted notes; Ollama locally runs
-          a live model.
+          Five questions, two minutes each. The local model scores what you said
+          and explains it before the next question.
         </p>
 
         <div className="mt-6 border-t border-line pt-6">

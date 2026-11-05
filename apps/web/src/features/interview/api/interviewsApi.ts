@@ -6,7 +6,8 @@ import type {
 } from '@tayyari/shared';
 import { apiRequest } from '../../../shared/api/client';
 
-const LLM_TIMEOUT_MS = 90_000;
+const LLM_TIMEOUT_MS = 540_000;
+const VOICE_TIMEOUT_MS = 180_000;
 
 export function createInterview(
   input: StartInterviewInput,
@@ -32,6 +33,49 @@ export function getInterview(sessionId: string, accessToken: string) {
     method: 'GET',
     accessToken,
   });
+}
+
+export function continueInterview(sessionId: string, accessToken: string) {
+  return apiRequest<InterviewSession>(`/interviews/${sessionId}/continue`, {
+    method: 'POST',
+    accessToken,
+    timeoutMs: VOICE_TIMEOUT_MS,
+  });
+}
+
+export function transcribeInterview(
+  sessionId: string,
+  audio: Blob,
+  accessToken: string,
+) {
+  return apiRequest<{ transcript: string }>(
+    `/interviews/${sessionId}/transcribe`,
+    {
+      method: 'POST',
+      body: audio,
+      contentType: 'audio/wav',
+      accessToken,
+      timeoutMs: VOICE_TIMEOUT_MS,
+    },
+  );
+}
+
+export function getTurnAudio(
+  sessionId: string,
+  turnId: string,
+  accessToken: string,
+  part: 'question' | 'feedback' = 'question',
+) {
+  const query = part === 'feedback' ? '?part=feedback' : '';
+  return apiRequest<Blob>(
+    `/interviews/${sessionId}/turns/${turnId}/audio${query}`,
+    {
+      method: 'GET',
+      accessToken,
+      responseType: 'blob',
+      timeoutMs: VOICE_TIMEOUT_MS,
+    },
+  );
 }
 
 export function answerInterview(
