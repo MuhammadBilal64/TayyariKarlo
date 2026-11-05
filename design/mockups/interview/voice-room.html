@@ -219,8 +219,8 @@
         </div>
         <p class="state-label" id="stateLabel">Speaking</p>
         <h1 id="line">
-          Walk me through how you would design a simple order API, including
-          the errors you would return.
+          Walk me through how you would design a simple order API, including the
+          errors you would return.
         </h1>
         <button class="replay" type="button">Replay question</button>
         <div class="states" role="group" aria-label="Presence state">
@@ -235,8 +235,7 @@
       <section class="sheet">
         <label for="transcript">What I heard — edit before sending</label>
         <textarea id="transcript">
-I would put orders under /orders, validate the body, and return 400, 401, 404, and 409 with a stable error shape.</textarea
-        >
+I would put orders under /orders, validate the body, and return 400, 401, 404, and 409 with a stable error shape.</textarea>
         <div class="actions">
           <button class="primary" type="button">Send this answer</button>
           <button class="ghost" type="button">Record again</button>
@@ -265,7 +264,10 @@ I would put orders under /orders, validate the body, and return 400, 401, 404, a
           label.textContent = state.charAt(0).toUpperCase() + state.slice(1);
           line.textContent = lines[state];
           document.querySelectorAll('.states button').forEach((item) => {
-            item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+            item.setAttribute(
+              'aria-pressed',
+              item === button ? 'true' : 'false',
+            );
           });
         });
       });
