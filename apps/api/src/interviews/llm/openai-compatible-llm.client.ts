@@ -188,6 +188,7 @@ export class OpenAiCompatibleLlmClient implements LlmClient {
           messages,
           temperature: 0.4,
           stream: false,
+          keep_alive: '30m',
         }),
         signal: controller.signal,
       });

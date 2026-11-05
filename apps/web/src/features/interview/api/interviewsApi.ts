@@ -6,7 +6,7 @@ import type {
 } from '@tayyari/shared';
 import { apiRequest } from '../../../shared/api/client';
 
-const LLM_TIMEOUT_MS = 120_000;
+const LLM_TIMEOUT_MS = 540_000;
 const VOICE_TIMEOUT_MS = 180_000;
 
 export function createInterview(
