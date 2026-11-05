@@ -11,6 +11,7 @@ import { WorkspacePage } from '../features/home/pages/WorkspacePage';
 import { InterviewResultsPage } from '../features/interview/pages/InterviewResultsPage';
 import { InterviewSessionPage } from '../features/interview/pages/InterviewSessionPage';
 import { InterviewSetupPage } from '../features/interview/pages/InterviewSetupPage';
+import { SignalSessionPage } from '../features/interview/pages/SignalSessionPage';
 
 export function AppRouter() {
   return (
@@ -34,6 +35,10 @@ export function AppRouter() {
           element={<ResultsPage />}
         />
         <Route path="interviews" element={<InterviewSetupPage />} />
+        <Route
+          path="interviews/signal/:sessionId"
+          element={<SignalSessionPage />}
+        />
         <Route
           path="interviews/:sessionId"
           element={<InterviewSessionPage />}
