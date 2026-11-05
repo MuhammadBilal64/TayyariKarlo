@@ -109,15 +109,18 @@ See [instructions.md](instructions.md) and [phases.md](phases.md).
 
 Phases **1–4** are implemented on `main`: auth, MCQ assessments, progress aggregates, recommendations, and the signed-in dashboard.
 
-Phase **5** interviews are on `main`. Hosted Render stays typed practice (`LLM_PROVIDER=mock`) and the session says that voice needs the local model.
+Phase **5** interviews are on `main` with two modes:
 
-A spoken round runs only when the API is on your machine:
+- **Signal Integrity** (flagship): an investigation where you request evidence that can be delayed, partial, or conflicting. The scenario engine owns unlock rules and action outcomes. Scores cite your event log. Works in text on hosted and local.
+- **Classic oral**: five questions, two minutes each, feedback after each answer.
+
+A spoken classic round runs only when the API is on your machine:
 
 1. Install [Ollama](https://ollama.com) and `ollama pull qwen2.5:7b-instruct`. Use `qwen2.5:14b` if you have about 16 GB free.
-2. Install whisper.cpp `small` and Piper `en_US-lessac-medium`.
+2. Install whisper.cpp `base.en` (fits beside the 7B model on ~16 GB machines) and Piper `en_US-lessac-medium`.
 3. In `apps/api/.env`, set `LLM_PROVIDER=ollama` and the `WHISPER_*` / `PIPER_*` paths. Windows examples are in `apps/api/.env.example`.
 
-The browser records 16 kHz WAV. Each question allows two minutes. The model interprets that answer, shows the score and explanation, and then asks the next of the five. Missing speech binaries do not switch the judge to the scripted scorer; type the answer instead.
+The browser records 16 kHz WAV for classic oral. Missing speech binaries do not block Signal Integrity or typed classic answers.
 
 Phase **6** (coding challenges) is still pending.
 
