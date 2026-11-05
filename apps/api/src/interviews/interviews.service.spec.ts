@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { InterviewsService } from './interviews.service';
@@ -145,6 +149,20 @@ describe('InterviewsService', () => {
     });
     expect(result.turns).toHaveLength(1);
     expect(result.provider).toBe('mock');
+  });
+
+  it('does not call the model when the interview tables are missing', async () => {
+    prisma.interviewSession.findFirst.mockRejectedValue({ code: 'P2021' });
+
+    await expect(
+      service.create('user-1', {
+        role: 'Backend Engineer',
+        techStack: ['Node.js'],
+        experienceLevel: 'junior',
+      }),
+    ).rejects.toBeInstanceOf(ServiceUnavailableException);
+
+    expect(llm.generateQuestion).not.toHaveBeenCalled();
   });
 
   it('lists sessions for the current user', async () => {

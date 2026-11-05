@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import type {
   ExperienceLevel,
@@ -45,6 +46,8 @@ export class InterviewsService {
       .map((tech) => tech.trim())
       .filter(Boolean);
     const role = input.role.trim();
+
+    await this.assertInterviewStore();
 
     const draftCtx: InterviewLlmContext = {
       role,
@@ -337,6 +340,26 @@ export class InterviewsService {
       completedAt: session.completedAt?.toISOString() ?? null,
       turns: session.turns.map((turn) => this.toTurnResponse(turn)),
     };
+  }
+
+  private async assertInterviewStore(): Promise<void> {
+    try {
+      await this.prisma.interviewSession.findFirst({
+        select: { id: true },
+      });
+    } catch (caught: unknown) {
+      if (
+        typeof caught === 'object' &&
+        caught !== null &&
+        'code' in caught &&
+        caught.code === 'P2021'
+      ) {
+        throw new ServiceUnavailableException(
+          'The interview database is not ready. Apply the pending migrations, then start the round again.',
+        );
+      }
+      throw caught;
+    }
   }
 
   private toTurnResponse(turn: PrismaInterviewTurn): InterviewTurn {
