@@ -39,12 +39,14 @@ function readFormat(buffer: Buffer): {
   channels: number;
   bits: number;
   dataBytes: number;
+  dataOffset: number;
 } | null {
   let offset = 12;
   let sampleRate = 0;
   let channels = 0;
   let bits = 0;
   let dataBytes = 0;
+  let dataOffset = 0;
 
   while (offset + 8 <= buffer.length) {
     const id = buffer.toString('ascii', offset, offset + 4);
@@ -55,6 +57,7 @@ function readFormat(buffer: Buffer): {
       sampleRate = buffer.readUInt32LE(start + 4);
       bits = buffer.readUInt16LE(start + 14);
     } else if (id === 'data') {
+      dataOffset = start;
       dataBytes = Math.min(size, Math.max(0, buffer.length - start));
       break;
     }
@@ -63,9 +66,35 @@ function readFormat(buffer: Buffer): {
     offset += step;
   }
 
-  if (sampleRate <= 0 || channels <= 0 || bits <= 0 || dataBytes <= 0) {
+  if (
+    sampleRate <= 0 ||
+    channels <= 0 ||
+    bits <= 0 ||
+    dataBytes <= 0 ||
+    dataOffset <= 0
+  ) {
     return null;
   }
 
-  return { sampleRate, channels, bits, dataBytes };
+  return { sampleRate, channels, bits, dataBytes, dataOffset };
+}
+
+/** Room noise and silence make Whisper invent a sentence. Treat that as no speech. */
+const SPEECH_PEAK = 655;
+const SPEECH_SHARE = 0.015;
+
+export function isSilentWav(buffer: Buffer): boolean {
+  const format = readFormat(buffer);
+  if (!format || format.bits !== 16) return false;
+
+  const end = format.dataOffset + format.dataBytes;
+  const stride = format.channels * 2;
+  let loud = 0;
+  let count = 0;
+  for (let index = format.dataOffset; index + 1 < end; index += stride) {
+    count += 1;
+    if (Math.abs(buffer.readInt16LE(index)) >= SPEECH_PEAK) loud += 1;
+  }
+
+  return count === 0 || loud / count < SPEECH_SHARE;
 }

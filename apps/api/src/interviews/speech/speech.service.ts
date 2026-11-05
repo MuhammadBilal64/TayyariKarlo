@@ -2,9 +2,10 @@ import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { isSilentWav } from './wav';
 
 const SETUP =
   'Local speech is not set up. Install whisper.cpp and Piper, set WHISPER_BIN, WHISPER_MODEL, PIPER_BIN, and PIPER_MODEL, or type your answer.';
@@ -14,6 +15,7 @@ export class SpeechService {
   constructor(private readonly config: ConfigService) {}
 
   async transcribe(audio: Buffer): Promise<string> {
+    if (isSilentWav(audio)) return '';
     const bin = this.required('WHISPER_BIN');
     const model = this.required('WHISPER_MODEL');
     const timeoutMs = Number(
@@ -37,6 +39,8 @@ export class SpeechService {
           '-of',
           outBase,
           '-np',
+          '-ng',
+          '-nfa',
         ],
         timeoutMs,
       );
@@ -83,7 +87,14 @@ export class SpeechService {
     stdin?: string,
   ): Promise<void> {
     return new Promise((resolve, reject) => {
-      const child = spawn(bin, args, { windowsHide: true });
+      const child = spawn(bin, args, {
+        windowsHide: true,
+        cwd: dirname(bin),
+      });
+      let stderr = '';
+      child.stderr?.on('data', (chunk: Buffer) => {
+        stderr = (stderr + chunk.toString()).slice(-2000);
+      });
       const timer = setTimeout(() => {
         child.kill();
         reject(new ServiceUnavailableException('Speech timed out'));
@@ -99,7 +110,14 @@ export class SpeechService {
           resolve();
           return;
         }
-        reject(new ServiceUnavailableException(SETUP));
+        const outOfMemory = /failed to allocate/i.test(stderr);
+        reject(
+          new ServiceUnavailableException(
+            outOfMemory
+              ? 'Speech recognition ran out of memory. Use a smaller Whisper model, or type your answer.'
+              : SETUP,
+          ),
+        );
       });
 
       child.stdin.end(stdin ?? '');

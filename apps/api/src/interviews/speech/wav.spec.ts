@@ -1,5 +1,5 @@
 import { BadRequestException, PayloadTooLargeException } from '@nestjs/common';
-import { assertWav, MAX_AUDIO_BYTES } from './wav';
+import { assertWav, isSilentWav, MAX_AUDIO_BYTES } from './wav';
 
 function pcmWav(options: { sampleRate: number; dataBytes: number }): Buffer {
   const { sampleRate, dataBytes } = options;
@@ -42,6 +42,20 @@ describe('assertWav', () => {
       dataBytes: 800 * 2 * 181,
     });
     expect(() => assertWav(tooLong)).toThrow(BadRequestException);
+  });
+
+  it('treats a quiet recording as silence', () => {
+    expect(isSilentWav(pcmWav({ sampleRate: 16000, dataBytes: 3200 }))).toBe(
+      true,
+    );
+  });
+
+  it('keeps a recording that actually contains speech', () => {
+    const wav = pcmWav({ sampleRate: 16000, dataBytes: 3200 });
+    for (let index = 44; index < wav.length; index += 2) {
+      wav.writeInt16LE(index % 20 === 0 ? 4000 : 0, index);
+    }
+    expect(isSilentWav(wav)).toBe(false);
   });
 
   it('rejects audio larger than 8 MB', () => {

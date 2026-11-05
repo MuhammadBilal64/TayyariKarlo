@@ -2,6 +2,19 @@ import { useCallback, useRef, useState } from 'react';
 import { encodeWav } from './encodeWav';
 
 const MAX_MS = 2 * 60 * 1000;
+const SPEECH_PEAK = 0.02;
+const SPEECH_SHARE = 0.015;
+
+function hasSpeech(samples: Float32Array): boolean {
+  const step = Math.max(1, Math.floor(samples.length / 16_000));
+  let loud = 0;
+  let count = 0;
+  for (let index = 0; index < samples.length; index += step) {
+    count += 1;
+    if (Math.abs(samples[index] ?? 0) >= SPEECH_PEAK) loud += 1;
+  }
+  return count > 0 && loud / count >= SPEECH_SHARE;
+}
 
 export function useWavRecorder() {
   const [recording, setRecording] = useState(false);
@@ -43,6 +56,7 @@ export function useWavRecorder() {
       merged.set(chunk, offset);
       offset += chunk.length;
     }
+    if (!hasSpeech(merged)) return null;
     return encodeWav(merged, audio.sampleRate);
   }, []);
 
