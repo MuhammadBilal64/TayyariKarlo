@@ -328,7 +328,8 @@ export const CHECKOUT_LATENCY_SCENARIO: ScenarioDefinition = {
     {
       key: 'increase_pool_size',
       label: 'Increase the DB pool max',
-      description: 'Raise pool max from 100 to 200 without changing request code.',
+      description:
+        'Raise pool max from 100 to 200 without changing request code.',
       outcomeSummary:
         'Symptoms ease briefly, then the database shows higher memory and risk of cascading load. Risky band-aid if the app still opens extra connections per request.',
       quality: 'risky',
