@@ -1,0 +1,16 @@
+---
+description: Multi-agent collaboration for Signal Integrity Interview delivery.
+alwaysApply: true
+---
+
+# Signal Integrity agents
+
+When implementing Signal Integrity Interview, follow `.cursor/agents/`:
+
+- Backend, Frontend, ScenarioAuthor, Eval implement their slice.
+- QA_Agent runs the matrix and files findings.
+- BugFixer closes ≥medium findings with regression tests before the slice is commit-ready.
+- DevOps owns branch/PR/CI and commit identity rules.
+
+Do not mark Signal Integrity done while QA_Agent has open ≥medium bugs or CI is failing.
+Classic oral mode must remain usable unless the owner explicitly retires it.
