@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type {
   Difficulty,
+  ProfileObservationKind,
   ProgressSummary,
   Topic,
   WeakTopic,
@@ -9,13 +10,14 @@ import { PrismaService } from '../common/prisma/prisma.service';
 
 const RECENT_LIMIT = 10;
 const TREND_LIMIT = 20;
+const OBSERVATION_LIMIT = 50;
 
 @Injectable()
 export class ProgressService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getSummary(userId: string): Promise<ProgressSummary> {
-    const [attemptCount, completed] = await Promise.all([
+    const [attemptCount, completed, observations] = await Promise.all([
       this.prisma.assessmentAttempt.count({ where: { userId } }),
       this.prisma.assessmentAttempt.findMany({
         where: { userId, status: 'completed' },
@@ -28,6 +30,21 @@ export class ProgressService {
           score: true,
           percent: true,
           completedAt: true,
+        },
+      }),
+      this.prisma.profileObservation.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: OBSERVATION_LIMIT,
+        select: {
+          id: true,
+          sourceType: true,
+          sourceSessionId: true,
+          kind: true,
+          dimensionKey: true,
+          summary: true,
+          confidence: true,
+          createdAt: true,
         },
       }),
     ]);
@@ -69,6 +86,17 @@ export class ProgressService {
         completedAt: row.completedAt!.toISOString(),
       }));
 
+    const profileObservations = observations.map((row) => ({
+      id: row.id,
+      sourceType: row.sourceType,
+      sourceSessionId: row.sourceSessionId,
+      kind: row.kind as ProfileObservationKind,
+      dimensionKey: row.dimensionKey,
+      summary: row.summary,
+      confidence: row.confidence,
+      createdAt: row.createdAt.toISOString(),
+    }));
+
     return {
       attemptCount,
       completedCount,
@@ -76,6 +104,7 @@ export class ProgressService {
       recentAttempts,
       weakTopics,
       trends,
+      profileObservations,
     };
   }
 

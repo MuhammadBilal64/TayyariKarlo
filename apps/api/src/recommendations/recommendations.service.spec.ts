@@ -42,6 +42,7 @@ describe('RecommendationsService', () => {
         },
       ],
       trends: [],
+      profileObservations: [],
     });
 
     const result = await service.getForUser('user-1');
@@ -71,6 +72,7 @@ describe('RecommendationsService', () => {
       recentAttempts: [],
       weakTopics: [],
       trends: [],
+      profileObservations: [],
     });
 
     const result = await service.getForUser('user-1');
@@ -96,6 +98,7 @@ describe('RecommendationsService', () => {
         },
       ],
       trends: [],
+      profileObservations: [],
     });
 
     const result = await service.getForUser('user-1');
