@@ -31,6 +31,27 @@ export const progressTrendPointSchema = z.object({
 });
 export type ProgressTrendPoint = z.infer<typeof progressTrendPointSchema>;
 
+export const profileObservationKindSchema = z.enum([
+  'demonstrated',
+  'claimed',
+  'inferred',
+]);
+export type ProfileObservationKind = z.infer<
+  typeof profileObservationKindSchema
+>;
+
+export const profileObservationSchema = z.object({
+  id: z.string(),
+  sourceType: z.string(),
+  sourceSessionId: z.string(),
+  kind: profileObservationKindSchema,
+  dimensionKey: z.string(),
+  summary: z.string(),
+  confidence: z.number().min(0).max(1),
+  createdAt: z.string(),
+});
+export type ProfileObservation = z.infer<typeof profileObservationSchema>;
+
 export const progressSummarySchema = z.object({
   attemptCount: z.number().int(),
   completedCount: z.number().int(),
@@ -38,5 +59,6 @@ export const progressSummarySchema = z.object({
   recentAttempts: z.array(progressAttemptSummarySchema),
   weakTopics: z.array(weakTopicSchema),
   trends: z.array(progressTrendPointSchema),
+  profileObservations: z.array(profileObservationSchema),
 });
 export type ProgressSummary = z.infer<typeof progressSummarySchema>;

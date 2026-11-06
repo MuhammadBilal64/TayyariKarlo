@@ -9,12 +9,18 @@ describe('ProgressService', () => {
       count: jest.Mock;
       findMany: jest.Mock;
     };
+    profileObservation: {
+      findMany: jest.Mock;
+    };
   };
 
   beforeEach(async () => {
     prisma = {
       assessmentAttempt: {
         count: jest.fn(),
+        findMany: jest.fn(),
+      },
+      profileObservation: {
         findMany: jest.fn(),
       },
     };
@@ -32,6 +38,7 @@ describe('ProgressService', () => {
   it('returns empty aggregates when no completed attempts', async () => {
     prisma.assessmentAttempt.count.mockResolvedValue(2);
     prisma.assessmentAttempt.findMany.mockResolvedValue([]);
+    prisma.profileObservation.findMany.mockResolvedValue([]);
 
     const result = await service.getSummary('user-1');
 
@@ -42,6 +49,7 @@ describe('ProgressService', () => {
       recentAttempts: [],
       weakTopics: [],
       trends: [],
+      profileObservations: [],
     });
   });
 
@@ -76,6 +84,18 @@ describe('ProgressService', () => {
         completedAt: new Date('2026-10-17T12:00:00.000Z'),
       },
     ]);
+    prisma.profileObservation.findMany.mockResolvedValue([
+      {
+        id: 'obs-1',
+        sourceType: 'signal_session',
+        sourceSessionId: 'sig-1',
+        kind: 'demonstrated',
+        dimensionKey: 'evidence_selection',
+        summary: 'Strong source mix.',
+        confidence: 1,
+        createdAt: new Date('2026-11-06T12:00:00.000Z'),
+      },
+    ]);
 
     const result = await service.getSummary('user-1');
 
@@ -99,6 +119,18 @@ describe('ProgressService', () => {
       'a1',
       'a2',
       'a3',
+    ]);
+    expect(result.profileObservations).toEqual([
+      {
+        id: 'obs-1',
+        sourceType: 'signal_session',
+        sourceSessionId: 'sig-1',
+        kind: 'demonstrated',
+        dimensionKey: 'evidence_selection',
+        summary: 'Strong source mix.',
+        confidence: 1,
+        createdAt: '2026-11-06T12:00:00.000Z',
+      },
     ]);
   });
 });

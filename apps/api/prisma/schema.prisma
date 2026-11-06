@@ -17,16 +17,17 @@ model SchemaMeta {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  email              String              @unique
-  passwordHash       String
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  profile            Profile?
-  refreshTokens      RefreshToken[]
-  assessmentAttempts AssessmentAttempt[]
-  interviewSessions  InterviewSession[]
-  signalSessions     SignalSession[]
+  id                   String               @id @default(cuid())
+  email                String               @unique
+  passwordHash         String
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  profile              Profile?
+  refreshTokens        RefreshToken[]
+  assessmentAttempts   AssessmentAttempt[]
+  interviewSessions    InterviewSession[]
+  signalSessions       SignalSession[]
+  profileObservations  ProfileObservation[]
 
   @@map("users")
 }
@@ -43,6 +44,24 @@ model Profile {
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("profiles")
+}
+
+/// Evidence-linked skill notes derived from completed Signal (or future) sessions.
+model ProfileObservation {
+  id              String   @id @default(cuid())
+  userId          String
+  sourceType      String
+  sourceSessionId String
+  kind            String
+  dimensionKey    String
+  summary         String
+  confidence      Float
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([sourceSessionId])
+  @@map("profile_observations")
 }
 
 model RefreshToken {

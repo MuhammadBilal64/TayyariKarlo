@@ -3,6 +3,11 @@ import type { ScenarioDefinition } from './scenarios/checkout-latency';
 
 export const SIGNAL_RUBRIC_VERSION = 'signal-rubric-v1';
 
+export interface EvalEvent {
+  id: string;
+  eventType: string;
+}
+
 interface EvalInput {
   scenario: ScenarioDefinition;
   unlockedEvidenceKeys: string[];
@@ -23,7 +28,7 @@ interface EvalInput {
   askedQuestions: number;
   sawDelayedOrPartial: boolean;
   revisedAfterEvidence: boolean;
-  eventIds: string[];
+  events: EvalEvent[];
 }
 
 function dim(
@@ -44,6 +49,18 @@ function dim(
   };
 }
 
+function refsFor(
+  events: EvalEvent[],
+  types: string[],
+  insufficient: boolean,
+): string[] {
+  if (insufficient) return [];
+  return events
+    .filter((event) => types.includes(event.eventType))
+    .map((event) => event.id)
+    .slice(0, 12);
+}
+
 export function evaluateSignalSession(input: EvalInput): {
   dimensions: SignalDimensionScore[];
   strengths: string[];
@@ -52,7 +69,6 @@ export function evaluateSignalSession(input: EvalInput): {
   overallSummary: string;
   scenarioExplanation: string;
 } {
-  const refs = input.eventIds.slice(0, 12);
   const relevant = ['deploy_history', 'db_metrics', 'app_logs', 'traces'];
   const hitRelevant = relevant.filter((key) =>
     input.evidenceRequested.includes(key),
@@ -144,6 +160,16 @@ export function evaluateSignalSession(input: EvalInput): {
         ? 3
         : 2;
 
+  const selectionInsufficient = selectionScore == null;
+  const interpretationInsufficient = interpretationScore == null;
+  const hypothesisInsufficient = hypothesisScore == null;
+  const causalInsufficient = causalScore == null;
+  const decisionInsufficient = decisionScore == null;
+  const adaptabilityInsufficient = adaptabilityScore == null;
+  const confidenceInsufficient = confidenceScore == null;
+  const verificationInsufficient = verificationScore == null;
+  const communicationInsufficient = communicationScore == null;
+
   const dimensions = [
     dim(
       'evidence_selection',
@@ -152,8 +178,12 @@ export function evaluateSignalSession(input: EvalInput): {
       selectionScore == null
         ? 'No evidence requests were recorded.'
         : `Requested ${input.evidenceRequested.length} source(s); ${hitRelevant} were highly relevant.`,
-      refs,
-      selectionScore == null,
+      refsFor(
+        input.events,
+        ['evidence_requested', 'evidence_unavailable'],
+        selectionInsufficient,
+      ),
+      selectionInsufficient,
     ),
     dim(
       'evidence_interpretation',
@@ -164,8 +194,12 @@ export function evaluateSignalSession(input: EvalInput): {
         : input.sawDelayedOrPartial
           ? 'Encountered delayed or partial evidence and needed to treat it carefully.'
           : 'Evidence was complete; interpretation still required linking symptoms to mechanism.',
-      refs,
-      interpretationScore == null,
+      refsFor(
+        input.events,
+        ['evidence_requested', 'evidence_unavailable', 'clock_advanced'],
+        interpretationInsufficient,
+      ),
+      interpretationInsufficient,
     ),
     dim(
       'hypothesis_quality',
@@ -174,8 +208,12 @@ export function evaluateSignalSession(input: EvalInput): {
       hypothesisScore == null
         ? 'No hypothesis was stated.'
         : 'Scored from whether the claim was testable and tied to unlocked evidence.',
-      refs,
-      hypothesisScore == null,
+      refsFor(
+        input.events,
+        ['hypothesis_created', 'hypothesis_revised'],
+        hypothesisInsufficient,
+      ),
+      hypothesisInsufficient,
     ),
     dim(
       'causal_reasoning',
@@ -184,8 +222,12 @@ export function evaluateSignalSession(input: EvalInput): {
       causalScore == null
         ? 'Insufficient hypothesis text to score causal reasoning.'
         : 'Looks for a mechanism, not only a correlated symptom.',
-      refs,
-      causalScore == null,
+      refsFor(
+        input.events,
+        ['hypothesis_created', 'hypothesis_revised'],
+        causalInsufficient,
+      ),
+      causalInsufficient,
     ),
     dim(
       'decision_quality',
@@ -194,8 +236,8 @@ export function evaluateSignalSession(input: EvalInput): {
       decisionScore == null
         ? 'No decision was committed.'
         : `Authored outcome quality for this action: ${input.decision?.quality}.`,
-      refs,
-      decisionScore == null,
+      refsFor(input.events, ['decision_committed'], decisionInsufficient),
+      decisionInsufficient,
     ),
     dim(
       'adaptability',
@@ -206,8 +248,12 @@ export function evaluateSignalSession(input: EvalInput): {
         : input.revisedAfterEvidence
           ? 'Revised after new or imperfect evidence — positive engineering behavior.'
           : 'Adaptation scored from whether the working claim changed when evidence changed.',
-      refs,
-      adaptabilityScore == null,
+      refsFor(
+        input.events,
+        ['hypothesis_revised', 'evidence_requested'],
+        adaptabilityInsufficient,
+      ),
+      adaptabilityInsufficient,
     ),
     dim(
       'confidence_calibration',
@@ -216,8 +262,12 @@ export function evaluateSignalSession(input: EvalInput): {
       confidenceScore == null
         ? 'No confidence signal was provided.'
         : 'Checks whether confidence matched how complete the evidence was.',
-      refs,
-      confidenceScore == null,
+      refsFor(
+        input.events,
+        ['hypothesis_created', 'hypothesis_revised'],
+        confidenceInsufficient,
+      ),
+      confidenceInsufficient,
     ),
     dim(
       'verification',
@@ -226,8 +276,8 @@ export function evaluateSignalSession(input: EvalInput): {
       verificationScore == null
         ? 'No verification plan was provided.'
         : 'Looks for concrete metrics or traces to confirm recovery.',
-      refs,
-      verificationScore == null,
+      refsFor(input.events, ['decision_committed'], verificationInsufficient),
+      verificationInsufficient,
     ),
     dim(
       'communication',
@@ -236,8 +286,12 @@ export function evaluateSignalSession(input: EvalInput): {
       communicationScore == null
         ? 'Insufficient written reasoning to score communication.'
         : 'Structured claims and decision reasoning score higher than one-liners.',
-      refs,
-      communicationScore == null,
+      refsFor(
+        input.events,
+        ['hypothesis_created', 'hypothesis_revised', 'decision_committed'],
+        communicationInsufficient,
+      ),
+      communicationInsufficient,
     ),
   ];
 

@@ -1,5 +1,5 @@
 import type { SignalSession, SignalVariant } from '@tayyari/shared';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
@@ -21,6 +21,8 @@ export function SignalSessionPage() {
   const [session, setSession] = useState<SignalSession | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** Sync lock so rapid double-clicks cannot start overlapping actions. */
+  const actionLockRef = useRef(false);
   const [question, setQuestion] = useState('');
   const [claim, setClaim] = useState('');
   const [missing, setMissing] = useState('');
@@ -49,7 +51,8 @@ export function SignalSessionPage() {
   }, [load]);
 
   async function run(action: Parameters<typeof applySignalAction>[1]) {
-    if (!accessToken || !sessionId) return;
+    if (!accessToken || !sessionId || actionLockRef.current) return;
+    actionLockRef.current = true;
     setBusy(true);
     setError(null);
     try {
@@ -58,13 +61,32 @@ export function SignalSessionPage() {
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Action failed');
     } finally {
+      actionLockRef.current = false;
       setBusy(false);
     }
   }
 
   async function onReplay(keepOrChange: 'keep' | 'change') {
-    if (!accessToken || !sessionId || !session?.decisions[0]) return;
+    if (
+      !accessToken ||
+      !sessionId ||
+      !session?.decisions[0] ||
+      actionLockRef.current
+    ) {
+      return;
+    }
+    const originalKey = session.decisions[0].decisionKey;
+    if (keepOrChange === 'change') {
+      if (!decisionKey.trim() || decisionKey === originalKey) {
+        setError(
+          'Select a different decision before recording that you would change it.',
+        );
+        return;
+      }
+    }
+    actionLockRef.current = true;
     setBusy(true);
+    setError(null);
     try {
       const next = await replaySignalDecision(
         sessionId,
@@ -72,7 +94,7 @@ export function SignalSessionPage() {
           decisionId: session.decisions[0].id,
           keepOrChange,
           revisedDecisionKey:
-            keepOrChange === 'change' ? decisionKey || undefined : undefined,
+            keepOrChange === 'change' ? decisionKey : undefined,
           reasoning: replayReason || 'Replay after debrief.',
         },
         accessToken,
@@ -81,8 +103,15 @@ export function SignalSessionPage() {
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Replay failed');
     } finally {
+      actionLockRef.current = false;
       setBusy(false);
     }
+  }
+
+  function citationLabel(ref: string) {
+    const event = session?.events.find((item) => item.id === ref);
+    if (!event) return ref;
+    return `#${event.sequence} ${event.summary}`;
   }
 
   if (!session) {
@@ -435,6 +464,19 @@ export function SignalSessionPage() {
                 <p className="mt-1 mb-0 text-[0.85rem] text-ink-soft">
                   {item.explanation}
                 </p>
+                {item.evidenceRefs.length > 0 ? (
+                  <ul className="mt-2 mb-0 list-none space-y-1 p-0">
+                    {item.evidenceRefs.map((ref) => (
+                      <li key={ref} className="text-[0.75rem] text-mute">
+                        Cite: {citationLabel(ref)}
+                      </li>
+                    ))}
+                  </ul>
+                ) : item.insufficientEvidence ? (
+                  <p className="mt-2 mb-0 text-[0.75rem] text-mute">
+                    No evidence citations (insufficient).
+                  </p>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -450,25 +492,49 @@ export function SignalSessionPage() {
               <p className="mt-2 text-sm text-ink-soft">
                 Original: {session.decisions[0].description}
               </p>
-              <textarea
-                value={replayReason}
-                onChange={(event) => setReplayReason(event.target.value)}
-                rows={3}
-                className="mt-3 w-full rounded-[10px] border border-line bg-white px-3 py-2 text-sm text-ink"
-                placeholder="Would you keep or change this decision with what you know now?"
-              />
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button disabled={busy} onClick={() => void onReplay('keep')}>
-                  Keep original
-                </Button>
-                <Button
-                  variant="ghost"
-                  disabled={busy}
-                  onClick={() => void onReplay('change')}
-                >
-                  I would change it
-                </Button>
-              </div>
+              {session.replay ? (
+                <div className="mt-3 text-sm text-ink">
+                  <p className="m-0 font-semibold">
+                    Recorded:{' '}
+                    {session.replay.keepOrChange === 'keep'
+                      ? 'kept original'
+                      : `would change to ${session.replay.revisedDecisionKey}`}
+                  </p>
+                  <p className="mt-2 mb-0 text-ink-soft">
+                    {session.replay.reasoning}
+                  </p>
+                  {session.replay.comparisonNotes ? (
+                    <p className="mt-2 mb-0 text-mute">
+                      {session.replay.comparisonNotes}
+                    </p>
+                  ) : null}
+                </div>
+              ) : (
+                <>
+                  <textarea
+                    value={replayReason}
+                    onChange={(event) => setReplayReason(event.target.value)}
+                    rows={3}
+                    className="mt-3 w-full rounded-[10px] border border-line bg-white px-3 py-2 text-sm text-ink"
+                    placeholder="Would you keep or change this decision with what you know now?"
+                  />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      disabled={busy}
+                      onClick={() => void onReplay('keep')}
+                    >
+                      Keep original
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => void onReplay('change')}
+                    >
+                      I would change it
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           ) : null}
 

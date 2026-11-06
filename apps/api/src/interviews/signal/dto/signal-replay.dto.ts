@@ -1,9 +1,9 @@
 import {
   IsIn,
-  IsOptional,
   IsString,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class SignalReplayDto {
@@ -14,7 +14,8 @@ export class SignalReplayDto {
   @IsIn(['keep', 'change'])
   keepOrChange!: 'keep' | 'change';
 
-  @IsOptional()
+  /** Required when keepOrChange is "change"; ignored validators when "keep". */
+  @ValidateIf((body: SignalReplayDto) => body.keepOrChange === 'change')
   @IsString()
   @MinLength(1)
   @MaxLength(80)

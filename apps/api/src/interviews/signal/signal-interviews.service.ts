@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -21,6 +22,10 @@ import {
   SIGNAL_RUBRIC_VERSION,
   evaluateSignalSession,
 } from './signal-evaluation';
+import {
+  PROFILE_OBSERVATION_SOURCE_SIGNAL,
+  deriveSignalProfileObservations,
+} from './profile-observations';
 
 type SessionRow = Prisma.SignalSessionGetPayload<{
   include: {
@@ -28,6 +33,7 @@ type SessionRow = Prisma.SignalSessionGetPayload<{
     hypotheses: true;
     decisions: true;
     evaluation: true;
+    replays: true;
   };
 }>;
 
@@ -43,7 +49,7 @@ export class SignalInterviewsService {
   ): Promise<SignalSession> {
     const scenarioId = input.scenarioId?.trim() || 'checkout-latency';
     const variant = (input.variant ?? 'delayed_incomplete') as SignalVariant;
-    const scenario = this.runtime.load(scenarioId);
+    const scenario = this.loadScenario(scenarioId);
     const hidden = this.runtime.initialHiddenState(scenarioId, variant);
     const briefingMessage = scenario.briefing;
 
@@ -74,6 +80,7 @@ export class SignalInterviewsService {
         hypotheses: { orderBy: { sequence: 'asc' } },
         decisions: { orderBy: { sequence: 'asc' } },
         evaluation: true,
+        replays: { orderBy: { createdAt: 'desc' } },
       },
     });
 
@@ -87,7 +94,7 @@ export class SignalInterviewsService {
       take: 50,
     });
     return rows.map((row) => {
-      const scenario = this.runtime.load(row.scenarioId);
+      const scenario = this.loadScenario(row.scenarioId);
       return {
         id: row.id,
         scenarioId: row.scenarioId,
@@ -103,7 +110,11 @@ export class SignalInterviewsService {
   }
 
   async getForUser(userId: string, sessionId: string): Promise<SignalSession> {
-    const session = await this.findSession(userId, sessionId);
+    let session = await this.findSession(userId, sessionId);
+    if (session.status === 'completed' && !session.evaluation) {
+      await this.writeEvaluation(userId, sessionId);
+      session = await this.findSession(userId, sessionId);
+    }
     return this.toSessionResponse(session);
   }
 
@@ -119,7 +130,7 @@ export class SignalInterviewsService {
 
     const action = this.toActionInput(dto);
     const hidden = session.hiddenState as unknown as HiddenState;
-    const scenario = this.runtime.load(session.scenarioId);
+    const scenario = this.loadScenario(session.scenarioId);
     let result;
     try {
       result = this.runtime.apply(
@@ -138,75 +149,130 @@ export class SignalInterviewsService {
       );
     }
 
-    const nextSequence =
-      session.events.reduce((max, event) => Math.max(max, event.sequence), -1) +
-      1;
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`
+          SELECT id FROM signal_sessions
+          WHERE id = ${session.id} AND "userId" = ${userId}
+          FOR UPDATE
+        `;
 
-    await this.prisma.$transaction(async (tx) => {
-      await tx.signalEvent.create({
-        data: {
-          sessionId: session.id,
-          sequence: nextSequence,
-          eventType: result.eventType,
-          payload: result.eventPayload as Prisma.InputJsonValue,
-          simulatedTimeSeconds: result.simulatedTimeSeconds,
-          summary: result.eventSummary,
-        },
-      });
-
-      if (
-        action.type === 'submit_hypothesis' ||
-        action.type === 'revise_hypothesis'
-      ) {
-        const latest = session.hypotheses.at(-1);
-        await tx.signalHypothesis.create({
-          data: {
-            sessionId: session.id,
-            claim: action.claim,
-            supportingEvidenceKeys: action.supportingEvidenceKeys,
-            missingEvidence: action.missingEvidence ?? null,
-            confidence: action.confidence ?? null,
-            sequence: nextSequence,
-            supersedesId:
-              action.type === 'revise_hypothesis' ? (latest?.id ?? null) : null,
+        const locked = await tx.signalSession.findFirst({
+          where: { id: session.id, userId },
+          include: {
+            events: { orderBy: { sequence: 'asc' } },
+            hypotheses: { orderBy: { sequence: 'asc' } },
+            decisions: { orderBy: { sequence: 'asc' } },
+            evaluation: true,
+            replays: { orderBy: { createdAt: 'desc' } },
           },
         });
-      }
+        if (!locked) {
+          throw new NotFoundException('Signal interview session not found');
+        }
+        if (locked.status === 'completed') {
+          throw new BadRequestException('Signal session already completed');
+        }
 
-      if (result.decisionOutcome && action.type === 'commit_decision') {
-        await tx.signalDecision.create({
+        const nextSequence =
+          locked.events.reduce(
+            (max, event) => Math.max(max, event.sequence),
+            -1,
+          ) + 1;
+
+        await tx.signalEvent.create({
           data: {
-            sessionId: session.id,
-            decisionKey: result.decisionOutcome.decisionKey,
-            description: result.decisionOutcome.description,
-            reasoning: action.reasoning,
-            expectedEffect: action.expectedEffect,
-            verificationPlan: action.verificationPlan,
-            supportingEvidenceKeys: action.supportingEvidenceKeys,
-            outcomeSummary: result.decisionOutcome.outcomeSummary,
+            sessionId: locked.id,
             sequence: nextSequence,
+            eventType: result.eventType,
+            payload: result.eventPayload as Prisma.InputJsonValue,
+            simulatedTimeSeconds: result.simulatedTimeSeconds,
+            summary: result.eventSummary,
           },
         });
-      }
 
-      const phase =
-        result.phaseHint === 'outcome' ? 'outcome' : result.phaseHint;
+        if (
+          action.type === 'submit_hypothesis' ||
+          action.type === 'revise_hypothesis'
+        ) {
+          const latest = locked.hypotheses.at(-1);
+          await tx.signalHypothesis.create({
+            data: {
+              sessionId: locked.id,
+              claim: action.claim,
+              supportingEvidenceKeys: action.supportingEvidenceKeys,
+              missingEvidence: action.missingEvidence ?? null,
+              confidence: action.confidence ?? null,
+              sequence: nextSequence,
+              supersedesId:
+                action.type === 'revise_hypothesis'
+                  ? (latest?.id ?? null)
+                  : null,
+            },
+          });
+        }
 
-      await tx.signalSession.update({
-        where: { id: session.id },
-        data: {
-          simulatedTimeSeconds: result.simulatedTimeSeconds,
-          hiddenState: result.hiddenState as unknown as Prisma.InputJsonValue,
-          phase,
-          ...(result.phaseHint === 'outcome'
-            ? { status: 'completed', completedAt: new Date(), phase: 'debrief' }
-            : {}),
-        },
+        if (result.decisionOutcome && action.type === 'commit_decision') {
+          await tx.signalDecision.create({
+            data: {
+              sessionId: locked.id,
+              decisionKey: result.decisionOutcome.decisionKey,
+              description: result.decisionOutcome.description,
+              reasoning: action.reasoning,
+              expectedEffect: action.expectedEffect,
+              verificationPlan: action.verificationPlan,
+              supportingEvidenceKeys: action.supportingEvidenceKeys,
+              outcomeSummary: result.decisionOutcome.outcomeSummary,
+              sequence: nextSequence,
+            },
+          });
+        }
+
+        const phase =
+          result.phaseHint === 'outcome' ? 'outcome' : result.phaseHint;
+
+        await tx.signalSession.update({
+          where: { id: locked.id },
+          data: {
+            simulatedTimeSeconds: result.simulatedTimeSeconds,
+            hiddenState: result.hiddenState as unknown as Prisma.InputJsonValue,
+            phase,
+            ...(result.phaseHint === 'outcome'
+              ? {
+                  status: 'completed',
+                  completedAt: new Date(),
+                  phase: 'debrief',
+                }
+              : {}),
+          },
+        });
+
+        if (result.phaseHint === 'outcome') {
+          const completed = await tx.signalSession.findFirst({
+            where: { id: locked.id, userId },
+            include: {
+              events: { orderBy: { sequence: 'asc' } },
+              hypotheses: { orderBy: { sequence: 'asc' } },
+              decisions: { orderBy: { sequence: 'asc' } },
+              evaluation: true,
+              replays: { orderBy: { createdAt: 'desc' } },
+            },
+          });
+          if (completed) {
+            await this.persistEvaluation(tx, completed);
+          }
+        }
       });
-    });
-
-    if (result.phaseHint === 'outcome') {
-      await this.writeEvaluation(userId, sessionId);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      if (error instanceof NotFoundException) throw error;
+      if (error instanceof ConflictException) throw error;
+      if (this.isUniqueConstraintError(error)) {
+        throw new ConflictException(
+          'Another action was applied concurrently; refresh and retry',
+        );
+      }
+      throw error;
     }
 
     return this.getForUser(userId, sessionId);
@@ -221,6 +287,14 @@ export class SignalInterviewsService {
     if (session.status !== 'completed') {
       throw new BadRequestException('Replay is available after the debrief');
     }
+    if (
+      dto.keepOrChange === 'change' &&
+      !dto.revisedDecisionKey?.trim()
+    ) {
+      throw new BadRequestException(
+        'revisedDecisionKey is required when changing the decision',
+      );
+    }
     const decision = session.decisions.find(
       (item) => item.id === dto.decisionId,
     );
@@ -231,7 +305,7 @@ export class SignalInterviewsService {
     const notes =
       dto.keepOrChange === 'keep'
         ? 'Candidate kept the original decision on replay.'
-        : `Candidate would change to ${dto.revisedDecisionKey ?? 'another action'} on replay.`;
+        : `Candidate would change to ${dto.revisedDecisionKey} on replay.`;
 
     await this.prisma.signalReplay.create({
       data: {
@@ -266,9 +340,33 @@ export class SignalInterviewsService {
     return this.getForUser(userId, sessionId);
   }
 
+  private loadScenario(scenarioId: string) {
+    try {
+      return this.runtime.load(scenarioId);
+    } catch (error) {
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Unknown scenario',
+      );
+    }
+  }
+
+  private isUniqueConstraintError(error: unknown): boolean {
+    return (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    );
+  }
+
   private async writeEvaluation(userId: string, sessionId: string) {
     const session = await this.findSession(userId, sessionId);
-    const scenario = this.runtime.load(session.scenarioId);
+    await this.persistEvaluation(this.prisma, session);
+  }
+
+  private async persistEvaluation(
+    db: Prisma.TransactionClient | PrismaService,
+    session: SessionRow,
+  ) {
+    const scenario = this.loadScenario(session.scenarioId);
     const hidden = session.hiddenState as unknown as HiddenState;
     const evidenceRequested = session.events
       .filter((event) => event.eventType === 'evidence_requested')
@@ -322,10 +420,13 @@ export class SignalInterviewsService {
       askedQuestions,
       sawDelayedOrPartial,
       revisedAfterEvidence,
-      eventIds: session.events.map((event) => event.id),
+      events: session.events.map((event) => ({
+        id: event.id,
+        eventType: event.eventType,
+      })),
     });
 
-    await this.prisma.signalEvaluation.upsert({
+    await db.signalEvaluation.upsert({
       where: { sessionId: session.id },
       create: {
         sessionId: session.id,
@@ -345,6 +446,41 @@ export class SignalInterviewsService {
         overallSummary: report.overallSummary,
         scenarioExplanation: report.scenarioExplanation,
       },
+    });
+
+    await this.persistProfileObservations(db, session, report.dimensions);
+  }
+
+  private async persistProfileObservations(
+    db: Prisma.TransactionClient | PrismaService,
+    session: SessionRow,
+    dimensions: SignalDimensionScore[],
+  ) {
+    const derived = deriveSignalProfileObservations({
+      dimensions,
+      hypothesisClaims: session.hypotheses.map((item) => item.claim),
+    });
+
+    await db.profileObservation.deleteMany({
+      where: {
+        userId: session.userId,
+        sourceType: PROFILE_OBSERVATION_SOURCE_SIGNAL,
+        sourceSessionId: session.id,
+      },
+    });
+
+    if (derived.length === 0) return;
+
+    await db.profileObservation.createMany({
+      data: derived.map((item) => ({
+        userId: session.userId,
+        sourceType: PROFILE_OBSERVATION_SOURCE_SIGNAL,
+        sourceSessionId: session.id,
+        kind: item.kind,
+        dimensionKey: item.dimensionKey,
+        summary: item.summary,
+        confidence: item.confidence,
+      })),
     });
   }
 
@@ -398,6 +534,7 @@ export class SignalInterviewsService {
         hypotheses: { orderBy: { sequence: 'asc' } },
         decisions: { orderBy: { sequence: 'asc' } },
         evaluation: true,
+        replays: { orderBy: { createdAt: 'desc' } },
       },
     });
     if (!session) {
@@ -410,7 +547,7 @@ export class SignalInterviewsService {
     session: SessionRow,
     interviewerOverride?: string,
   ): SignalSession {
-    const scenario = this.runtime.load(session.scenarioId);
+    const scenario = this.loadScenario(session.scenarioId);
     const hidden = session.hiddenState as unknown as HiddenState;
     const unlocked = hidden.unlockedEvidenceKeys ?? [];
     const unlockedEvidence = this.runtime.visibleEvidence(
@@ -484,6 +621,17 @@ export class SignalInterviewsService {
             recommendedPractice: session.evaluation.recommendedPractice,
             overallSummary: session.evaluation.overallSummary,
             scenarioExplanation: session.evaluation.scenarioExplanation,
+          }
+        : null,
+      replay: session.replays[0]
+        ? {
+            id: session.replays[0].id,
+            decisionId: session.replays[0].decisionId,
+            keepOrChange: session.replays[0].keepOrChange as 'keep' | 'change',
+            revisedDecisionKey: session.replays[0].revisedDecisionKey,
+            reasoning: session.replays[0].reasoning,
+            comparisonNotes: session.replays[0].comparisonNotes,
+            createdAt: session.replays[0].createdAt.toISOString(),
           }
         : null,
       startedAt: session.startedAt.toISOString(),

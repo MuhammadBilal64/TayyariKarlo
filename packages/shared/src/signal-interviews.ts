@@ -173,6 +173,17 @@ export const signalEventViewSchema = z.object({
 });
 export type SignalEventView = z.infer<typeof signalEventViewSchema>;
 
+export const signalReplayViewSchema = z.object({
+  id: z.string(),
+  decisionId: z.string(),
+  keepOrChange: z.enum(['keep', 'change']),
+  revisedDecisionKey: z.string().nullable(),
+  reasoning: z.string(),
+  comparisonNotes: z.string().nullable(),
+  createdAt: z.string(),
+});
+export type SignalReplayView = z.infer<typeof signalReplayViewSchema>;
+
 export const signalActionOptionSchema = z.object({
   key: z.string(),
   label: z.string(),
@@ -201,6 +212,7 @@ export const signalSessionSchema = z.object({
   events: z.array(signalEventViewSchema),
   interviewerMessage: z.string().nullable(),
   evaluation: signalEvaluationViewSchema.nullable(),
+  replay: signalReplayViewSchema.nullable(),
   startedAt: z.string(),
   completedAt: z.string().nullable(),
 });
@@ -219,10 +231,23 @@ export const signalSessionSummarySchema = z.object({
 });
 export type SignalSessionSummary = z.infer<typeof signalSessionSummarySchema>;
 
-export const signalReplaySchema = z.object({
-  decisionId: z.string(),
-  keepOrChange: z.enum(['keep', 'change']),
-  revisedDecisionKey: z.string().trim().min(1).max(80).optional(),
-  reasoning: z.string().trim().min(1).max(4000),
-});
+export const signalReplaySchema = z
+  .object({
+    decisionId: z.string(),
+    keepOrChange: z.enum(['keep', 'change']),
+    revisedDecisionKey: z.string().trim().min(1).max(80).optional(),
+    reasoning: z.string().trim().min(1).max(4000),
+  })
+  .superRefine((value, ctx) => {
+    if (
+      value.keepOrChange === 'change' &&
+      (!value.revisedDecisionKey || value.revisedDecisionKey.trim().length === 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'revisedDecisionKey is required when keepOrChange is change',
+        path: ['revisedDecisionKey'],
+      });
+    }
+  });
 export type SignalReplayInput = z.infer<typeof signalReplaySchema>;
