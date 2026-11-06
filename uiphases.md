@@ -51,14 +51,14 @@ What completed · files changed · verification · commit hash + message · upda
 ## Phase 0 — Repository inspection & preparation
 
 **Goal:** Understand current UI in browser, create this plan, wait for approval before creative work.  
-**Status:** In Progress (awaiting owner approval of this plan)
+**Status:** Completed (owner approved 2026-11-06)
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
 | UI-0.1 | Create phase branch | Completed | From `origin/main`, branch `phase/02-brand-identity-ui-revamp`; preserve uncommitted work | On branch; `scripts/` still untracked/untouched | — | `git status` clean of discards |
 | UI-0.2 | Browser UI audit | Completed | Run app; inspect Home, Auth, Workspace, Assessments, Interviews | Written visual/UX weaknesses below (not code-only) | UI-0.1 | Browser screenshots + navigation |
 | UI-0.3 | Author `uiphases.md` | Completed | Full phase/task breakdown with AC, deps, tests, statuses | This file exists; product `phases.md` unchanged | UI-0.2 | Manual review |
-| UI-0.4 | Plan approval gate | Pending | Present plan; **stop** until owner approves | Explicit approval before Phase 1 | UI-0.3 | — |
+| UI-0.4 | Plan approval gate | Completed | Present plan; **stop** until owner approves | Explicit approval before Phase 1 | UI-0.3 | — |
 
 ### Browser audit findings (2026-11-06, local `127.0.0.1:5173`)
 
@@ -86,18 +86,36 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 ## Phase 1 — Original logo & brand identity
 
 **Goal:** Three original logo directions → owner pick → finalize SVG/favicon → integrate.  
-**Status:** Pending  
+**Status:** In Progress  
 **Gate:** Do **not** integrate until logo approved.
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
-| UI-1.1 | Brand brief | Pending | Audience, emotions, differentiation (confidence, preparation, progress, competence) | Written brief in chat + short section here | UI-0.4 | Review |
-| UI-1.2 | Generate 3 logo concepts | Pending | Three genuinely different marks/wordmarks; light/dark; navbar + favicon scale | Actual generated concepts presented with design thinking | UI-1.1 | Visual review |
+| UI-1.1 | Brand brief | Completed | Audience, emotions, differentiation (confidence, preparation, progress, competence) | Written brief in chat + short section here | UI-0.4 | Review |
+| UI-1.2 | Generate 3 logo concepts | Completed | Three genuinely different marks/wordmarks; light/dark; navbar + favicon scale | Actual generated concepts presented with design thinking | UI-1.1 | Visual review |
 | UI-1.3 | Logo approval gate | Pending | **Stop** for owner feedback / selection / revisions | Explicit approval of direction | UI-1.2 | — |
 | UI-1.4 | Finalize logo assets | Pending | SVG (and variants), favicon/app icon | Assets in repo under agreed paths | UI-1.3 | Visual QA at 16/32/64px |
 | UI-1.5 | Integrate approved logo | Pending | Home, AppShell, AuthShell, favicon, title meta as needed | Brand mark visible; old Vite favicon gone | UI-1.4 | Browser check |
 
 **Avoid:** graduation caps, books, lightbulbs, generic checkmarks, generic AI glyphs, empty geometric marks.
+
+### Brand brief (UI-1.1)
+
+| | |
+|--|--|
+| **Product** | TayyariKarlo — practice assessments, progress insight, classic oral + Signal Integrity interview rehearsal |
+| **Audience** | Students and early-career engineers preparing for technical screens and onsites |
+| **Job** | Turn anxiety into deliberate readiness; make weak spots visible; rehearse under pressure |
+| **Personality** | Confident, precise, modern, unsentimental — a practice instrument, not a campus brochure |
+| **Emotions** | Calm focus, earned confidence, forward motion, competence |
+| **Differentiate** | Evidence and rehearsal over “AI tutor” vibes; Urdu/Hindi “tayyari” (preparation) + “karlo” (do it) as do-the-work energy |
+| **Visual mandate** | Sharp tech brand mark; works at favicon; no education clichés |
+
+### Logo directions in exploration
+
+1. **Signal Resolve** — noisy trace resolving into a clean locked signal (readiness from imperfect evidence).  
+2. **Threshold Monogram** — interlocking T/K as a passage you cross when prepared.  
+3. **Calibration Spine** — precision notches ascending a vertical instrument (rounds of prep, not graduation stairs).
 
 ---
 
@@ -217,3 +235,4 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | Date | Note |
 |------|------|
 | 2026-11-06 | Phase 0: branch created; browser audit done; this file authored. **Awaiting UI-0.4 approval before logo work.** |
+| 2026-11-06 | Phase 0 approved. Brand brief + three logo concepts (A Signal Resolve, B Threshold Monogram, C Calibration Spine) in `design/brand/logo-concepts/`. **Awaiting UI-1.3 logo direction approval.** |
