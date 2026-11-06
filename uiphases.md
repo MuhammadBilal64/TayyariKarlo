@@ -113,9 +113,16 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 
 ### Logo directions in exploration
 
-1. **Signal Resolve** — noisy trace resolving into a clean locked signal (readiness from imperfect evidence).  
-2. **Threshold Monogram** — interlocking T/K as a passage you cross when prepared.  
-3. **Calibration Spine** — precision notches ascending a vertical instrument (rounds of prep, not graduation stairs).
+**Round 1 (owner not satisfied — kept for archive):**
+1. **A Signal Resolve** — telemetry → locked bar.  
+2. **B Threshold Monogram** — interlocking T/K doorway.  
+3. **C Calibration Spine** — vertical instrument notches.
+
+**Round 2 (more modern / unique — under review):**
+4. **D Orbit Gap** — incomplete ring + rotated pip (continuous practice / almost-ready).  
+5. **E Shear Cut** — shearing slabs + acid lime slash (cut through pressure).  
+6. **F Reply Bracket** — asymmetric brackets + coral beat (Q&A / interview dialogue).  
+7. **G Stamp TK** — custom fused T/K seal (action / “karlo”).
 
 ---
 
@@ -236,3 +243,4 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 |------|------|
 | 2026-11-06 | Phase 0: branch created; browser audit done; this file authored. **Awaiting UI-0.4 approval before logo work.** |
 | 2026-11-06 | Phase 0 approved. Brand brief + three logo concepts (A Signal Resolve, B Threshold Monogram, C Calibration Spine) in `design/brand/logo-concepts/`. **Awaiting UI-1.3 logo direction approval.** |
+| 2026-11-06 | Owner wanted more unique/modern marks. Added Round 2: D Orbit Gap, E Shear Cut, F Reply Bracket, G Stamp TK. **Still at UI-1.3.** |
