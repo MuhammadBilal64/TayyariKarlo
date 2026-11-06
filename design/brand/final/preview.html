@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Orbit Gap preview</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: #e8e8ec;
+        color: #0a0a0a;
+        padding: 32px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+      .card {
+        background: #fff;
+        padding: 24px;
+        border-radius: 12px;
+      }
+      .card.dark {
+        background: #0a0a0a;
+        color: #fff;
+      }
+      img,
+      object {
+        width: 96px;
+        height: 96px;
+        display: block;
+      }
+      .tiny img {
+        width: 24px;
+        height: 24px;
+      }
+      h1 {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Orbit Gap — final mark preview</h1>
+    <div class="row">
+      <div class="card">
+        <p>Light</p>
+        <img src="./orbit-gap-mark-light.svg" alt="Orbit Gap light" />
+      </div>
+      <div class="card dark">
+        <p>Dark</p>
+        <img src="./orbit-gap-mark-dark.svg" alt="Orbit Gap dark" />
+      </div>
+      <div class="card tiny">
+        <p>24px</p>
+        <img src="./orbit-gap-mark-light.svg" alt="Orbit Gap tiny" />
+      </div>
+    </div>
+  </body>
+</html>
