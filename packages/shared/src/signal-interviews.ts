@@ -20,10 +20,7 @@ export const signalEvidenceStatusSchema = z.enum([
 ]);
 export type SignalEvidenceStatus = z.infer<typeof signalEvidenceStatusSchema>;
 
-export const signalSessionStatusSchema = z.enum([
-  'in_progress',
-  'completed',
-]);
+export const signalSessionStatusSchema = z.enum(['in_progress', 'completed']);
 export type SignalSessionStatus = z.infer<typeof signalSessionStatusSchema>;
 
 export const signalPhaseSchema = z.enum([
@@ -241,7 +238,8 @@ export const signalReplaySchema = z
   .superRefine((value, ctx) => {
     if (
       value.keepOrChange === 'change' &&
-      (!value.revisedDecisionKey || value.revisedDecisionKey.trim().length === 0)
+      (!value.revisedDecisionKey ||
+        value.revisedDecisionKey.trim().length === 0)
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
