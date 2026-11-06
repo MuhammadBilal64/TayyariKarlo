@@ -86,8 +86,8 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 ## Phase 1 — Original logo & brand identity
 
 **Goal:** Three original logo directions → owner pick → finalize SVG/favicon → integrate.  
-**Status:** In Progress (Concept **D Orbit Gap** approved)  
-**Gate:** Do **not** integrate until logo approved. *(Direction approved — finalizing assets.)*
+**Status:** Completed (Concept **D Orbit Gap** approved, assets + integration)  
+**Gate:** Logo direction approved and integrated.
 
 | ID | Task | Status | Description | Acceptance criteria | Depends | Testing |
 |----|------|--------|-------------|---------------------|---------|---------|
@@ -95,7 +95,7 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | UI-1.2 | Generate 3 logo concepts | Completed | Three genuinely different marks/wordmarks; light/dark; navbar + favicon scale | Actual generated concepts presented with design thinking | UI-1.1 | Visual review |
 | UI-1.3 | Logo approval gate | Completed | **Stop** for owner feedback / selection / revisions | Explicit approval of direction (**D Orbit Gap**) | UI-1.2 | — |
 | UI-1.4 | Finalize logo assets | Completed | SVG (and variants), favicon/app icon | Assets in repo under agreed paths | UI-1.3 | Visual QA at 16/32/64px |
-| UI-1.5 | Integrate approved logo | Pending | Home, AppShell, AuthShell, favicon, title meta as needed | Brand mark visible; old Vite favicon gone | UI-1.4 | Browser check |
+| UI-1.5 | Integrate approved logo | Completed | Home, AppShell, AuthShell, favicon, title meta as needed | Brand mark visible; old Vite favicon gone | UI-1.4 | Browser check |
 
 **Avoid:** graduation caps, books, lightbulbs, generic checkmarks, generic AI glyphs, empty geometric marks.
 
@@ -245,3 +245,4 @@ Surfaces inspected: `/`, `/login`, `/register`, `/app` (empty progress), `/app/a
 | 2026-11-06 | Phase 0 approved. Brand brief + three logo concepts (A Signal Resolve, B Threshold Monogram, C Calibration Spine) in `design/brand/logo-concepts/`. **Awaiting UI-1.3 logo direction approval.** |
 | 2026-11-06 | Owner wanted more unique/modern marks. Added Round 2: D Orbit Gap, E Shear Cut, F Reply Bracket, G Stamp TK. **Still at UI-1.3.** |
 | 2026-11-06 | Owner approved **D Orbit Gap**. Final SVGs + favicon in `design/brand/final/` and `apps/web/public/`. Next: UI-1.5 integrate. |
+| 2026-11-06 | UI-1.5: `BrandMark` / `BrandLockup` on Home, AppShell, AuthShell; Vite favicon replaced. Phase 1 complete — next Phase 2 design system proposal. |

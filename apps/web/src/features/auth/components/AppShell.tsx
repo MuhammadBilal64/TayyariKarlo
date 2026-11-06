@@ -1,4 +1,5 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
+import { BrandLockup } from '../../../shared/ui/BrandLockup';
 import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../hooks/useAuth';
 
@@ -17,12 +18,12 @@ export function AppShell() {
       <header className="sticky top-0 z-20 border-b border-line/90 bg-paper-lift/85 px-5 py-3.5 backdrop-blur-md sm:px-8 lg:px-12">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
-            <Link
+            <BrandLockup
               to="/app"
-              className="font-display shrink-0 cursor-pointer text-[1.45rem] tracking-[-0.02em] text-ink no-underline transition-opacity duration-200 hover:opacity-75 hover:no-underline"
-            >
-              TayyariKarlo
-            </Link>
+              className="shrink-0"
+              markClassName="h-7 w-7 shrink-0 text-ink"
+              wordmarkClassName="font-display text-[1.45rem] tracking-[-0.02em] text-ink"
+            />
             <nav
               className="flex flex-wrap items-center gap-1"
               aria-label="Workspace"

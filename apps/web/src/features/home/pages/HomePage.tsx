@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { AuthLoading } from '../../auth/components/AuthLoading';
 import { useAuth } from '../../auth/hooks/useAuth';
+import { BrandLockup } from '../../../shared/ui/BrandLockup';
+import { BrandMark } from '../../../shared/ui/BrandMark';
 import { Button } from '../../../shared/ui/Button';
 
 export function HomePage() {
@@ -13,12 +15,11 @@ export function HomePage() {
   return (
     <div className="graph-bg flex min-h-screen flex-col px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
       <header className="flex items-center justify-between gap-4">
-        <Link
+        <BrandLockup
           to="/"
-          className="font-display cursor-pointer text-[1.65rem] tracking-[-0.02em] text-ink no-underline transition-opacity duration-200 hover:opacity-75 hover:no-underline"
-        >
-          TayyariKarlo
-        </Link>
+          markClassName="h-8 w-8 shrink-0 text-ink"
+          wordmarkClassName="font-display text-[1.65rem] tracking-[-0.02em] text-ink"
+        />
         {!isAuthenticated ? (
           <nav className="flex items-center gap-3">
             <Link
@@ -50,9 +51,12 @@ export function HomePage() {
         <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
           Technical interview prep
         </p>
-        <h1 className="font-display mt-3 text-[clamp(2.8rem,7vw,4.6rem)] leading-none font-normal tracking-[-0.03em] text-ink">
-          TayyariKarlo
-        </h1>
+        <div className="mt-5 flex items-center gap-4 sm:gap-5">
+          <BrandMark className="h-14 w-14 shrink-0 text-ink sm:h-16 sm:w-16" />
+          <h1 className="font-display m-0 text-[clamp(2.4rem,6.5vw,4.2rem)] leading-none font-normal tracking-[-0.03em] text-ink">
+            TayyariKarlo
+          </h1>
+        </div>
         <p className="mt-4 max-w-md text-base leading-relaxed text-ink-soft">
           Practice assessments, see where you are weak, and rehearse interviews
           before the real round.
