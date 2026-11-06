@@ -2,10 +2,7 @@ import type { SignalDimensionScore } from '@tayyari/shared';
 
 export const PROFILE_OBSERVATION_SOURCE_SIGNAL = 'signal_session';
 
-export type ProfileObservationKind =
-  | 'demonstrated'
-  | 'claimed'
-  | 'inferred';
+export type ProfileObservationKind = 'demonstrated' | 'claimed' | 'inferred';
 
 export interface DerivedProfileObservation {
   kind: ProfileObservationKind;
@@ -62,7 +59,10 @@ export function deriveSignalProfileObservations(input: {
 
   const seenClaims = new Set<string>();
   for (const claim of input.hypothesisClaims) {
-    if (observations.filter((item) => item.kind === 'claimed').length >= CLAIMED_LIMIT) {
+    if (
+      observations.filter((item) => item.kind === 'claimed').length >=
+      CLAIMED_LIMIT
+    ) {
       break;
     }
     const trimmed = claim.trim();

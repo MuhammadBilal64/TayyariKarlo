@@ -48,7 +48,7 @@ export class SignalInterviewsService {
     input: StartSignalInterviewDto,
   ): Promise<SignalSession> {
     const scenarioId = input.scenarioId?.trim() || 'checkout-latency';
-    const variant = (input.variant ?? 'delayed_incomplete') as SignalVariant;
+    const variant = input.variant ?? 'delayed_incomplete';
     const scenario = this.loadScenario(scenarioId);
     const hidden = this.runtime.initialHiddenState(scenarioId, variant);
     const briefingMessage = scenario.briefing;
@@ -287,10 +287,7 @@ export class SignalInterviewsService {
     if (session.status !== 'completed') {
       throw new BadRequestException('Replay is available after the debrief');
     }
-    if (
-      dto.keepOrChange === 'change' &&
-      !dto.revisedDecisionKey?.trim()
-    ) {
+    if (dto.keepOrChange === 'change' && !dto.revisedDecisionKey?.trim()) {
       throw new BadRequestException(
         'revisedDecisionKey is required when changing the decision',
       );
@@ -431,7 +428,7 @@ export class SignalInterviewsService {
       create: {
         sessionId: session.id,
         rubricVersion: SIGNAL_RUBRIC_VERSION,
-        dimensions: report.dimensions as unknown as Prisma.InputJsonValue,
+        dimensions: report.dimensions,
         strengths: report.strengths,
         gaps: report.gaps,
         recommendedPractice: report.recommendedPractice,
@@ -439,7 +436,7 @@ export class SignalInterviewsService {
         scenarioExplanation: report.scenarioExplanation,
       },
       update: {
-        dimensions: report.dimensions as unknown as Prisma.InputJsonValue,
+        dimensions: report.dimensions,
         strengths: report.strengths,
         gaps: report.gaps,
         recommendedPractice: report.recommendedPractice,
