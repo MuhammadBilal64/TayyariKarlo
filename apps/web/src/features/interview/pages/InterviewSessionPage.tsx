@@ -1,9 +1,11 @@
 import type { InterviewSession } from '@tayyari/shared';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { InlineStatus } from '../../../shared/ui/InlineStatus';
+import { PageState } from '../../../shared/ui/PageState';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { VoiceRoom } from '../components/VoiceRoom';
 import {
@@ -188,33 +190,37 @@ export function InterviewSessionPage() {
 
   if (error && !session) {
     return (
-      <section>
-        <p className="rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-          {error}
-        </p>
-        <Link
-          to="/app/interviews"
-          className="mt-4 inline-block text-sm font-semibold text-signal"
-        >
-          State the role
-        </Link>
-      </section>
+      <PageState
+        eyebrow="Interview"
+        title="Interview unavailable"
+        error={error}
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/interviews')}
+          >
+            Choose the round
+          </Button>
+        }
+      />
     );
   }
 
   if (!session || !openTurn) {
     return (
-      <section>
-        <p className="m-0 text-sm text-ink-soft">
-          No open question on this round.
-        </p>
-        <Link
-          to="/app/interviews"
-          className="mt-4 inline-block text-sm font-semibold text-signal"
-        >
-          Begin a new interview
-        </Link>
-      </section>
+      <PageState
+        eyebrow="Interview"
+        title="No open question"
+        description="This round has no open question left."
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/interviews')}
+          >
+            Begin a new interview
+          </Button>
+        }
+      />
     );
   }
 
@@ -223,62 +229,45 @@ export function InterviewSessionPage() {
   const spoken = session.provider === 'ollama';
 
   return (
-    <section>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <Link
-          to="/app"
-          className="text-sm font-semibold text-signal no-underline hover:underline"
-        >
-          ← Workspace
-        </Link>
-        <Link
-          to="/app/interviews"
-          className="text-sm text-mute no-underline hover:text-ink hover:underline"
-        >
-          Exit round
-        </Link>
-      </div>
-      <div className="mb-2.5 flex items-center justify-between gap-3">
+    <section className="w-full">
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
           {topic.label} · {session.role}
         </p>
         {isMock ? (
-          <span className="rounded-[6px] border border-line bg-paper-lift px-2 py-0.5 text-[0.68rem] font-semibold tracking-[0.04em] text-ink-soft uppercase">
+          <span className="text-[0.72rem] font-semibold tracking-[0.06em] text-mute uppercase">
             Scripted practice
           </span>
         ) : null}
       </div>
-      <div
-        className="mb-7 h-[3px] overflow-hidden rounded-full bg-line"
-        aria-hidden="true"
-      >
-        <span
-          className="ui-progress block h-full bg-signal"
+      <div className="h-[3px] overflow-hidden bg-line" aria-hidden="true">
+        <i
+          className="ui-progress block h-full bg-signal not-italic"
           style={{ width: `${topic.percent}%` }}
         />
       </div>
 
       {priorTurns.length > 0 ? (
-        <details className="mb-5 border-y border-line py-3">
+        <details className="mt-5 border-y border-line py-3">
           <summary className="cursor-pointer text-sm font-semibold text-ink-soft">
             Earlier answers ({priorTurns.length})
           </summary>
           <div className="mt-3 grid gap-4">
             {priorTurns.map((turn) => (
               <article key={turn.id}>
-                <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
+                <p className="m-0 text-[0.7rem] font-semibold tracking-[0.14em] text-signal uppercase">
                   {turn.kind === 'follow_up' ? 'Follow-up' : 'Topic'}
                 </p>
-                <h2 className="font-display mt-2 m-0 text-[clamp(1.15rem,2.5vw,1.35rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
+                <h2 className="font-display mt-2 m-0 text-[clamp(1.15rem,2.5vw,1.35rem)] leading-[1.25] font-semibold tracking-[-0.02em] text-ink">
                   {turn.questionText}
                 </h2>
                 <p className="mt-2.5 m-0 text-[0.92rem] leading-relaxed text-ink-soft">
                   {turn.answerText}
                 </p>
                 {turn.feedback ? (
-                  <div className="mt-3 border-l-[3px] border-signal bg-signal-soft px-3.5 py-3 text-[0.85rem] leading-relaxed text-ink">
+                  <p className="mt-2 m-0 border-l-2 border-signal pl-3.5 text-[0.85rem] leading-relaxed text-ink-soft">
                     {turn.feedback}
-                  </div>
+                  </p>
                 ) : null}
               </article>
             ))}
@@ -299,65 +288,73 @@ export function InterviewSessionPage() {
       ) : null}
 
       {spoken ? null : (
-        <article className="border-y border-line py-4">
-          <div className="flex items-start justify-between gap-4">
-            <p className="m-0 text-[0.72rem] font-semibold tracking-[0.12em] text-signal uppercase">
-              Question
-            </p>
+        <>
+          <div className="mt-7 flex items-start justify-between gap-4 border-t border-line pt-5">
+            <div className="min-w-0">
+              <p className="m-0 text-[0.7rem] font-semibold tracking-[0.18em] text-signal uppercase">
+                Question
+              </p>
+              <h1 className="font-display mt-2 m-0 text-[clamp(1.55rem,3.2vw,2.05rem)] leading-[1.3] font-semibold tracking-[-0.02em] text-ink text-balance">
+                {openTurn.questionText}
+              </h1>
+            </div>
             <p
-              className={`font-display m-0 text-[1.8rem] leading-none tracking-[-0.04em] ${secondsLeft <= 15 ? 'text-danger' : 'text-ink'}`}
+              className={`font-display m-0 shrink-0 text-[clamp(1.8rem,4vw,2.4rem)] leading-none tracking-[-0.04em] ${
+                secondsLeft <= 15 ? 'text-danger' : 'text-ink'
+              }`}
               aria-live="polite"
             >
               {formatClock(secondsLeft)}
             </p>
           </div>
-          <h2 className="font-display mt-2 m-0 text-[clamp(1.35rem,3vw,1.55rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
-            {openTurn.questionText}
-          </h2>
-        </article>
-      )}
 
-      {spoken ? null : (
-        <form className="mt-6" onSubmit={onSubmit}>
-          {error ? (
-            <p className="mb-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-              {error}
-            </p>
-          ) : null}
-          <label className="block">
-            <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
-              Your response
-            </span>
-            <textarea
-              value={answer}
-              onChange={(event) => setAnswer(event.target.value)}
-              rows={6}
-              disabled={submitting}
-              placeholder="Approach → trade-offs → a concrete example…"
-              className="w-full cursor-text resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] disabled:cursor-not-allowed disabled:opacity-70"
-            />
-          </label>
-          {submitting ? (
-            <p className="mt-3 m-0 text-sm text-mute italic" role="status">
-              Interpreting your answer…
-            </p>
-          ) : null}
-          <div className="mt-5">
-            <Button
-              type="submit"
-              className="w-full max-w-64"
-              disabled={submitting}
-            >
-              {submitting ? 'Submitting…' : 'Submit response'}
-            </Button>
-          </div>
-          {isMock ? (
-            <p className="mt-4 mb-0 text-[0.85rem] leading-relaxed text-mute">
-              Voice needs the local model. This round is typed practice, with
-              the same two minutes and a scripted judge.
-            </p>
-          ) : null}
-        </form>
+          <form className="mt-6" onSubmit={onSubmit}>
+            {error ? (
+              <StatusBanner className="mb-4">{error}</StatusBanner>
+            ) : null}
+            <label className="block">
+              <span className="mb-1.5 block text-[0.8rem] font-medium text-ink-soft">
+                Your response
+              </span>
+              <textarea
+                value={answer}
+                onChange={(event) => setAnswer(event.target.value)}
+                rows={6}
+                disabled={submitting}
+                placeholder="Approach → trade-offs → a concrete example…"
+                className="ui-input resize-y"
+              />
+            </label>
+            {submitting ? (
+              <p className="mt-3 m-0 text-sm text-mute italic" role="status">
+                Interpreting your answer…
+              </p>
+            ) : null}
+            <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t border-line pt-6">
+              <Button
+                type="submit"
+                className="min-w-[11rem] px-5"
+                disabled={submitting}
+              >
+                {submitting ? 'Submitting…' : 'Submit response'}
+              </Button>
+              <Button
+                variant="ghost"
+                className="ml-auto min-w-[8.5rem] px-5"
+                disabled={submitting}
+                onClick={() => navigate('/app/interviews')}
+              >
+                Exit
+              </Button>
+            </div>
+            {isMock ? (
+              <p className="mt-4 mb-0 text-[0.85rem] leading-relaxed text-mute">
+                Voice needs the local model. This round is typed practice, with
+                the same two minutes and a scripted judge.
+              </p>
+            ) : null}
+          </form>
+        </>
       )}
     </section>
   );

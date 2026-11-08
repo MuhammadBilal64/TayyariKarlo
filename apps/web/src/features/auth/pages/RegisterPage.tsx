@@ -1,9 +1,10 @@
-import { registerSchema } from '@tayyari/shared';
+﻿import { registerSchema } from '@tayyari/shared';
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { Field } from '../../../shared/ui/Field';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import { AuthLoading } from '../components/AuthLoading';
 import { AuthShell } from '../components/AuthShell';
 import { useAuth } from '../hooks/useAuth';
@@ -112,11 +113,7 @@ export function RegisterPage() {
           onChange={(event) => setPassword(event.target.value)}
           required
         />
-        {error ? (
-          <p className="mb-3.5 rounded-[10px] bg-danger-soft px-3.5 py-2.5 text-[0.85rem] text-danger">
-            {error}
-          </p>
-        ) : null}
+        {error ? <StatusBanner className="mb-3.5">{error}</StatusBanner> : null}
         <Button type="submit" className="mt-1 w-full" disabled={submitting}>
           {submitting ? 'Creating account…' : 'Create account'}
         </Button>

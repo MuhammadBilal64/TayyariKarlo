@@ -2,6 +2,7 @@ import type { InterviewSession, InterviewTurn } from '@tayyari/shared';
 import { useEffect, useRef, useState } from 'react';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import {
   answerInterview,
   continueInterview,
@@ -289,7 +290,7 @@ export function VoiceRoom({
         {phase === 'asking' ? (
           <button
             type="button"
-            className="mt-3 border-0 bg-transparent text-[0.85rem] font-semibold text-signal"
+            className="mt-3 cursor-pointer border-0 border-b-2 border-transparent bg-transparent px-0 pb-1 text-[0.85rem] font-semibold text-signal transition-[color,border-color] duration-200 hover:border-signal/50 hover:text-signal-hover focus-visible:outline-none focus-visible:border-signal"
             onClick={() => void play('question', openTurn.id)}
           >
             Replay question
@@ -299,9 +300,9 @@ export function VoiceRoom({
 
       <div className="mt-8 border-t border-line pt-5 text-left">
         {error || recorder.micError ? (
-          <p className="mb-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
+          <StatusBanner className="mb-4">
             {error ?? recorder.micError}
-          </p>
+          </StatusBanner>
         ) : null}
 
         {phase === 'reviewing' && review ? (
@@ -330,17 +331,21 @@ export function VoiceRoom({
                 rows={5}
                 disabled={phase === 'thinking' || phase === 'asking'}
                 placeholder="Your words show up here after you speak. You can correct them before the clock ends."
-                className="w-full cursor-text resize-y rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none placeholder:text-mute/70 hover:border-ink/30 focus:border-focus focus:bg-paper-lift focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)] disabled:cursor-not-allowed disabled:opacity-70"
+                className="ui-input resize-y"
               />
             </label>
-            <div className="mt-3 flex flex-wrap gap-2.5">
+            <div className="mt-4 flex flex-wrap gap-2.5">
               {phase === 'asking' ? (
-                <Button onClick={() => void beginAnswer()}>
+                <Button
+                  className="min-w-[11rem] px-5"
+                  onClick={() => void beginAnswer()}
+                >
                   Start my two minutes
                 </Button>
               ) : null}
               {phase === 'answering' ? (
                 <Button
+                  className="min-w-[11rem] px-5"
                   disabled={!transcript.trim() && !recorder.recording}
                   onClick={() => void finishAnswer(null)}
                 >
@@ -349,6 +354,7 @@ export function VoiceRoom({
               ) : null}
               {phase === 'revise' ? (
                 <Button
+                  className="min-w-[11rem] px-5"
                   disabled={!transcript.trim()}
                   onClick={() => void submit(transcript.trim())}
                 >
@@ -356,7 +362,9 @@ export function VoiceRoom({
                 </Button>
               ) : null}
               {phase === 'thinking' ? (
-                <Button disabled>Interpreting…</Button>
+                <Button className="min-w-[11rem] px-5" disabled>
+                  Interpreting…
+                </Button>
               ) : null}
             </div>
             <p className="mt-3 mb-0 text-[0.8rem] text-mute">
@@ -427,12 +435,16 @@ function Review({
           {turn.answerText}
         </p>
       ) : null}
-      <div className="mt-5 flex flex-wrap gap-2.5">
-        <Button onClick={onContinue}>
+      <div className="mt-6 flex flex-wrap gap-2.5">
+        <Button className="min-w-[11rem] px-5" onClick={onContinue}>
           {last ? 'See the full round' : 'Next question'}
         </Button>
         {turn.feedback ? (
-          <Button variant="ghost" onClick={onReplay}>
+          <Button
+            variant="ghost"
+            className="min-w-[11rem] px-5"
+            onClick={onReplay}
+          >
             Replay feedback
           </Button>
         ) : null}

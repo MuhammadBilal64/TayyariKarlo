@@ -1,9 +1,11 @@
 import type { AssessmentAttempt } from '@tayyari/shared';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
 import { InlineStatus } from '../../../shared/ui/InlineStatus';
+import { PageState } from '../../../shared/ui/PageState';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { getAssessment, submitAssessment } from '../api/assessmentsApi';
 import {
@@ -90,17 +92,19 @@ export function TakePage() {
 
   if (error && !attempt) {
     return (
-      <section>
-        <p className="rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-          {error}
-        </p>
-        <Link
-          to="/app/assessments"
-          className="mt-4 inline-block text-sm font-semibold text-signal"
-        >
-          Start a new assessment
-        </Link>
-      </section>
+      <PageState
+        eyebrow="Assessment"
+        title="Assessment unavailable"
+        error={error}
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/assessments')}
+          >
+            Start a new assessment
+          </Button>
+        }
+      />
     );
   }
 
@@ -111,9 +115,19 @@ export function TakePage() {
   const question = attempt.questions[index];
   if (!question) {
     return (
-      <p className="m-0 text-sm text-danger">
-        This assessment has no questions.
-      </p>
+      <PageState
+        eyebrow="Assessment"
+        title="No questions in this set"
+        description="This assessment has no questions to display."
+        action={
+          <Button
+            className="min-w-[11rem] px-5"
+            onClick={() => navigate('/app/assessments')}
+          >
+            Choose another set
+          </Button>
+        }
+      />
     );
   }
 
@@ -167,48 +181,41 @@ export function TakePage() {
   }
 
   return (
-    <section>
-      <div className="mb-2 flex items-baseline justify-between gap-4">
-        <p className="m-0 text-[0.8rem] font-semibold tracking-[0.04em] text-mute uppercase">
-          Question{' '}
-          <span className="font-medium tracking-normal text-ink-soft normal-case">
-            {index + 1} of {total}
-          </span>
+    <section className="w-full">
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <p className="m-0 text-[0.8rem] font-semibold text-ink-soft">
+          Question {index + 1} of {total}
         </p>
-        <p className="m-0 text-[0.85rem] font-medium text-ink-soft">
+        <p className="m-0 text-[0.85rem] text-ink-soft">
           {topicLabel(attempt.topic)} · {difficultyLabel(attempt.difficulty)}
         </p>
       </div>
-      <div
-        className="h-[3px] overflow-hidden rounded-full bg-line"
-        aria-hidden="true"
-      >
+      <div className="h-[3px] overflow-hidden bg-line" aria-hidden="true">
         <i
           className="ui-progress block h-full bg-signal not-italic"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <h1 className="font-display mt-7 text-[clamp(1.55rem,3.2vw,2.05rem)] leading-[1.25] font-normal tracking-[-0.02em] text-ink">
+      <h1 className="font-display mt-7 text-[clamp(1.55rem,3.2vw,2.05rem)] leading-[1.3] font-semibold tracking-[-0.02em] text-ink text-balance">
         {question.prompt}
       </h1>
 
-      {error ? (
-        <p className="mt-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-          {error}
-        </p>
-      ) : null}
+      {error ? <StatusBanner className="mt-4">{error}</StatusBanner> : null}
 
-      <ul className="mt-6 grid list-none gap-2.5 p-0">
+      <ul className="mt-6 m-0 list-none border-t border-line p-0">
         {question.options.map((option, optionIndex) => {
           const checked = selected === optionIndex;
           return (
-            <li key={`${question.id}-${optionIndex}`}>
+            <li
+              key={`${question.id}-${optionIndex}`}
+              className="border-b border-line"
+            >
               <label
-                className={`flex cursor-pointer items-start gap-3.5 rounded-[10px] border px-4 py-4 transition-[border-color,background-color,transform,box-shadow] duration-200 ease-out active:translate-y-px ${
+                className={`ui-row flex cursor-pointer items-start gap-3.5 border-l-2 py-4 pl-3.5 transition-[background-color,border-color] duration-200 ${
                   checked
-                    ? 'border-signal bg-signal-soft shadow-[0_8px_20px_rgb(15_110_92/0.12)]'
-                    : 'border-line bg-white hover:-translate-y-px hover:border-signal/45 hover:shadow-[0_10px_24px_rgb(18_21_28/0.07)]'
+                    ? 'border-l-signal bg-signal-soft/70'
+                    : 'border-l-transparent'
                 }`}
               >
                 <input
@@ -219,16 +226,12 @@ export function TakePage() {
                   onChange={() => selectOption(optionIndex)}
                 />
                 <span
-                  className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[0.75rem] font-semibold transition-[background-color,border-color,color] duration-200 ${
-                    checked
-                      ? 'border-signal bg-signal text-white'
-                      : 'border-line bg-paper-lift text-ink-soft'
-                  }`}
+                  className="w-5 shrink-0 pt-0.5 text-center text-[0.85rem] font-semibold text-signal"
                   aria-hidden="true"
                 >
                   {optionLetter(optionIndex)}
                 </span>
-                <p className="m-0 pt-0.5 text-[0.98rem] leading-snug text-ink">
+                <p className="m-0 flex-1 text-[0.98rem] leading-snug text-ink">
                   {option}
                 </p>
               </label>
@@ -237,10 +240,10 @@ export function TakePage() {
         })}
       </ul>
 
-      <div className="mt-8 flex flex-wrap gap-2.5 border-t border-line pt-5">
+      <div className="mt-8 flex flex-wrap items-center gap-2.5 border-t border-line pt-6">
         <Button
           variant="ghost"
-          className="min-w-34 px-5 py-3"
+          className="min-w-[9rem]"
           disabled={index === 0 || submitting}
           onClick={() => setIndex((value) => Math.max(0, value - 1))}
         >
@@ -248,7 +251,7 @@ export function TakePage() {
         </Button>
         {isLast ? (
           <Button
-            className="min-w-34 px-5 py-3"
+            className="min-w-[9rem]"
             disabled={selected === undefined || submitting}
             onClick={() => {
               void onSubmit(attempt);
@@ -258,19 +261,21 @@ export function TakePage() {
           </Button>
         ) : (
           <Button
-            className="min-w-34 px-5 py-3"
+            className="min-w-[9rem]"
             disabled={selected === undefined}
             onClick={() => setIndex((value) => Math.min(total - 1, value + 1))}
           >
             Next
           </Button>
         )}
-        <Link
-          to="/app"
-          className="ml-auto self-center text-sm font-medium text-mute no-underline hover:text-ink hover:underline"
+        <Button
+          variant="ghost"
+          className="ml-auto min-w-[9rem]"
+          disabled={submitting}
+          onClick={() => navigate('/app')}
         >
           Exit
-        </Link>
+        </Button>
       </div>
     </section>
   );

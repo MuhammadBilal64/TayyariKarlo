@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { BrandLockup } from '../../../shared/ui/BrandLockup';
 
 type AuthShellProps = {
   eyebrow: string;
@@ -31,12 +31,11 @@ export function AuthShell({
           aria-hidden
           className="pointer-events-none absolute inset-x-[-10%] bottom-[-20%] left-[35%] h-[70%] rounded-full border border-ink/8"
         />
-        <Link
+        <BrandLockup
           to="/"
-          className="font-display cursor-pointer text-[1.65rem] tracking-[-0.02em] text-ink no-underline transition-opacity duration-200 hover:opacity-75 hover:no-underline"
-        >
-          TayyariKarlo
-        </Link>
+          markClassName="h-8 w-8 shrink-0 text-ink"
+          wordmarkClassName="font-display text-[1.65rem] tracking-[-0.02em] text-ink"
+        />
 
         <div className="relative mt-10 max-w-md lg:mt-[12vh]">
           <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">

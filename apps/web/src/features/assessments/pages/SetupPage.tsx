@@ -8,9 +8,10 @@ import {
   type Topic,
 } from '@tayyari/shared';
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ApiError } from '../../../shared/api/client';
 import { Button } from '../../../shared/ui/Button';
+import { StatusBanner } from '../../../shared/ui/StatusBanner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { startAssessment } from '../api/assessmentsApi';
 import { listQuestions } from '../api/questionsApi';
@@ -75,6 +76,11 @@ function SetupPageForm({
     };
   }, [accessToken, topic, difficulty]);
 
+  function selectTopicDifficulty(nextTopic: Topic, nextDifficulty: Difficulty) {
+    setTopic(nextTopic);
+    setDifficulty(nextDifficulty);
+  }
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -122,90 +128,78 @@ function SetupPageForm({
   const maxCount = available && available > 0 ? Math.min(50, available) : 50;
 
   return (
-    <section>
-      <Link
-        to="/app"
-        className="mb-5 inline-block cursor-pointer text-sm font-semibold text-signal"
-      >
-        ← Workspace
-      </Link>
-      <p className="m-0 text-[0.72rem] font-semibold tracking-[0.16em] text-signal uppercase">
+    <section className="w-full">
+      <p className="m-0 text-[0.7rem] font-semibold tracking-[0.18em] text-signal uppercase">
         Assessment
       </p>
-      <h1 className="font-display mt-3 text-[clamp(2rem,4vw,2.8rem)] leading-none font-normal tracking-[-0.03em] text-ink">
+      <h1 className="font-display mt-3 text-[clamp(2.15rem,4.2vw,3rem)] leading-[1.06] font-semibold tracking-[-0.03em] text-ink">
         Choose your set
       </h1>
-      <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-soft">
-        Pick a topic and difficulty. We’ll pull a fresh mix of MCQs — no answer
-        key until you submit.
+      <p className="mt-3 max-w-xl text-base leading-relaxed text-ink-soft">
+        Choose a topic and difficulty to begin.
       </p>
 
       <form className="mt-8" onSubmit={onSubmit}>
-        {error ? (
-          <p className="mb-4 rounded-[10px] bg-danger-soft px-3.5 py-3 text-[0.85rem] text-danger">
-            {error}
-          </p>
-        ) : null}
+        {error ? <StatusBanner className="mb-4">{error}</StatusBanner> : null}
 
-        <p className="mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
-          Topic
-        </p>
-        <ul className="m-0 grid list-none gap-1.5 p-0">
-          {TOPICS.map((value) => (
-            <li key={value}>
-              <label
-                className={`ui-chip flex cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3.5 ${
-                  topic === value
-                    ? 'border-signal bg-signal-soft shadow-[0_8px_18px_rgb(15_110_92/0.1)]'
-                    : 'border-line bg-paper-lift hover:border-signal/40 hover:bg-white'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="topic"
-                  className="accent-signal"
-                  checked={topic === value}
-                  onChange={() => setTopic(value)}
-                />
-                <span
-                  className={`text-[0.95rem] ${topic === value ? 'font-semibold text-ink' : 'text-ink'}`}
-                >
-                  {topicLabel(value)}
-                </span>
-              </label>
-            </li>
-          ))}
+        <ul className="m-0 list-none border-t border-line p-0">
+          {TOPICS.map((value) => {
+            const topicSelected = topic === value;
+            return (
+              <li key={value} className="border-b border-line">
+                <div className="ui-row grid grid-cols-1 items-center gap-x-6 gap-y-3 py-[1.05rem] sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <button
+                    type="button"
+                    className="inline-flex cursor-pointer items-center gap-3 border-0 bg-transparent p-0 text-left"
+                    onClick={() => selectTopicDifficulty(value, difficulty)}
+                  >
+                    <span
+                      aria-hidden
+                      className={`size-1.5 shrink-0 rotate-45 ${
+                        topicSelected ? 'bg-signal' : 'bg-transparent'
+                      }`}
+                    />
+                    <span
+                      className={`text-[1rem] ${
+                        topicSelected
+                          ? 'font-semibold text-ink'
+                          : 'font-medium text-ink-soft'
+                      }`}
+                    >
+                      {topicLabel(value)}
+                    </span>
+                  </button>
+
+                  <div
+                    className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:justify-end"
+                    role="group"
+                    aria-label={`Difficulty for ${topicLabel(value)}`}
+                  >
+                    {DIFFICULTIES.map((level) => {
+                      const active = topicSelected && difficulty === level;
+                      return (
+                        <button
+                          key={level}
+                          type="button"
+                          className={`cursor-pointer border-0 border-b-2 bg-transparent px-0 pb-1 text-[0.9rem] transition-[color,border-color] duration-200 focus-visible:outline-none focus-visible:border-ink ${
+                            active
+                              ? 'border-ink font-semibold text-ink'
+                              : 'border-transparent font-medium text-ink-soft hover:border-ink/45 hover:text-ink'
+                          }`}
+                          onClick={() => selectTopicDifficulty(value, level)}
+                        >
+                          {difficultyLabel(level)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
         </ul>
 
-        <p className="mt-7 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
-          Difficulty
-        </p>
-        <div className="grid grid-cols-3 gap-2">
-          {DIFFICULTIES.map((value) => (
-            <label
-              key={value}
-              className={`ui-chip cursor-pointer rounded-[10px] border px-2 py-3 text-center text-[0.9rem] font-medium ${
-                difficulty === value
-                  ? 'border-signal bg-signal-soft font-semibold text-signal-hover shadow-[0_8px_18px_rgb(15_110_92/0.1)]'
-                  : 'border-line bg-white text-ink hover:border-signal/40'
-              }`}
-            >
-              <input
-                type="radio"
-                name="difficulty"
-                className="sr-only"
-                checked={difficulty === value}
-                onChange={() => setDifficulty(value)}
-              />
-              {difficultyLabel(value)}
-            </label>
-          ))}
-        </div>
-
-        <p className="mt-7 mb-2.5 text-[0.8rem] font-semibold text-ink-soft">
-          Questions
-        </p>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="mt-8">
           <input
             type="number"
             min={1}
@@ -213,21 +207,21 @@ function SetupPageForm({
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
             aria-label="Question count"
-            className="w-[5.5rem] cursor-text rounded-[10px] border border-line bg-white px-3.5 py-3 text-[0.95rem] text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/30 focus:border-focus focus:shadow-[0_0_0_3px_rgb(42_85_255/0.18)]"
+            className="ui-input h-12 w-[5.5rem] px-3.5 py-0"
           />
-          <p className="m-0 text-[0.85rem] text-mute">
+          <p className="mt-2 m-0 text-[0.85rem] text-mute">
             {available === null
               ? 'Between 1 and 50'
               : available === 0
                 ? 'No questions in this set yet'
-                : `${available} available · pick 1–${maxCount}`}
+                : `${available} available`}
           </p>
         </div>
 
-        <div className="mt-8 border-t border-line pt-6">
+        <div className="mt-8">
           <Button
             type="submit"
-            className="w-full max-w-64"
+            className="min-w-[11rem] px-5"
             disabled={submitting || available === 0}
           >
             {submitting ? 'Starting…' : 'Start assessment'}

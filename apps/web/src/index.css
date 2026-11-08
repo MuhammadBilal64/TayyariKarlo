@@ -1,25 +1,40 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-ink: #12151c;
-  --color-ink-soft: #3a4050;
-  --color-mute: #6b7280;
-  --color-paper: #e8e6e0;
-  --color-paper-lift: #f4f2ec;
-  --color-line: #d2cfc6;
-  --color-signal: #0f6e5c;
-  --color-signal-hover: #0c5849;
-  --color-signal-soft: #d7efe8;
+  /* v2 design system — Orbit Gap / steel + verdigris */
+  --color-ink: #0b0f14;
+  --color-ink-soft: #3c4553;
+  --color-mute: #6b7380;
+  --color-paper: #f1f3f7;
+  --color-paper-lift: #ffffff;
+  --color-canvas: #f1f3f7;
+  --color-surface: #ffffff;
+  --color-line: #d9dee7;
+  --color-signal: #1b5f56;
+  --color-signal-hover: #154a43;
+  --color-signal-soft: #e3f0ed;
   --color-danger: #b42318;
   --color-danger-soft: #fdecea;
-  --color-focus: #2a55ff;
+  --color-ok: #1f6b45;
+  --color-ok-soft: #e5f6ec;
+  --color-warn: #9a6700;
+  --color-warn-soft: #fff4d6;
+  --color-focus: #0b0f14;
 
-  --font-display: 'Instrument Serif', 'Times New Roman', serif;
-  --font-sans: 'Sora', 'Segoe UI', sans-serif;
+  --font-display: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  --font-sans: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
 
-  --radius-control: 10px;
-  --shadow-panel: 0 18px 50px rgb(18 21 28 / 0.08);
-  --shadow-lift: 0 10px 28px rgb(18 21 28 / 0.1);
+  --radius-control: 6px;
+  --shadow-panel: 0 12px 40px rgb(11 15 20 / 0.06);
+  --shadow-lift: 0 8px 22px rgb(11 15 20 / 0.08);
+  --shadow-focus: 0 0 0 3px rgb(11 15 20 / 0.14);
+  --shadow-signal: 0 6px 16px rgb(27 95 86 / 0.22);
+  --shadow-signal-hover: 0 8px 20px rgb(27 95 86 / 0.28);
+  --shadow-signal-press: 0 3px 10px rgb(27 95 86 / 0.18);
+  --color-steel-hi: #f7f9fc;
+  --color-steel-mid: #e6ebf2;
+  --color-signal-bright: #2a8f82;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 160ms;
   --dur: 240ms;
@@ -40,13 +55,13 @@
     margin: 0;
     font-family: var(--font-sans);
     color: var(--color-ink);
-    background: var(--color-paper);
+    background: var(--color-canvas);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
   ::selection {
-    background: rgb(15 110 92 / 0.22);
+    background: rgb(27 95 86 / 0.22);
     color: var(--color-ink);
   }
 
@@ -131,26 +146,136 @@
   }
 }
 
+@layer components {
+  /* Shared text/control field — Score Stage focus ring */
+  .ui-input {
+    width: 100%;
+    cursor: text;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+    color: var(--color-ink);
+    outline: none;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .ui-input::placeholder {
+    color: color-mix(in srgb, var(--color-mute) 70%, transparent);
+  }
+
+  .ui-input:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--color-ink) 25%, var(--color-line));
+  }
+
+  .ui-input:focus {
+    border-color: var(--color-ink);
+    box-shadow: var(--shadow-focus);
+  }
+
+  .ui-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
 @layer utilities {
+  /* Flat app canvas (default shell) */
+  .app-canvas {
+    background-color: var(--color-canvas);
+  }
+
+  /* Marketing / auth: faint steel micro-dots (not graph paper) */
+  .brand-surface,
   .graph-bg {
-    background-color: var(--color-paper);
-    background-image:
-      linear-gradient(var(--color-line) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(210 207 198 / 0.45) 1px, transparent 1px);
-    background-size:
-      100% 28px,
-      28px 100%;
-    background-position:
-      0 -1px,
-      0 0;
+    background-color: var(--color-canvas);
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgb(11 15 20 / 0.07) 1px,
+      transparent 0
+    );
+    background-size: 20px 20px;
   }
 
   .font-display {
     font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
   }
 
   .ui-enter {
     animation: ui-enter var(--dur) var(--ease-out) both;
+  }
+
+  /* Home Steel Stage atmosphere */
+  .home-steel-stage {
+    background: linear-gradient(
+      165deg,
+      var(--color-steel-hi) 0%,
+      var(--color-paper) 40%,
+      var(--color-steel-mid) 78%,
+      var(--color-signal-soft) 100%
+    );
+  }
+
+  .home-orbit-glow {
+    background: radial-gradient(
+      circle,
+      rgb(27 95 86 / 0.16) 0%,
+      rgb(27 95 86 / 0.05) 42%,
+      transparent 70%
+    );
+    filter: blur(2px);
+    animation: home-glow-breathe 7s ease-in-out infinite;
+  }
+
+  .hero-orbit-mark {
+    transform-origin: 50% 50%;
+    animation: hero-orbit-revolve 56s linear infinite;
+    will-change: transform;
+  }
+
+  .home-enter {
+    animation: home-enter-up 700ms var(--ease-out) both;
+  }
+
+  .home-enter-1 {
+    animation-delay: 40ms;
+  }
+  .home-enter-2 {
+    animation-delay: 120ms;
+  }
+  .home-enter-3 {
+    animation-delay: 200ms;
+  }
+  .home-enter-4 {
+    animation-delay: 280ms;
+  }
+  .home-enter-5 {
+    animation-delay: 380ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-orbit-mark,
+    .home-orbit-glow,
+    .home-enter,
+    .ui-enter,
+    .presence[data-state='speaking'] .presence-ring {
+      animation: none !important;
+    }
+
+    .ui-chip:hover,
+    .ui-chip:active {
+      transform: none;
+    }
   }
 
   .ui-progress {
@@ -167,7 +292,7 @@
   }
 
   .ui-row:hover {
-    background-color: rgb(244 242 236 / 0.9);
+    background-color: rgb(241 243 247 / 0.95);
   }
 
   .ui-chip {
@@ -206,8 +331,16 @@
 
   .presence-disc {
     inset: 1.35rem;
-    background: radial-gradient(circle at 40% 35%, #2a3142, #12151c 70%);
-    box-shadow: 0 18px 40px rgb(18 21 28 / 0.18);
+    background: radial-gradient(
+      circle at 40% 35%,
+      var(--color-ink-soft),
+      var(--color-ink) 70%
+    );
+    box-shadow: 0 18px 40px rgb(11 15 20 / 0.18);
+  }
+
+  .ui-row:focus-within {
+    background-color: color-mix(in srgb, var(--color-paper) 95%, transparent);
   }
 
   .presence[data-state='speaking'] .presence-ring {
@@ -236,6 +369,38 @@
   from {
     opacity: 0;
     transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-orbit-revolve {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes home-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes home-enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
